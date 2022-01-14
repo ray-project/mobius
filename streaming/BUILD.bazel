@@ -2,7 +2,27 @@
 # C/C++ documentation: https://docs.bazel.build/versions/master/be/c-cpp.html
 
 load("@rules_proto_grpc//python:defs.bzl", "python_proto_compile")
-load("//bazel:ray.bzl", "COPTS", "copy_to_workspace")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "copy_to_workspace")
+load("@rules_python//python:defs.bzl", "py_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "msvc-cl",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "msvc-cl"},
+)
+
+config_setting(
+    name = "clang-cl",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang-cl"},
+)
+
+config_setting(
+    name = "opt",
+    values = {"compilation_mode": "opt"},
+)
 
 proto_library(
     name = "streaming_proto",
@@ -46,7 +66,7 @@ cc_binary(
     copts = COPTS,
     linkshared = 1,
     visibility = ["//visibility:public"],
-    deps = ["//:ray_util"],
+    deps = ["@com_github_ray_project_ray//:ray_util"],
 )
 
 cc_binary(
@@ -54,7 +74,7 @@ cc_binary(
     copts = COPTS,
     linkshared = 1,
     visibility = ["//visibility:public"],
-    deps = ["//:ray_common"],
+    deps = ["@com_github_ray_project_ray//:ray_common"],
 )
 
 cc_binary(
@@ -62,21 +82,21 @@ cc_binary(
     copts = COPTS,
     linkshared = 1,
     visibility = ["//visibility:public"],
-    deps = ["//:stats_lib"],
+    deps = ["@com_github_ray_project_ray//:stats_lib"],
 )
 
 cc_binary(
     name = "core_worker_lib.so",
     copts = COPTS,
     linkshared = 1,
-    deps = ["//:core_worker_lib"],
+    deps = ["@com_github_ray_project_ray//:core_worker_lib"],
 )
 
 cc_binary(
     name = "exported_streaming_internal.so",
     copts = COPTS,
     linkshared = 1,
-    deps = ["//:exported_streaming_internal"],
+    deps = ["@com_github_ray_project_ray//:exported_streaming_internal"],
 )
 
 cc_library(
@@ -172,8 +192,8 @@ cc_library(
     ] + select({
         "@bazel_tools//src/conditions:windows": [
             # TODO(mehrdadn): This is to resolve symbols on Windows for now. Should remove this later. (See d7f8d18.)
-            "//:core_worker_lib",
-            "//:exported_streaming_internal",
+            "@com_github_ray_project_ray//:core_worker_lib",
+            "@com_github_ray_project_ray//:exported_streaming_internal",
         ],
         "//conditions:default": [
             "core_worker_lib.so",
@@ -266,11 +286,11 @@ cc_library(
 )
 
 test_common_deps = [
-    "//:exported_streaming_internal",
+    "@com_github_ray_project_ray//:exported_streaming_internal",
     ":streaming_lib",
-    "//:ray_common",
-    "//:ray_util",
-    "//:core_worker_lib",
+    "@com_github_ray_project_ray//:ray_common",
+    "@com_github_ray_project_ray//:ray_util",
+    "@com_github_ray_project_ray//:core_worker_lib",
 ]
 
 # streaming queue mock actor binary

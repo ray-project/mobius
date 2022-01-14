@@ -1,3 +1,9 @@
+# Bazel
+bazel-bin/
+bazel-out/
+bazel-streaming/
+bazel-test/
+
 # Redis temporary files
 *dump.rdb
 
