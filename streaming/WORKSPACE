@@ -1,0 +1,36 @@
+workspace(name = "com_github_ray_streaming")
+
+# LOAD RAY WORKSPACE
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+http_archive(
+        name="com_github_ray_project_ray",
+        strip_prefix = "ray-ray-1.9.2",
+        urls = ["https://github.com/ray-project/ray/archive/refs/tags/ray-1.9.2.zip"],
+        sha256 = "96b77d4af6058d7f06c285ac9f6e9dc0c9f1f51bdb7e63e41a61da6ae79a329c",
+#        build_file = "@com_github_ray_project_ray//BUILD.bazel",
+)
+
+
+load("//bazel:streaming_deps_setup.bzl", "streaming_deps_setup")
+
+streaming_deps_setup()
+#load("@com_github_ray_project_ray//bazel:ray_deps_setup.bzl", "ray_deps_setup")
+
+#ray_deps_setup()
+#
+load("@com_github_ray_project_ray//bazel:ray_deps_build_all.bzl", "ray_deps_build_all")
+
+ray_deps_build_all()
+#
+## This needs to be run after grpc_deps() in ray_deps_build_all() to make
+## sure all the packages loaded by grpc_deps() are available. However a
+## load() statement cannot be in a function so we put it here.
+load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
+
+grpc_extra_deps()
+
+load("@bazel_skylib//lib:versions.bzl", "versions")
+
+# When the bazel version is updated, make sure to update it
+# in setup.py as well.
+versions.check(minimum_bazel_version = "4.2.1")

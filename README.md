@@ -1,5 +1,5 @@
-# Mobius online learning.
+# Mobius : online machine learning.
 
-## Code Editor
-Recommend Atom (https://atom.io/) as the code editor.
-Recommended plugins: atom-beautify, python-indent, auto-indent, vim-mode-plus (for VIM-ers)
+## Streaming
+
+## Training
