@@ -1,6 +1,6 @@
-load("//bazel:ray.bzl", "define_java_module")
-load("//bazel:ray.bzl", "native_java_binary")
-load("//bazel:ray.bzl", "native_java_library")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "define_java_module")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "native_java_binary")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "native_java_library")
 load("@rules_proto_grpc//java:defs.bzl", "java_proto_compile")
 
 exports_files([
@@ -37,7 +37,7 @@ define_java_module(
     name = "streaming-api",
     define_test_lib = True,
     test_deps = [
-        "//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_api",
         ":io_ray_ray_streaming-state",
         ":io_ray_ray_streaming-api",
         "@maven//:com_google_guava_guava",
@@ -52,8 +52,8 @@ define_java_module(
     visibility = ["//visibility:public"],
     deps = [
         ":io_ray_ray_streaming-state",
-        "//java:io_ray_ray_api",
-        "//java:io_ray_ray_runtime",
+        "@com_github_ray_project_ray//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         "@maven//:com_google_guava_guava",
         "@maven//:org_apache_logging_log4j_log4j_api",
         "@maven//:org_apache_logging_log4j_log4j_core",
@@ -93,7 +93,7 @@ define_java_module(
     ],
 )
 
-native_java_library("streaming-runtime", "streaming_java", "//streaming:libstreaming_java.so")
+native_java_library("streaming-runtime", "streaming_java", "@com_github_ray_streaming//:libstreaming_java.so")
 
 filegroup(
     name = "java_native_deps",
@@ -113,8 +113,8 @@ define_java_module(
         "streaming-runtime/src/main/java/io/ray/streaming/runtime/generated/*.java",
     ],
     test_deps = [
-        "//java:io_ray_ray_api",
-        "//java:io_ray_ray_runtime",
+        "@com_github_ray_project_ray//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         ":io_ray_ray_streaming-state",
         ":io_ray_ray_streaming-api",
         ":io_ray_ray_streaming-runtime",
@@ -137,8 +137,8 @@ define_java_module(
     deps = [
         ":io_ray_ray_streaming-api",
         ":io_ray_ray_streaming-state",
-        "//java:io_ray_ray_api",
-        "//java:io_ray_ray_runtime",
+        "@com_github_ray_project_ray//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         "@maven//:com_google_guava_guava",
         "@maven//:com_google_protobuf_protobuf_java",
         "@maven//:commons_io_commons_io",
@@ -166,7 +166,7 @@ java_binary(
         ":io_ray_ray_streaming-runtime",
         ":io_ray_ray_streaming-runtime_test",
         ":io_ray_ray_streaming-state",
-        "//java:io_ray_ray_runtime",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         "@maven//:org_testng_testng",
         "@maven//:org_yaml_snakeyaml",
         "@ray_streaming_maven//:org_mockito_mockito_all",
@@ -178,12 +178,12 @@ java_binary(
 # proto buffer
 java_proto_compile(
     name = "streaming_java_proto",
-    deps = ["//streaming:streaming_proto"],
+    deps = ["@com_github_ray_streaming//:streaming_proto"],
 )
 
 java_proto_compile(
     name = "remote_call_java_proto",
-    deps = ["//streaming:remote_call_proto"],
+    deps = ["@com_github_ray_streaming//:remote_call_proto"],
 )
 
 filegroup(
@@ -197,15 +197,15 @@ filegroup(
 genrule(
     name = "copy_pom_file",
     srcs = [
-        "//streaming/java:io_ray_ray_" + module + "_pom"
+        "@com_github_ray_streaming//java:io_ray_ray_" + module + "_pom"
         for module in all_modules
     ],
     outs = ["copy_pom_file.out"],
     cmd = """
         WORK_DIR="$$(pwd)"
-        cp -f $(location //streaming/java:io_ray_ray_streaming-api_pom) "$$WORK_DIR/streaming/java/streaming-api/pom.xml"
-        cp -f $(location //streaming/java:io_ray_ray_streaming-runtime_pom) "$$WORK_DIR/streaming/java/streaming-runtime/pom.xml"
-        cp -f $(location //streaming/java:io_ray_ray_streaming-state_pom) "$$WORK_DIR/streaming/java/streaming-state/pom.xml"
+        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-api_pom) "$$WORK_DIR/streaming/java/streaming-api/pom.xml"
+        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-runtime_pom) "$$WORK_DIR/streaming/java/streaming-runtime/pom.xml"
+        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-state_pom) "$$WORK_DIR/streaming/java/streaming-state/pom.xml"
         date > $@
     """,
     local = 1,
@@ -225,7 +225,7 @@ genrule(
         rm -rf "$$GENERATED_DIR"
         mkdir -p "$$GENERATED_DIR"
         # Copy protobuf-generated files.
-        for f in $(locations //streaming/java:all_java_proto); do
+        for f in $(locations @com_github_ray_streaming//java:all_java_proto); do
             unzip -q -o "$$f" -x META-INF/MANIFEST.MF -d "$$WORK_DIR/streaming/java/streaming-runtime/src/main/java"
         done
         # remove third party protobuf
@@ -253,10 +253,10 @@ genrule(
           darwin*) OS_NAME="darwin";;
           *) echo "$${OSTYPE} is not supported currently"; exit 1;;
         esac
-        NATIVE_DEPS_DIR="$$WORK_DIR/streaming/java/streaming-runtime/native_dependencies/native/$$OS_NAME"
+        NATIVE_DEPS_DIR="$$WORK_DIR/java/streaming-runtime/native_dependencies/native/$$OS_NAME"
         rm -rf "$$NATIVE_DEPS_DIR"
         mkdir -p "$$NATIVE_DEPS_DIR"
-        for f in $(locations //streaming/java:java_native_deps); do
+        for f in $(locations @com_github_ray_streaming//java:java_native_deps); do
             chmod +w "$$f"
             cp "$$f" "$$NATIVE_DEPS_DIR"
         done

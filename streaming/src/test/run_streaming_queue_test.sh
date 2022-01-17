@@ -35,8 +35,8 @@ if [ -z "$RAY_ROOT" ] ; then
 fi
 
 bazel build "//:core_worker_test" "//:mock_worker"  "//:raylet" "//:gcs_server" "//:redis-server" "//:redis-cli"
-bazel build //streaming:streaming_test_worker
-bazel build //streaming:streaming_queue_tests
+bazel build @com_github_ray_streaming//:streaming_test_worker
+bazel build @com_github_ray_streaming//:streaming_queue_tests
 
 # Ensure we're in the right directory.
 if [ ! -d "$RAY_ROOT/python" ]; then
