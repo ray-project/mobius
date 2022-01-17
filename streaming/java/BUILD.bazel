@@ -195,17 +195,17 @@ filegroup(
 )
 
 genrule(
-    name = "copy_pom_file",
+    name = "streaming_copy_pom_file",
     srcs = [
         "@com_github_ray_streaming//java:io_ray_ray_" + module + "_pom"
         for module in all_modules
     ],
-    outs = ["copy_pom_file.out"],
+    outs = ["streaming_copy_pom_file.out"],
     cmd = """
         WORK_DIR="$$(pwd)"
-        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-api_pom) "$$WORK_DIR/streaming/java/streaming-api/pom.xml"
-        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-runtime_pom) "$$WORK_DIR/streaming/java/streaming-runtime/pom.xml"
-        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-state_pom) "$$WORK_DIR/streaming/java/streaming-state/pom.xml"
+        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-api_pom) "$$WORK_DIR/java/streaming-api/pom.xml"
+        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-runtime_pom) "$$WORK_DIR/java/streaming-runtime/pom.xml"
+        cp -f $(location @com_github_ray_streaming//java:io_ray_ray_streaming-state_pom) "$$WORK_DIR/java/streaming-state/pom.xml"
         date > $@
     """,
     local = 1,
@@ -216,20 +216,20 @@ genrule(
     name = "cp_java_generated",
     srcs = [
         ":all_java_proto",
-        ":copy_pom_file",
+        ":streaming_copy_pom_file",
     ],
     outs = ["cp_java_generated.out"],
     cmd = """
         WORK_DIR="$$(pwd)"
-        GENERATED_DIR="$$WORK_DIR/streaming/java/streaming-runtime/src/main/java/io/ray/streaming/runtime/generated"
+        GENERATED_DIR="$$WORK_DIR/java/streaming-runtime/src/main/java/io/ray/streaming/runtime/generated"
         rm -rf "$$GENERATED_DIR"
         mkdir -p "$$GENERATED_DIR"
         # Copy protobuf-generated files.
         for f in $(locations @com_github_ray_streaming//java:all_java_proto); do
-            unzip -q -o "$$f" -x META-INF/MANIFEST.MF -d "$$WORK_DIR/streaming/java/streaming-runtime/src/main/java"
+            unzip -q -o "$$f" -x META-INF/MANIFEST.MF -d "$$WORK_DIR/java/streaming-runtime/src/main/java"
         done
         # remove third party protobuf
-        rm -rf $$WORK_DIR/streaming/java/streaming-runtime/src/main/java/com/google/protobuf/
+        rm -rf $$WORK_DIR/java/streaming-runtime/src/main/java/com/google/protobuf/
         date > $@
     """,
     local = 1,

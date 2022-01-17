@@ -2,17 +2,22 @@ workspace(name = "com_github_ray_streaming")
 
 # LOAD RAY WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+ray_version = "ray-support-internal-deps-bazel-include"
 http_archive(
         name="com_github_ray_project_ray",
-        strip_prefix = "ray-ray-1.9.2",
-        urls = ["https://github.com/ray-project/ray/archive/refs/tags/ray-1.9.2.zip"],
-        sha256 = "96b77d4af6058d7f06c285ac9f6e9dc0c9f1f51bdb7e63e41a61da6ae79a329c",
+        strip_prefix = "ray-{}".format(ray_version),
+        urls = ["https://github.com/ray-project/ray/archive/refs/heads/{}.zip".format(ray_version)],
+        sha256 = "3bbcadcaf9f78d69e055e19ef38654371eee009829eb49e7766dcd5cfd8397b4",
 )
 
 
-load("//bazel:streaming_deps_setup.bzl", "streaming_deps_setup")
+load("@com_github_ray_project_ray//bazel:ray_deps_setup.bzl", "ray_deps_setup")
 
-streaming_deps_setup()
+ray_deps_setup()
+
+#load("//bazel:streaming_deps_setup.bzl", "streaming_deps_setup")
+
+#streaming_deps_setup()
 load("@com_github_ray_project_ray//bazel:ray_deps_build_all.bzl", "ray_deps_build_all")
 
 ray_deps_build_all()
