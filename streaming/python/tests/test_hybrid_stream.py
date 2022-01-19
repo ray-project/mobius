@@ -22,7 +22,7 @@ def sink_func1(x):
 
 def test_hybrid_stream():
     subprocess.check_call(
-        ["bazel", "build", "//streaming/java:all_streaming_tests_deploy.jar"])
+        ["bazel", "build", "@com_github_ray_streaming//java:all_streaming_tests_deploy.jar"])
     current_dir = os.path.abspath(os.path.dirname(__file__))
     jar_path = os.path.join(
         current_dir,

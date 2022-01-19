@@ -16,7 +16,7 @@ pushd "$ROOT_DIR"
 popd
 
 echo "build ray streaming"
-bazel build //streaming/java:all
+bazel build @com_github_ray_streaming//java:all
 
 # Check that ray libstreaming_java doesn't include symbols from ray by accident.
 # Otherwise the symbols may conflict.

@@ -179,7 +179,7 @@ Development Guides
 
    * build streaming
 
-     * ``bazel build //streaming/java:gen_maven_deps``
+     * ``bazel build @com_github_ray_streaming//java:gen_maven_deps``
      * ``mvn clean install -Dmaven.test.skip=true``
 
 #. 
