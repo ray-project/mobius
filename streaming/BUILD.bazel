@@ -464,6 +464,20 @@ cc_binary(
     ],
 )
 
+filegroup(
+    name = "ray_pyx_includes",
+    srcs = [
+        "@com_github_ray_project_ray//:python/ray/includes/common.pxd",
+        "@com_github_ray_project_ray//:python/ray/includes/common.pxi",
+        "@com_github_ray_project_ray//:python/ray/includes/unique_ids.pxd",
+        "@com_github_ray_project_ray//:python/ray/includes/unique_ids.pxi",
+        "@com_github_ray_project_ray//:python/ray/includes/buffer.pxi",
+        "@com_github_ray_project_ray//:python/ray/includes/function_descriptor.pxd",
+        "@com_github_ray_project_ray//:python/ray/includes/function_descriptor.pxi",
+        "@com_github_ray_project_ray//:python/ray/includes/serialization.pxi",
+    ]
+)
+
 pyx_library(
     name = "_streaming",
     srcs = glob([
@@ -471,10 +485,7 @@ pyx_library(
         "python/raystreaming/__init__.pxd",
         "python/raystreaming/includes/*.pxd",
         "python/raystreaming/includes/*.pxi",
-        "python/ray/_raylet.pxd",
-        "python/ray/includes/*.pxd",
-        "python/ray/includes/*.pxi",
-    ]),
+    ]) + ["//:ray_pyx_includes"],
     cc_kwargs = dict(
         srcs = PYX_SRCS,
         copts = COPTS + PYX_COPTS,
@@ -500,7 +511,6 @@ copy_to_workspace(
 genrule(
     name = "streaming_pkg",
     srcs = [
-        "@com_github_ray_project_ray//:gcs",
         ":cp_streaming_so",
         ":cp_all_py_proto",
     ],
