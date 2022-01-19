@@ -2,8 +2,10 @@
 # C/C++ documentation: https://docs.bazel.build/versions/master/be/c-cpp.html
 
 load("@rules_proto_grpc//python:defs.bzl", "python_proto_compile")
-load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "copy_to_workspace")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "copy_to_workspace", "PYX_COPTS", "PYX_SRCS")
 load("@rules_python//python:defs.bzl", "py_library")
+load("@com_github_grpc_grpc//bazel:cython_library.bzl", "pyx_library")
+load("@com_github_google_flatbuffers//:build_defs.bzl", "flatbuffer_cc_library")
 
 package(
     default_visibility = ["//visibility:public"],
@@ -423,7 +425,7 @@ filegroup(
 copy_to_workspace(
     name = "cp_all_py_proto",
     srcs = [":all_py_proto"],
-    dstdir = "streaming/python/generated",
+    dstdir = "python/raystreaming/generated",
 )
 
 genrule(
@@ -435,7 +437,7 @@ genrule(
         "copy_streaming_py_proto.out",
     ],
     cmd = """
-        GENERATED_DIR="streaming/python/generated"
+        GENERATED_DIR="python/raystreaming/generated"
         mkdir -p "$$GENERATED_DIR"
         touch "$$GENERATED_DIR/__init__.py"
         # Use this `sed` command to change the import path in the generated file.
@@ -460,4 +462,50 @@ cc_binary(
         ":streaming_lib",
         "@bazel_tools//tools/jdk:jni",
     ],
+)
+
+pyx_library(
+    name = "_streaming",
+    srcs = glob([
+        "python/raystreaming/_streaming.pyx",
+        "python/raystreaming/__init__.pxd",
+        "python/raystreaming/includes/*.pxd",
+        "python/raystreaming/includes/*.pxi",
+        "python/ray/_raylet.pxd",
+        "python/ray/includes/*.pxd",
+        "python/ray/includes/*.pxi",
+    ]),
+    cc_kwargs = dict(
+        srcs = PYX_SRCS,
+        copts = COPTS + PYX_COPTS,
+    ),
+    deps = [
+        "//:streaming_lib",
+        "@com_github_grpc_grpc//:grpc++",
+        "@com_github_ray_project_ray//:gcs_client_lib",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/synchronization",
+        "@com_google_absl//absl/time",
+    ],
+)
+
+copy_to_workspace(
+    name = "cp_streaming_so",
+    srcs = ["python/raystreaming/_streaming.so"],
+    dstdir = "python/raystreaming",
+)
+
+genrule(
+    name = "streaming_pkg",
+    srcs = [
+        "@com_github_ray_project_ray//:gcs",
+        ":cp_streaming_so",
+        ":cp_all_py_proto",
+    ],
+    outs = ["streaming_pkg.out"],
+    cmd = """
+        echo "$${PWD}" > $@
+    """,
 )

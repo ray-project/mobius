@@ -1,8 +1,8 @@
 # Bazel
-bazel-bin/
-bazel-out/
-bazel-streaming/
-bazel-test/
+streaming/bazel-bin
+streaming/bazel-out
+streaming/bazel-streaming
+streaming/bazel-testlogs
 
 # Redis temporary files
 *dump.rdb
@@ -58,6 +58,7 @@ python/ray/_raylet.pyd
 *.exe
 *.out
 *.app
+*.pyc
 
 # Visual Studio files
 /packages

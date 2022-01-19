@@ -27,8 +27,8 @@ from ray._raylet cimport (
     FunctionDescriptor,
 )
 
-cimport ray.streaming.includes.libstreaming as libstreaming
-from ray.streaming.includes.libstreaming cimport (
+cimport raystreaming.includes.libstreaming as libstreaming
+from raystreaming.includes.libstreaming cimport (
     CStreamingStatus,
     CStreamingMessage,
     CStreamingMessageBundle,
