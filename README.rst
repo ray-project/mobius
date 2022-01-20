@@ -113,9 +113,8 @@ Use Python Operators in Java
    context.execute("HybridStreamTestJob");
 
 
------------
 
- Training
- ==========
+Training
+-----------
 
  To be published
