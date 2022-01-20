@@ -27,7 +27,7 @@ Key Features
    be restarted once a node has failure.
 
 #. 
-   **AutoScale**. (Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
+   **AutoScaling**. (Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
 
 #. 
    **Fusion Training**. (Moved from internal in the future). Combine TensorFlow/Pytorch and streaming, then buiding an e2e online machine
