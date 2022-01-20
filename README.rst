@@ -1,10 +1,14 @@
-# Mobius : online machine learning.
+.. image:: assets/infinite.svg
+   :target: assets/infinite.svg
+   :alt: mobius
+
+Mobius : online machine learning.
 ============
 
-## Ray Streaming
+Ray Streaming
 =============
 
-Ray Streaming is a streaming data processing framework built on ray. It will be helpful for you to build jobs dealing with real-time data.
+Ray Streaming is a streaming data processing framework built on ray. It will be helpful for you to build machine learning jobs dealing with real-time data.
 
 Key Features
 ------------
@@ -22,10 +26,10 @@ Key Features
    be restarted once a node has failure.
 
 #. 
-   **AutoScale **(Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
+   **AutoScale **. (Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
 
 #. 
-   **Fusion Training **(Moved from internal in the future). Combine TensorFlow/Pytorch and streaming, then buiding an e2e online machine
+   **Fusion Training **. (Moved from internal in the future). Combine TensorFlow/Pytorch and streaming, then buiding an e2e online machine
    learning pipeline.
 
 Examples
