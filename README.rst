@@ -1,5 +1,5 @@
-.. image:: assets/infinite.svg
-   :target: assets/infinite.svg
+.. image:: streaming/assets/infinite.svg
+   :target: streaming/assets/infinite.svg
    :alt: mobius
 
 Mobius : online machine learning.
