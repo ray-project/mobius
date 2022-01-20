@@ -4,7 +4,7 @@
 
 Mobius : Online Machine Learning.
 ============
-`Mobius <https://tech.antfin.com/products/ARCMOBIUS>` is an AI infra platform including realtime computing and training.
+`Mobius <https://tech.antfin.com/products/ARCMOBIUS>`_ is an AI infra platform including realtime computing and training.
 
 Ray Streaming
 =============
