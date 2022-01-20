@@ -267,6 +267,16 @@ StreamingStatus MockProducer::ProduceItemToChannel(uint8_t *data, uint32_t data_
   if (ring_buffer->Full()) {
     return StreamingStatus::OutOfMemory;
   }
+  StreamingMessageBundleMetaPtr meta = StreamingMessageBundleMeta::FromBytes(data);
+  uint64_t msg_id_end = meta->GetLastMessageId();
+  uint64_t msg_id_start =
+      (meta->GetMessageListSize() == 0 ? msg_id_end
+                                       : msg_id_end - meta->GetMessageListSize() + 1);
+
+  STREAMING_LOG(DEBUG) << "ProduceItemToChannel, qid=" << channel_info_.channel_id
+                       << ", msg_id_start=" << msg_id_start
+                       << ", msg_id_end=" << msg_id_end << ", meta=" << *meta;
+
   MockQueueItem item;
   item.data.reset(new uint8_t[data_size]);
   item.data_size = data_size;
@@ -287,6 +297,7 @@ StreamingStatus MockConsumer::ConsumeItemFromChannel(uint8_t *&data, uint32_t &d
   std::unique_lock<std::mutex> lock(MockQueue::mutex);
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   auto &channel_id = channel_info_.channel_id;
+  STREAMING_LOG(DEBUG) << "GetQueueItem qid: " << channel_info_.channel_id;
   if (mock_queue.message_buffer.find(channel_id) == mock_queue.message_buffer.end()) {
     return StreamingStatus::NoSuchItem;
   }
@@ -306,6 +317,10 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   auto &channel_id = channel_info_.channel_id;
   auto &ring_buffer = mock_queue.consumed_buffer[channel_id];
+  STREAMING_LOG(INFO) << "Notify channel consumed qid: " << channel_info_.channel_id
+                      << ", offset id " << offset_id << " ring buffer size "
+                      << ring_buffer->Size() << ", consumed messge id "
+                      << mock_queue.queue_info_map[channel_id].consumed_message_id;
   while (!ring_buffer->Empty() && ring_buffer->Front().seq_id <= offset_id) {
     ring_buffer->Pop();
   }
