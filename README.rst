@@ -2,8 +2,9 @@
    :target: streaming/assets/infinite.svg
    :alt: mobius
 
-Mobius : online machine learning.
+Mobius : Online Machine Learning.
 ============
+`Mobius <https://tech.antfin.com/products/ARCMOBIUS>` is an AI infra platform including realtime computing and training.
 
 Ray Streaming
 =============
@@ -26,10 +27,10 @@ Key Features
    be restarted once a node has failure.
 
 #. 
-   **AutoScale **. (Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
+   **AutoScale**. (Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
 
 #. 
-   **Fusion Training **. (Moved from internal in the future). Combine TensorFlow/Pytorch and streaming, then buiding an e2e online machine
+   **Fusion Training**. (Moved from internal in the future). Combine TensorFlow/Pytorch and streaming, then buiding an e2e online machine
    learning pipeline.
 
 Examples
@@ -112,4 +113,7 @@ Use Python Operators in Java
    context.execute("HybridStreamTestJob");
 
 
-## Training
+ Training
+ ==========
+
+ To be published
