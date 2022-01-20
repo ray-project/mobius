@@ -317,7 +317,7 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   auto &channel_id = channel_info_.channel_id;
   auto &ring_buffer = mock_queue.consumed_buffer[channel_id];
-  STREAMING_LOG(INFO) << "Notify channel consumed qid: " << channel_info_.channel_id
+  STREAMING_LOG(DEBUG) << "Notify channel consumed qid: " << channel_info_.channel_id
                       << ", offset id " << offset_id << " ring buffer size "
                       << ring_buffer->Size() << ", consumed messge id "
                       << mock_queue.queue_info_map[channel_id].consumed_message_id;
