@@ -7,6 +7,7 @@ http_archive(
         name="com_github_ray_project_ray",
         strip_prefix = "ray-{}".format(ray_version),
         urls = ["https://github.com/ray-project/ray/archive/refs/heads/{}.zip".format(ray_version)],
+        sha256 = "3203585203f0191e171eb8e775626c14aed996b9d60e4413c91017099de384fd",
 )
 
 
