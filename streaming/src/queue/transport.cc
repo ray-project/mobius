@@ -2,7 +2,7 @@
 
 #include "queue/utils.h"
 #include "ray/common/common_protocol.h"
-#include "ray/streaming/streaming.h"
+#include "ray/internal/internal.h"
 
 namespace ray {
 namespace streaming {
@@ -12,13 +12,13 @@ static constexpr int TASK_OPTION_RETURN_NUM_1 = 1;
 
 void Transport::Send(std::shared_ptr<LocalMemoryBuffer> buffer) {
   STREAMING_LOG(DEBUG) << "Transport::Send buffer size: " << buffer->Size();
-  RAY_UNUSED(ray::streaming::SendInternal(peer_actor_id_, std::move(buffer), async_func_,
+  RAY_UNUSED(ray::internal::SendInternal(peer_actor_id_, std::move(buffer), async_func_,
                                           TASK_OPTION_RETURN_NUM_0));
 }
 
 std::shared_ptr<LocalMemoryBuffer> Transport::SendForResult(
     std::shared_ptr<LocalMemoryBuffer> buffer, int64_t timeout_ms) {
-  auto return_refs = ray::streaming::SendInternal(peer_actor_id_, buffer, sync_func_,
+  auto return_refs = ray::internal::SendInternal(peer_actor_id_, buffer, sync_func_,
                                                   TASK_OPTION_RETURN_NUM_1);
   auto return_ids = ObjectRefsToIds(return_refs);
 
