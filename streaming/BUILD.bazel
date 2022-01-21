@@ -95,10 +95,10 @@ cc_binary(
 )
 
 cc_binary(
-    name = "exported_streaming_internal.so",
+    name = "exported_internal.so",
     copts = COPTS,
     linkshared = 1,
-    deps = ["@com_github_ray_project_ray//:exported_streaming_internal"],
+    deps = ["@com_github_ray_project_ray//:exported_internal"],
 )
 
 cc_library(
@@ -195,11 +195,11 @@ cc_library(
         "@bazel_tools//src/conditions:windows": [
             # TODO(mehrdadn): This is to resolve symbols on Windows for now. Should remove this later. (See d7f8d18.)
             "@com_github_ray_project_ray//:core_worker_lib",
-            "@com_github_ray_project_ray//:exported_streaming_internal",
+            "@com_github_ray_project_ray//:exported_internal",
         ],
         "//conditions:default": [
             "core_worker_lib.so",
-            "exported_streaming_internal.so",
+            "exported_internal.so",
         ],
     }),
 )
@@ -288,7 +288,7 @@ cc_library(
 )
 
 test_common_deps = [
-    "@com_github_ray_project_ray//:exported_streaming_internal",
+    "@com_github_ray_project_ray//:exported_internal",
     ":streaming_lib",
     "@com_github_ray_project_ray//:ray_common",
     "@com_github_ray_project_ray//:ray_util",
