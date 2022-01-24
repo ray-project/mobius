@@ -10,7 +10,11 @@
   <suppress checks="ClassTypeParameterName" files="OneInputStreamTask.java"/>
   <suppress checks="ClassTypeParameterName" files="StreamTask.java"/>
   <suppress files=".*" checks="MissingJavadocMethod"/>
+  <suppress files=".*" checks="MissingJavadocType"/>
   <suppress files=".*" checks="InvalidJavadocPosition"/>
+  <suppress files=".*" checks="RequireEmptyLineBeforeBlockTagGroup"/>
+  <suppress files=".*" checks="SingleLineJavadoc"/>
+  <suppress files=".*" checks="VariableDeclarationUsageDistance"/>
   <!-- suppress check for flatbuffer-generated files. -->
   <suppress checks=".*" files="io[\\/]ray[\\/]streaming[\\/]runtime[\\/]generated[\\/]"/>
 
