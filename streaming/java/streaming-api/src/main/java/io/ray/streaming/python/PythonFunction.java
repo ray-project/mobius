@@ -34,7 +34,6 @@ public class PythonFunction implements Function {
 
     private String functionInterface;
 
-    /** @param functionInterface function class name in `ray.streaming.function` module. */
     FunctionInterface(String functionInterface) {
       this.functionInterface = functionInterface;
     }

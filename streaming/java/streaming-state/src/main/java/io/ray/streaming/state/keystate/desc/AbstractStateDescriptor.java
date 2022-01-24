@@ -75,6 +75,7 @@ public abstract class AbstractStateDescriptor<S extends State, T> {
         + '}';
   }
 
+  /** State type enum, including VALUE/LIST and MAP. */
   public enum StateType {
     /** value state */
     VALUE,
