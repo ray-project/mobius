@@ -6,6 +6,7 @@ import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
+import io.ray.streaming.api.function.impl.SourceFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
 import io.ray.streaming.runtime.BaseUnitTest;
 import io.ray.streaming.util.Config;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Math;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,7 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
   private static final Logger LOG = LoggerFactory.getLogger(WordCountTest.class);
 
   static Map<String, Integer> wordCount = new ConcurrentHashMap<>();
+  static Map<String, Integer> userDefinedWordCount = new ConcurrentHashMap<>();
 
   @Test(timeOut = 60000)
   public void testWordCount() {
@@ -66,6 +70,52 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
     streamingContext.stop();
   }
 
+  @Test(timeOut = 60000)
+  public void testUserDefinedSourceWordCount() {
+    Ray.shutdown();
+
+    StreamingContext streamingContext = StreamingContext.buildContext();
+    Map<String, String> config = new HashMap<>();
+    config.put(Config.CHANNEL_TYPE, "MEMORY_CHANNEL");
+    streamingContext.withConfig(config);
+    int totalNum = 100000;
+    DataStreamSource.fromSource(streamingContext, new MySourceFunction(totalNum))
+            .flatMap(
+                    (FlatMapFunction<String, WordAndCount>)
+                            (value, collector) -> {
+                              String[] records = value.split(" ");
+                              for (String record : records) {
+                                collector.collect(new WordAndCount(record, 1));
+                              }
+                            })
+            .keyBy(pair -> pair.word)
+            .reduce(
+                    (ReduceFunction<WordAndCount>)
+                            (oldValue, newValue) ->
+                                    new WordAndCount(oldValue.word, oldValue.count + newValue.count))
+            .sink((SinkFunction<WordAndCount>) result -> userDefinedWordCount.put(result.word, result.count));
+
+    streamingContext.execute("testUserDefinedSourceWordCount");
+
+    while (true) {
+        int totalWords = userDefinedWordCount.values().stream().mapToInt(Integer::intValue).sum();
+        if (totalWords >= totalNum) {
+          LOG.info("Total word size : {}.", totalWords);
+          for (Map.Entry<String, Integer> entry : userDefinedWordCount.entrySet()) {
+            LOG.info("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
+          }
+          break;
+        }
+      try {
+          LOG.info("Total word size : {}.", totalWords);
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        LOG.warn("Got an exception while sleeping.", e);
+      }
+    }
+    streamingContext.stop();
+  }
+
   private static class WordAndCount implements Serializable {
 
     public final String word;
@@ -74,6 +124,37 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
     public WordAndCount(String key, Integer count) {
       this.word = key;
       this.count = count;
+    }
+  }
+
+  private class MySourceFunction implements SourceFunction<String> {
+
+    private Random random;
+    private int totalNum;
+    private int count;
+    public MySourceFunction(int totalNum) {
+      random = new Random();
+      this.totalNum = totalNum;
+      this.count = 0;
+
+    }
+    @Override
+    public void init(int parallelism, int index) {
+
+    }
+
+    @Override
+    public void fetch(SourceContext<String> ctx) throws Exception {
+      if (count < totalNum) {
+        ctx.collect(String.valueOf(Math.abs(random.nextInt()) % 1024));
+        count++;
+      } else {
+      }
+    }
+
+    @Override
+    public void close() {
+
     }
   }
 }

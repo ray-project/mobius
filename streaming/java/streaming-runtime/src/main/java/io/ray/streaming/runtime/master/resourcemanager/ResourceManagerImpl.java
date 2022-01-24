@@ -103,7 +103,7 @@ public class ResourceManagerImpl implements ResourceManager {
         resources.getRegisteredContainerMap().keySet().stream()
             .filter(nodeId -> !latestNodeInfos.containsKey(nodeId))
             .collect(Collectors.toList());
-    LOG.info(
+    LOG.debug(
         "Latest node infos: {}, current containers: {}, add nodes: {}, delete nodes: {}.",
         latestNodeInfos,
         resources.getRegisteredContainers(),

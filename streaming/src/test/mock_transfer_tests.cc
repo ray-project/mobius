@@ -105,7 +105,7 @@ TEST_F(StreamingTransferTest, exchange_consumed_test) {
   std::shared_ptr<uint8_t> data(new uint8_t[data_size]);
   auto func = [data, data_size](int index) { std::fill_n(data.get(), data_size, index); };
 
-  size_t num = 10000;
+  size_t num = 100000;
   std::thread write_thread([this, data, data_size, &func, num]() {
     for (size_t i = 0; i < num; ++i) {
       func(i);
