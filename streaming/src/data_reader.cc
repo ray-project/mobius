@@ -384,28 +384,37 @@ StreamingStatus DataReader::GetBundle(const uint32_t timeout_ms,
   auto start_time = current_time_ms();
   bool is_valid_break = false;
   uint32_t empty_bundle_cnt = 0;
+  StreamingStatus status;
   while (!is_valid_break) {
     if (RuntimeStatus::Interrupted == runtime_context_->GetRuntimeStatus()) {
-      return StreamingStatus::Interrupted;
+      status = StreamingStatus::Interrupted;
+      break;
     }
     auto cur_time = current_time_ms();
     auto dur = cur_time - start_time;
     if (dur > timeout_ms) {
-      return StreamingStatus::GetBundleTimeOut;
+      status = StreamingStatus::GetBundleTimeOut;
+      break;
     }
     if (!unready_queue_ids_.empty()) {
       std::vector<TransferCreationStatus> creation_status;
-      StreamingStatus status = InitChannel(creation_status);
+      status = InitChannel(creation_status);
       switch (status) {
       case StreamingStatus::InitQueueFailed:
+        STREAMING_LOG(ERROR) << "Init queue failed.";
         break;
       default:
         STREAMING_LOG(INFO) << "Init reader queue in GetBundle";
       }
       if (StreamingStatus::OK != status) {
-        return status;
+        STREAMING_LOG(WARNING) << "Channel creation status : " << status;
+        break;
       }
-      RETURN_IF_NOT_OK(InitChannelMerger(timeout_ms))
+      status = InitChannelMerger(timeout_ms);
+      if (StreamingStatus::OK != status) {
+        STREAMING_LOG(WARNING) << "Init channel merger status : " << status;
+        break;
+      }
       unready_queue_ids_.clear();
       auto &merge_vec = reader_merger_->getRawVector();
       for (auto &bundle : merge_vec) {
@@ -413,12 +422,13 @@ StreamingStatus DataReader::GetBundle(const uint32_t timeout_ms,
       }
     }
 
-    RETURN_IF_NOT_OK(GetMergedMessageBundle(message, is_valid_break, timeout_ms));
-    if (!is_valid_break) {
+    status = GetMergedMessageBundle(message, is_valid_break, timeout_ms);
+    if (!is_valid_break && StreamingStatus::GetBundleTimeOut != status) {
       empty_bundle_cnt++;
       NotifyConsumed(message);
     }
   }
+  RETURN_IF_NOT_OK(status);
   last_message_latency_ += current_time_ms() - start_time;
   if (message->meta->GetMessageListSize() > 0) {
     last_bundle_unit_ = message->data_size * 1.0 / message->meta->GetMessageListSize();

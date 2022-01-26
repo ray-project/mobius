@@ -66,7 +66,21 @@ StreamingStatus StreamingQueueProducer::ClearTransferCheckpoint(
 }
 
 StreamingStatus StreamingQueueProducer::RefreshChannelInfo() {
-  channel_info_.queue_info.consumed_message_id = queue_->GetMinConsumedMsgID();
+  uint64_t consumed_message_id = queue_->GetMinConsumedMsgID();
+  auto &queue_info = channel_info_.queue_info;
+  if (consumed_message_id != static_cast<uint64_t>(-1)) {
+    queue_info.consumed_message_id =
+        std::max(queue_info.consumed_message_id, consumed_message_id);
+  }
+  uint64_t consumed_bundle_id = queue_->GetMinConsumedBundleID();
+  if (consumed_bundle_id != static_cast<uint64_t>(-1)) {
+    if (queue_info.consumed_bundle_id != static_cast<uint64_t>(-1)) {
+      queue_info.consumed_bundle_id =
+          std::max(queue_info.consumed_bundle_id, consumed_bundle_id);
+    } else {
+      queue_info.consumed_bundle_id = consumed_bundle_id;
+    }
+  }
   return StreamingStatus::OK;
 }
 
@@ -227,7 +241,8 @@ StreamingStatus StreamingQueueConsumer::NotifyChannelConsumed(uint64_t offset_id
 
 // For mock queue transfer
 struct MockQueueItem {
-  uint64_t seq_id;
+  uint64_t bundle_id;
+  uint64_t message_id;
   uint32_t data_size;
   std::shared_ptr<uint8_t> data;
 };
@@ -280,11 +295,15 @@ StreamingStatus MockProducer::ProduceItemToChannel(uint8_t *data, uint32_t data_
 
   STREAMING_LOG(DEBUG) << "ProduceItemToChannel, qid=" << channel_info_.channel_id
                        << ", msg_id_start=" << msg_id_start
-                       << ", msg_id_end=" << msg_id_end << ", meta=" << *meta;
+                       << ", msg_id_end=" << msg_id_end << ", current bundle id "
+                       << current_bundle_id_ << ", meta=" << *meta;
 
   MockQueueItem item;
   item.data.reset(new uint8_t[data_size]);
   item.data_size = data_size;
+  current_bundle_id_++;
+  item.bundle_id = current_bundle_id_;
+  channel_info_.current_bundle_id = current_bundle_id_;
   std::memcpy(item.data.get(), data, data_size);
   ring_buffer->Push(item);
   return StreamingStatus::OK;
@@ -294,6 +313,8 @@ StreamingStatus MockProducer::RefreshChannelInfo() {
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   channel_info_.queue_info.consumed_message_id =
       mock_queue.queue_info_map[channel_info_.channel_id].consumed_message_id;
+  channel_info_.queue_info.consumed_bundle_id =
+      mock_queue.queue_info_map[channel_info_.channel_id].consumed_bundle_id;
   return StreamingStatus::OK;
 }
 
@@ -314,7 +335,7 @@ StreamingStatus MockConsumer::ConsumeItemFromChannel(std::shared_ptr<DataBundle>
   mock_queue.consumed_buffer[channel_id]->Push(item);
   message->data = item.data.get();
   message->data_size = item.data_size;
-  message->bundle_id = item.seq_id;
+  message->bundle_id = item.bundle_id;
   return StreamingStatus::OK;
 }
 
@@ -324,20 +345,24 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
   auto &channel_id = channel_info_.channel_id;
   auto &ring_buffer = mock_queue.consumed_buffer[channel_id];
   STREAMING_LOG(DEBUG) << "Notify channel consumed qid: " << channel_info_.channel_id
-                      << ", offset id " << offset_id << " ring buffer size "
-                      << ring_buffer->Size() << ", consumed messge id "
-                      << mock_queue.queue_info_map[channel_id].consumed_message_id;
-  while (!ring_buffer->Empty() && ring_buffer->Front().seq_id <= offset_id) {
+                       << ", offset id " << offset_id << " ring buffer size "
+                       << ring_buffer->Size() << ", consumed messge id "
+                       << mock_queue.queue_info_map[channel_id].consumed_message_id;
+  while (!ring_buffer->Empty() && ring_buffer->Front().message_id <= offset_id) {
     ring_buffer->Pop();
   }
+  mock_queue.queue_info_map[channel_id].consumed_bundle_id =
+      channel_info_.queue_info.consumed_bundle_id;
   mock_queue.queue_info_map[channel_id].consumed_message_id = offset_id;
   return StreamingStatus::OK;
 }
 
 StreamingStatus MockConsumer::RefreshChannelInfo() {
   MockQueue &mock_queue = MockQueue::GetMockQueue();
-  channel_info_.queue_info.last_message_id =
-      mock_queue.queue_info_map[channel_info_.channel_id].last_message_id;
+  channel_info_.queue_info.consumed_message_id =
+      mock_queue.queue_info_map[channel_info_.channel_id].consumed_message_id;
+  channel_info_.queue_info.consumed_bundle_id =
+      mock_queue.queue_info_map[channel_info_.channel_id].consumed_bundle_id;
   return StreamingStatus::OK;
 }
 

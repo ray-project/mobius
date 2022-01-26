@@ -28,13 +28,24 @@ TEST(StreamingMockTransfer, mock_produce_consume) {
 
   producer.CreateTransferChannel();
   uint8_t data[3] = {1, 2, 3};
-  producer.ProduceItemToChannel(data, 3);
+  StreamingMessagePtr message =
+      std::make_shared<StreamingMessage>(data, 3, 7, StreamingMessageType::Message);
+  std::list<StreamingMessagePtr> message_list;
+  message_list.push_back(message);
+  StreamingMessageBundle bundle(message_list, 1, 1, StreamingMessageBundleType::Bundle);
+  uint64_t bundle_size = bundle.ClassBytesSize();
+  uint8_t *bundle_bytes = new uint8_t[bundle_size];
+  bundle.ToBytes(bundle_bytes);
+
+  producer.ProduceItemToChannel(bundle_bytes, bundle_size);
+
   std::shared_ptr<DataBundle> message_bundle(new DataBundle());
   consumer.ConsumeItemFromChannel(message_bundle, -1);
-  EXPECT_EQ(message_bundle->data_size, 3);
-  EXPECT_EQ(std::memcmp(message_bundle->data, data, 3), 0);
+  EXPECT_EQ(message_bundle->data_size, bundle_size);
+  EXPECT_EQ(std::memcmp(message_bundle->data, bundle_bytes, bundle_size), 0);
   consumer.NotifyChannelConsumed(1);
 
+  delete[] bundle_bytes;
   auto status = consumer.ConsumeItemFromChannel(message_bundle, -1);
   EXPECT_EQ(status, StreamingStatus::NoSuchItem);
 }
@@ -114,7 +125,7 @@ TEST_F(StreamingTransferTest, exchange_consumed_test) {
   std::shared_ptr<uint8_t> data(new uint8_t[data_size]);
   auto func = [data, data_size](int index) { std::fill_n(data.get(), data_size, index); };
 
-  size_t num = 100000;
+  size_t num = 40000;
   std::thread write_thread([this, data, data_size, &func, num]() {
     for (size_t i = 0; i < num; ++i) {
       func(i);

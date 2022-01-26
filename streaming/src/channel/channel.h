@@ -182,7 +182,7 @@ class MockProducer : public ProducerChannel {
  public:
   explicit MockProducer(std::shared_ptr<Config> &transfer_config,
                         ProducerChannelInfo &channel_info)
-      : ProducerChannel(transfer_config, channel_info){};
+      : ProducerChannel(transfer_config, channel_info), current_bundle_id_(0){};
   StreamingStatus CreateTransferChannel() override;
 
   StreamingStatus DestroyTransferChannel() override;

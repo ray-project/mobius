@@ -26,8 +26,11 @@ bool UnconsumedSeqFlowControl::ShouldFlowControl(ProducerChannelInfo &channel_in
         channel_info.current_message_id > channel_info.message_last_commit_id;
     STREAMING_LOG(DEBUG)
         << "Flow control stop writing to downstream, current message id => "
-        << channel_info.current_message_id << ", target message id => "
-        << queue_info.target_message_id << ", consumed_id => "
+        << channel_info.current_message_id << ", last commit id => "
+        << channel_info.message_last_commit_id << ", target message id => "
+        << queue_info.target_message_id << ", consumed bundle id => "
+        << queue_info.consumed_bundle_id << ", channel last bundle id => "
+        << channel_info.current_bundle_id << ", consumed id => "
         << queue_info.consumed_message_id << ", q id => " << channel_info.channel_id
         << ", has message in buffer " << message_in_buffer;
     // Double check whether flow control is valid.

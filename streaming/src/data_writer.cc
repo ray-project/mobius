@@ -22,8 +22,8 @@ StreamingStatus DataWriter::WriteChannelProcess(ProducerChannelInfo &channel_inf
           runtime_context_->GetConfig().GetEmptyMessageTimeInterval()) {
     write_queue_flag = WriteEmptyMessage(channel_info);
     *is_empty_message = true;
-    STREAMING_LOG(DEBUG) << "send empty message bundle in q_id =>"
-                         << channel_info.channel_id;
+    STREAMING_LOG(INFO) << "[Empty] send empty message bundle in q_id =>"
+                        << channel_info.channel_id;
   }
   return write_queue_flag;
 }
@@ -298,7 +298,8 @@ StreamingStatus DataWriter::WriteEmptyMessage(ProducerChannelInfo &channel_info)
 StreamingStatus DataWriter::WriteTransientBufferToChannel(
     ProducerChannelInfo &channel_info) {
   StreamingRingBufferPtr &buffer_ptr = channel_info.writer_ring_buffer;
-  StreamingStatus status = channel_map_[channel_info.channel_id]->ProduceItemToChannel(
+  auto &channel = channel_map_[channel_info.channel_id];
+  StreamingStatus status = channel->ProduceItemToChannel(
       buffer_ptr->GetTransientBufferMutable(), buffer_ptr->GetTransientBufferSize());
   RETURN_IF_NOT_OK(status)
   auto transient_bundle_meta =
@@ -308,6 +309,7 @@ StreamingStatus DataWriter::WriteTransientBufferToChannel(
   // if it's barrier bundle.
   buffer_ptr->FreeTransientBuffer(is_barrier_bundle);
   channel_info.message_last_commit_id = transient_bundle_meta->GetLastMessageId();
+  channel_info.current_bundle_id = channel->GetLastBundleId();
   return StreamingStatus::OK;
 }
 
