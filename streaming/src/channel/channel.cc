@@ -299,17 +299,20 @@ StreamingStatus MockProducer::ProduceItemToChannel(uint8_t *data, uint32_t data_
                        << current_bundle_id_ << ", meta=" << *meta;
 
   MockQueueItem item;
-  item.data.reset(new uint8_t[data_size]);
+  item.data.reset(new uint8_t[data_size], std::default_delete<uint8_t[]>());
   item.data_size = data_size;
   current_bundle_id_++;
   item.bundle_id = current_bundle_id_;
+  item.message_id = msg_id_end;
   channel_info_.current_bundle_id = current_bundle_id_;
   std::memcpy(item.data.get(), data, data_size);
   ring_buffer->Push(item);
+  mock_queue.queue_info_map[channel_info_.channel_id].last_message_id = msg_id_end;
   return StreamingStatus::OK;
 }
 
 StreamingStatus MockProducer::RefreshChannelInfo() {
+  std::unique_lock<std::mutex> lock(MockQueue::mutex);
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   channel_info_.queue_info.consumed_message_id =
       mock_queue.queue_info_map[channel_info_.channel_id].consumed_message_id;
@@ -331,11 +334,11 @@ StreamingStatus MockConsumer::ConsumeItemFromChannel(std::shared_ptr<DataBundle>
     return StreamingStatus::NoSuchItem;
   }
   MockQueueItem item = mock_queue.message_buffer[channel_id]->Front();
-  mock_queue.message_buffer[channel_id]->Pop();
   mock_queue.consumed_buffer[channel_id]->Push(item);
   message->data = item.data.get();
   message->data_size = item.data_size;
   message->bundle_id = item.bundle_id;
+  mock_queue.message_buffer[channel_id]->Pop();
   return StreamingStatus::OK;
 }
 
@@ -348,7 +351,12 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
                        << ", offset id " << offset_id << " ring buffer size "
                        << ring_buffer->Size() << ", consumed messge id "
                        << mock_queue.queue_info_map[channel_id].consumed_message_id;
-  while (!ring_buffer->Empty() && ring_buffer->Front().message_id <= offset_id) {
+  // NOTE(lingxuan.zlx): why we erase all of messages whose id is less than consumed
+  // offset id? To speed up fetch data from upstream, we keep loop fetch from transfer
+  // channel in at least once mode. Once fetched data is null, this consumer send
+  // duplicated consumed notified message id of last bundle item. Previous bundle might be
+  // cleared from consumed buffer before, so we just keep this last bundle in buffer list.
+  while (!ring_buffer->Empty() && ring_buffer->Front().message_id < offset_id) {
     ring_buffer->Pop();
   }
   mock_queue.queue_info_map[channel_id].consumed_bundle_id =
@@ -358,6 +366,7 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
 }
 
 StreamingStatus MockConsumer::RefreshChannelInfo() {
+  std::unique_lock<std::mutex> lock(MockQueue::mutex);
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   channel_info_.queue_info.consumed_message_id =
       mock_queue.queue_info_map[channel_info_.channel_id].consumed_message_id;

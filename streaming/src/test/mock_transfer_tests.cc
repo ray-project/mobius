@@ -94,6 +94,7 @@ TEST_F(StreamingTransferTest, exchange_single_channel_test) {
   writer->WriteMessageToBufferRing(queue_vec[0], data, data_size);
   std::shared_ptr<DataBundle> msg;
   reader->GetBundle(5000, msg);
+  STREAMING_LOG(INFO) << Util::Byte2hex(msg->data, msg->data_size);
   StreamingMessageBundlePtr bundle_ptr = StreamingMessageBundle::FromBytes(msg->data);
   auto &message_list = bundle_ptr->GetMessageList();
   auto &message = message_list.front();
