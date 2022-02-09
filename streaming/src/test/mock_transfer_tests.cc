@@ -5,32 +5,6 @@
 using namespace ray;
 using namespace ray::streaming;
 
-TEST(StreamingMockTransfer, mock_produce_consume) {
-  std::shared_ptr<Config> transfer_config;
-  ObjectID channel_id = ObjectID::FromRandom();
-  ProducerChannelInfo producer_channel_info;
-  producer_channel_info.channel_id = channel_id;
-  producer_channel_info.current_message_id = 0;
-  MockProducer producer(transfer_config, producer_channel_info);
-
-  ConsumerChannelInfo consumer_channel_info;
-  consumer_channel_info.channel_id = channel_id;
-  MockConsumer consumer(transfer_config, consumer_channel_info);
-
-  producer.CreateTransferChannel();
-  uint8_t data[3] = {1, 2, 3};
-  producer.ProduceItemToChannel(data, 3);
-  uint8_t *data_consumed;
-  uint32_t data_size_consumed;
-  consumer.ConsumeItemFromChannel(data_consumed, data_size_consumed, -1);
-  EXPECT_EQ(data_size_consumed, 3);
-  EXPECT_EQ(std::memcmp(data_consumed, data, 3), 0);
-  consumer.NotifyChannelConsumed(1);
-
-  auto status = consumer.ConsumeItemFromChannel(data_consumed, data_size_consumed, -1);
-  EXPECT_EQ(status, StreamingStatus::NoSuchItem);
-}
-
 class StreamingTransferTest : public ::testing::Test {
  public:
   StreamingTransferTest() {
