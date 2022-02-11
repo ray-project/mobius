@@ -8,7 +8,6 @@ from libc.stdint cimport *
 from libcpp cimport bool as c_bool
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector as c_vector
-from libcpp.string cimport string as c_string
 from libcpp.list cimport list as c_list
 from cpython cimport PyObject
 cimport cpython
@@ -22,67 +21,19 @@ cdef inline object PyObject_to_object(PyObject* o):
     cpython.Py_DECREF(result)
     return result
 
-from raystreaming.includes.common cimport (
+from ray.includes.common cimport (
     CLanguage,
     CRayObject,
     CRayStatus,
-    CRayFunction,
-	CBuffer,
+    CRayFunction
 )
 
-from raystreaming.includes.unique_ids cimport (
+from ray.includes.unique_ids cimport (
     CActorID,
     CJobID,
     CTaskID,
     CObjectID,
 )
-
-from raystreaming.includes.function_descriptor cimport (
-    CFunctionDescriptor,
-)
-
-from raystreaming.includes.function_descriptor import (
-	JavaFunctionDescriptor
-)
-
-
-cdef class FunctionDescriptor:
-    cdef:
-        CFunctionDescriptor descriptor
-
-cdef class Buffer:
-    cdef:
-        shared_ptr[CBuffer] buffer
-        Py_ssize_t shape
-        Py_ssize_t strides
-
-    @staticmethod
-    cdef make(const shared_ptr[CBuffer]& buffer)
-
-cdef class BaseID:
-    # To avoid the error of "Python int too large to convert to C ssize_t",
-    # here `cdef size_t` is required.
-    cdef size_t hash(self)
-
-
-cdef class ActorID(BaseID):
-    cdef CActorID data
-
-    cdef CActorID native(self)
-
-    cdef size_t hash(self)
-
-cdef class ObjectRef(BaseID):
-    cdef:
-        CObjectID data
-        c_string owner_addr
-        # Flag indicating whether or not this object ref was added to the set
-        # of active IDs in the core worker so we know whether we should clean
-        # it up.
-        c_bool in_core_worker
-        c_string call_site_data
-
-    cdef CObjectID native(self)
 
 cdef extern from "common/status.h" namespace "ray::streaming" nogil:
     cdef cppclass CStreamingStatus "ray::streaming::StreamingStatus":

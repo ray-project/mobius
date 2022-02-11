@@ -9,26 +9,23 @@ from libcpp.list cimport list as c_list
 from libcpp.unordered_map cimport unordered_map as c_unordered_map
 from cython.operator cimport dereference, postincrement
 
-from raystreaming.includes.common cimport (
+from ray.includes.common cimport (
     CRayFunction,
     LANGUAGE_PYTHON,
     LANGUAGE_JAVA,
     CBuffer
 )
 
-from raystreaming.includes.unique_ids cimport (
+from ray.includes.unique_ids cimport (
     CActorID,
     CObjectID
 )
-
-from raystreaming.includes.libstreaming cimport (
+from ray._raylet cimport (
     Buffer,
     ActorID,
     ObjectRef,
     FunctionDescriptor,
 )
-
-from raystreaming.includes.function_descriptor import JavaFunctionDescriptor
 
 cimport raystreaming.includes.libstreaming as libstreaming
 from raystreaming.includes.libstreaming cimport (
@@ -48,6 +45,7 @@ from raystreaming.includes.libstreaming cimport (
     CStreamingBarrierHeader,
     kBarrierHeaderSize,
 )
+from ray._raylet import JavaFunctionDescriptor
 
 import logging
 
@@ -183,7 +181,7 @@ cdef class DataWriter:
             msg = "initialize writer failed, status={}".format(<uint32_t>status)
             channel_logger.error(msg)
             del c_writer
-            import raystreaming.runtime.transfer as transfer
+            import ray.streaming.runtime.transfer as transfer
             raise transfer.ChannelInitException(msg, qid_vector_to_list(remain_id_vec))
 
         c_writer.Run()
@@ -300,10 +298,10 @@ cdef class DataReader:
         if <uint32_t> status != <uint32_t> libstreaming.StatusOK:
             if <uint32_t> status == <uint32_t> libstreaming.StatusInterrupted:
                 # avoid cyclic import
-                import raystreaming.runtime.transfer as transfer
+                import ray.streaming.runtime.transfer as transfer
                 raise transfer.ChannelInterruptException("reader interrupted")
             elif <uint32_t> status == <uint32_t> libstreaming.StatusInitQueueFailed:
-                import raystreaming.runtime.transfer as transfer
+                import ray.streaming.runtime.transfer as transfer
                 raise transfer.ChannelInitException("init channel failed")
             elif <uint32_t> status == <uint32_t> libstreaming.StatusGetBundleTimeOut:
                 return []
@@ -323,7 +321,7 @@ cdef class DataReader:
 
         cdef uint32_t bundle_type = <uint32_t>(bundle.get().meta.get().GetBundleType())
         # avoid cyclic import
-        from raystreaming.runtime.transfer import DataMessage
+        from ray.streaming.runtime.transfer import DataMessage
         if bundle_type == <uint32_t> libstreaming.BundleTypeBundle:
             msg_nums = bundle.get().meta.get().GetMessageListSize()
             CStreamingMessageBundle.GetMessageListFromRawData(
@@ -367,7 +365,7 @@ cdef class DataReader:
                            :barrier.get().PayloadSize() - kBarrierHeaderSize]
             barrier_type = <uint64_t> barrier_header.barrier_type
             py_queue_id = queue_id.Binary()
-            from raystreaming.runtime.transfer import CheckpointBarrier
+            from ray.streaming.runtime.transfer import CheckpointBarrier
             return [CheckpointBarrier(
                 barrier_data, timestamp, msg_id, py_queue_id, py_offset_map,
                 barrier_id, barrier_type)]
