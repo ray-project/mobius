@@ -3,12 +3,12 @@ import importlib
 import logging
 from abc import ABC, abstractmethod
 
-from ray.streaming import function
-from ray.streaming import message
-from ray.streaming.collector import Collector
-from ray.streaming.collector import CollectionCollector
-from ray.streaming.function import SourceFunction
-from ray.streaming.runtime import gateway_client
+from raystreaming import function
+from raystreaming import message
+from raystreaming.collector import Collector
+from raystreaming.collector import CollectionCollector
+from raystreaming.function import SourceFunction
+from raystreaming.runtime import gateway_client
 
 logger = logging.getLogger(__name__)
 
@@ -345,7 +345,7 @@ def load_operator(descriptor_operator_bytes: bytes):
     Deserialize `descriptor_operator_bytes` to get operator info, then
     create streaming operator.
     Note that this function must be kept in sync with
-     `io.ray.streaming.runtime.python.GraphPbBuilder.serializeOperator`
+     `io.raystreaming.runtime.python.GraphPbBuilder.serializeOperator`
 
     Args:
         descriptor_operator_bytes: serialized operator info

@@ -3,7 +3,7 @@ import inspect
 from abc import ABC, abstractmethod
 
 from ray import cloudpickle
-from ray.streaming.runtime import gateway_client
+from raystreaming.runtime import gateway_client
 
 
 class Partition(ABC):
@@ -100,7 +100,7 @@ def load_partition(descriptor_partition_bytes: bytes):
     Deserialize `descriptor_partition_bytes` to get partition info, then
     get or load partition function.
     Note that this function must be kept in sync with
-     `io.ray.streaming.runtime.python.GraphPbBuilder.serializePartition`
+     `io.raystreaming.runtime.python.GraphPbBuilder.serializePartition`
 
     Args:
         descriptor_partition_bytes: serialized partition info

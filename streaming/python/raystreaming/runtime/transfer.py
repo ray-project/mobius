@@ -6,10 +6,10 @@ from enum import Enum
 from abc import ABC, abstractmethod
 
 import ray
-import ray.streaming._streaming as _streaming
-import ray.streaming.generated.streaming_pb2 as streaming_pb
+import raystreaming._streaming as _streaming
+import raystreaming.generated.streaming_pb2 as streaming_pb
 from ray.actor import ActorHandle
-from ray.streaming.config import Config
+from raystreaming.config import Config
 from ray._raylet import JavaFunctionDescriptor
 from ray._raylet import PythonFunctionDescriptor
 from ray._raylet import Language
@@ -230,13 +230,13 @@ class ChannelCreationParametersBuilder:
         "io.ray.streaming.runtime.worker.JobWorker", "onWriterMessageSync",
         "([B)[B")
     _python_reader_async_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_reader_message", "JobWorker")
+        "raystreaming.runtime.worker", "on_reader_message", "JobWorker")
     _python_reader_sync_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_reader_message_sync", "JobWorker")
+        "raystreaming.runtime.worker", "on_reader_message_sync", "JobWorker")
     _python_writer_async_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_writer_message", "JobWorker")
+        "raystreaming.runtime.worker", "on_writer_message", "JobWorker")
     _python_writer_sync_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_writer_message_sync", "JobWorker")
+        "raystreaming.runtime.worker", "on_writer_message_sync", "JobWorker")
 
     def get_parameters(self):
         return self._parameters
