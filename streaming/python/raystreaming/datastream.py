@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from ray.streaming import function
-from ray.streaming import partition
+from raystreaming import function
+from raystreaming import partition
 
 
 class Stream(ABC):
@@ -114,7 +114,7 @@ class DataStream(Stream):
     """
     Represents a stream of data which applies a transformation executed by
     python. It's also a wrapper of java
-    `io.ray.streaming.python.stream.PythonDataStream`
+    `io.raystreaming.python.stream.PythonDataStream`
     """
 
     def __init__(self, input_stream, j_stream, streaming_context=None):
@@ -127,7 +127,7 @@ class DataStream(Stream):
     def map(self, func):
         """
         Applies a Map transformation on a :class:`DataStream`.
-        The transformation calls a :class:`ray.streaming.function.MapFunction`
+        The transformation calls a :class:`raystreaming.function.MapFunction`
         for each element of the DataStream.
 
         Args:
@@ -149,7 +149,7 @@ class DataStream(Stream):
     def flat_map(self, func):
         """
         Applies a FlatMap transformation on a :class:`DataStream`. The
-        transformation calls a :class:`ray.streaming.function.FlatMapFunction`
+        transformation calls a :class:`raystreaming.function.FlatMapFunction`
         for each element of the DataStream.
         Each FlatMapFunction call can return any number of elements including
         none.
@@ -173,7 +173,7 @@ class DataStream(Stream):
     def filter(self, func):
         """
         Applies a Filter transformation on a :class:`DataStream`. The
-        transformation calls a :class:`ray.streaming.function.FilterFunction`
+        transformation calls a :class:`raystreaming.function.FilterFunction`
         for each element of the DataStream.
         DataStream and retains only those element for which the function
         returns True.
@@ -310,7 +310,7 @@ class JavaDataStream(Stream):
     """
     Represents a stream of data which applies a transformation executed by
     java. It's also a wrapper of java
-    `io.ray.streaming.api.stream.DataStream`
+    `io.raystreaming.api.stream.DataStream`
     """
 
     def __init__(self, input_stream, j_stream, streaming_context=None):
@@ -321,46 +321,46 @@ class JavaDataStream(Stream):
         return function.Language.JAVA
 
     def map(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.map"""
+        """See io.raystreaming.api.stream.DataStream.map"""
         return JavaDataStream(self, self._unary_call("map", java_func_class))
 
     def flat_map(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.flatMap"""
+        """See io.raystreaming.api.stream.DataStream.flatMap"""
         return JavaDataStream(self, self._unary_call("flatMap",
                                                      java_func_class))
 
     def filter(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.filter"""
+        """See io.raystreaming.api.stream.DataStream.filter"""
         return JavaDataStream(self, self._unary_call("filter",
                                                      java_func_class))
 
     def union(self, *streams):
-        """See io.ray.streaming.api.stream.DataStream.union"""
+        """See io.raystreaming.api.stream.DataStream.union"""
         assert len(streams) >= 1, "Need at least one stream to union with"
         j_streams = [s._j_stream for s in streams]
         j_stream = self._gateway_client().union(self._j_stream, *j_streams)
         return JavaUnionStream(self, j_stream)
 
     def key_by(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.keyBy"""
+        """See io.raystreaming.api.stream.DataStream.keyBy"""
         self._check_partition_call()
         return JavaKeyDataStream(self,
                                  self._unary_call("keyBy", java_func_class))
 
     def broadcast(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.broadcast"""
+        """See io.raystreaming.api.stream.DataStream.broadcast"""
         self._check_partition_call()
         return JavaDataStream(self,
                               self._unary_call("broadcast", java_func_class))
 
     def partition_by(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.partitionBy"""
+        """See io.raystreaming.api.stream.DataStream.partitionBy"""
         self._check_partition_call()
         return JavaDataStream(self,
                               self._unary_call("partitionBy", java_func_class))
 
     def sink(self, java_func_class):
-        """See io.ray.streaming.api.stream.DataStream.sink"""
+        """See io.raystreaming.api.stream.DataStream.sink"""
         return JavaStreamSink(self, self._unary_call("sink", java_func_class))
 
     def as_python_stream(self):
@@ -393,7 +393,7 @@ class JavaDataStream(Stream):
 
 class KeyDataStream(DataStream):
     """Represents a DataStream returned by a key-by operation.
-     Wrapper of java io.ray.streaming.python.stream.PythonKeyDataStream
+     Wrapper of java io.raystreaming.python.stream.PythonKeyDataStream
     """
 
     def __init__(self, input_stream, j_stream):
@@ -403,7 +403,7 @@ class KeyDataStream(DataStream):
         """
         Applies a reduce transformation on the grouped data stream grouped on
         by the given key function.
-        The :class:`ray.streaming.function.ReduceFunction` will receive input
+        The :class:`raystreaming.function.ReduceFunction` will receive input
         values based on the key value. Only input values with the same key will
         go to the same reducer.
 
@@ -439,14 +439,14 @@ class KeyDataStream(DataStream):
 class JavaKeyDataStream(JavaDataStream):
     """
     Represents a DataStream returned by a key-by operation in java.
-     Wrapper of io.ray.streaming.api.stream.KeyDataStream
+     Wrapper of io.raystreaming.api.stream.KeyDataStream
     """
 
     def __init__(self, input_stream, j_stream):
         super().__init__(input_stream, j_stream)
 
     def reduce(self, java_func_class):
-        """See io.ray.streaming.api.stream.KeyDataStream.reduce"""
+        """See io.raystreaming.api.stream.KeyDataStream.reduce"""
         return JavaDataStream(self,
                               super()._unary_call("reduce", java_func_class))
 
@@ -464,7 +464,7 @@ class JavaKeyDataStream(JavaDataStream):
 
 class UnionStream(DataStream):
     """Represents a union stream.
-     Wrapper of java io.ray.streaming.python.stream.PythonUnionStream
+     Wrapper of java io.raystreaming.python.stream.PythonUnionStream
     """
 
     def __init__(self, input_stream, j_stream):
@@ -476,7 +476,7 @@ class UnionStream(DataStream):
 
 class JavaUnionStream(JavaDataStream):
     """Represents a java union stream.
-     Wrapper of java io.ray.streaming.api.stream.UnionStream
+     Wrapper of java io.raystreaming.api.stream.UnionStream
     """
 
     def __init__(self, input_stream, j_stream):
@@ -488,7 +488,7 @@ class JavaUnionStream(JavaDataStream):
 
 class StreamSource(DataStream):
     """Represents a source of the DataStream.
-     Wrapper of java io.ray.streaming.python.stream.PythonStreamSource
+     Wrapper of java io.raystreaming.python.stream.PythonStreamSource
     """
 
     def __init__(self, j_stream, streaming_context, source_func):
@@ -514,7 +514,7 @@ class StreamSource(DataStream):
 
 class JavaStreamSource(JavaDataStream):
     """Represents a source of the java DataStream.
-     Wrapper of java io.ray.streaming.api.stream.DataStreamSource
+     Wrapper of java io.raystreaming.api.stream.DataStreamSource
     """
 
     def __init__(self, j_stream, streaming_context):
@@ -535,14 +535,14 @@ class JavaStreamSource(JavaDataStream):
         j_func = streaming_context._gateway_client() \
             .new_instance(java_source_func_class)
         j_stream = streaming_context._gateway_client() \
-            .call_function("io.ray.streaming.api.stream.DataStreamSource"
+            .call_function("io.raystreaming.api.stream.DataStreamSource"
                            "fromSource", streaming_context._j_ctx, j_func)
         return JavaStreamSource(j_stream, streaming_context)
 
 
 class StreamSink(Stream):
     """Represents a sink of the DataStream.
-     Wrapper of java io.ray.streaming.python.stream.PythonStreamSink
+     Wrapper of java io.raystreaming.python.stream.PythonStreamSink
     """
 
     def __init__(self, input_stream, j_stream, func):
@@ -554,7 +554,7 @@ class StreamSink(Stream):
 
 class JavaStreamSink(Stream):
     """Represents a sink of the java DataStream.
-     Wrapper of java io.ray.streaming.api.stream.StreamSink
+     Wrapper of java io.raystreaming.api.stream.StreamSink
     """
 
     def __init__(self, input_stream, j_stream):

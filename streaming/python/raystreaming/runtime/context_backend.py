@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 from os import path
 
-from ray.streaming.config import ConfigHelper, Config
+from raystreaming.config import ConfigHelper, Config
 
 logger = logging.getLogger(__name__)
 

@@ -4,11 +4,11 @@ from abc import ABC, abstractmethod
 
 from ray import Language
 from ray.actor import ActorHandle
-from ray.streaming import function
-from ray.streaming import message
-from ray.streaming import partition
-from ray.streaming.runtime import serialization
-from ray.streaming.runtime.transfer import ChannelID, DataWriter
+from raystreaming import function
+from raystreaming import message
+from raystreaming import partition
+from raystreaming.runtime import serialization
+from raystreaming.runtime.transfer import ChannelID, DataWriter
 
 logger = logging.getLogger(__name__)
 

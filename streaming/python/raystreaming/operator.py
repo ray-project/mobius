@@ -3,12 +3,12 @@ import importlib
 import logging
 from abc import ABC, abstractmethod
 
-from ray.streaming import function
-from ray.streaming import message
-from ray.streaming.collector import Collector
-from ray.streaming.collector import CollectionCollector
-from ray.streaming.function import SourceFunction
-from ray.streaming.runtime import gateway_client
+from raystreaming import function
+from raystreaming import message
+from raystreaming.collector import Collector
+from raystreaming.collector import CollectionCollector
+from raystreaming.function import SourceFunction
+from raystreaming.runtime import gateway_client
 
 logger = logging.getLogger(__name__)
 
