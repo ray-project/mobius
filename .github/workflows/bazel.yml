@@ -23,7 +23,7 @@ jobs:
       uses: sormuras/download-jdk@1.1.2
       with:
         # Feature version number or project name of the JDK to download from https://jdk.java.net
-        feature: 8 # default is 16
+        feature: 18 # default is 16
 
     - name: build-and-test
       run: cd streaming && bazel test //:all
