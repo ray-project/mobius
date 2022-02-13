@@ -17,5 +17,5 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: build-and-test
-      run: cd streaming && bazel test /:all
+      run: cd streaming && bazel test //:all
 
