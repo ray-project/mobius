@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -x
-set -euo pipefail
+set -e
 
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
 
