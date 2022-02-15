@@ -26,7 +26,7 @@ jobs:
         # feature: 18 # default is 16
 
     - name: Install JDK
-      run: apt-get install -yq openjdk-8-jdk
+      run: sudo apt-get install -yq openjdk-8-jdk
 
     - name: build-and-test
       run: cd streaming && bazel test //:all
