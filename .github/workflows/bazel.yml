@@ -20,10 +20,13 @@ jobs:
     - name: Download JDK
       # You may pin to the exact commit or the version.
       # uses: sormuras/download-jdk@7b5671938c6755cc645110aaa35bc5d269112f23
-      uses: sormuras/download-jdk@1.1.2
-      with:
+      # uses: sormuras/download-jdk@1.1.2
+      # with:
         # Feature version number or project name of the JDK to download from https://jdk.java.net
-        feature: 18 # default is 16
+        # feature: 18 # default is 16
+
+    - name: Install JDK
+      run: apt-get install -yq openjdk-8-jdk
 
     - name: build-and-test
       run: cd streaming && bazel test //:all
