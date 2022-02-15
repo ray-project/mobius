@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Download JDK
+    # - name: Download JDK
       # You may pin to the exact commit or the version.
       # uses: sormuras/download-jdk@7b5671938c6755cc645110aaa35bc5d269112f23
       # uses: sormuras/download-jdk@1.1.2
