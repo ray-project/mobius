@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import pickle
 import msgpack
-from ray.streaming import message
+from raystreaming import message
 
 RECORD_TYPE_ID = 0
 KEY_RECORD_TYPE_ID = 1

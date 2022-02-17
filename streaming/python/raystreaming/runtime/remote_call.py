@@ -5,8 +5,8 @@ import time
 from enum import Enum
 
 from ray.actor import ActorHandle
-from ray.streaming.generated import remote_call_pb2
-from ray.streaming.runtime.command\
+from raystreaming.generated import remote_call_pb2
+from raystreaming.runtime.command\
     import WorkerCommitReport, WorkerRollbackRequest
 
 logger = logging.getLogger(__name__)
