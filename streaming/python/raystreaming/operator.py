@@ -345,7 +345,7 @@ def load_operator(descriptor_operator_bytes: bytes):
     Deserialize `descriptor_operator_bytes` to get operator info, then
     create streaming operator.
     Note that this function must be kept in sync with
-     `io.raystreaming.runtime.python.GraphPbBuilder.serializeOperator`
+     `io.ray.streaming.runtime.python.GraphPbBuilder.serializeOperator`
 
     Args:
         descriptor_operator_bytes: serialized operator info
