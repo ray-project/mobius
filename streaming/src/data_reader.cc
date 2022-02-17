@@ -319,7 +319,7 @@ StreamingStatus DataReader::GetMergedMessageBundle(std::shared_ptr<DataBundle> &
   } else if (message->meta->IsBarrier() && BarrierAlign(message)) {
     last_message_ts_ = cur_time;
     is_valid_break = true;
-  } else if (timer_interval_ != std::numeric_limits<uint64_t>::max() &&
+  } else if (timer_interval_ != std::numeric_limits<int64_t>::max() &&
              cur_time - last_message_ts_ >= timer_interval_ &&
              message->meta->IsEmptyMsg()) {
     // Sent empty message when reaching timer_interval
@@ -417,7 +417,7 @@ StreamingStatus DataReader::GetBundle(const uint32_t timeout_ms,
       unready_queue_ids_.clear();
       auto &merge_vec = reader_merger_->getRawVector();
       for (auto &bundle : merge_vec) {
-        STREAMING_LOG(INFO) << "merger vector item=" << bundle->from;
+        STREAMING_LOG(INFO) << "Frist item to merger vector " << bundle->from;
       }
     }
 
