@@ -143,7 +143,7 @@ class StreamingQueueProducer : public ProducerChannel {
   StreamingStatus RefreshChannelInfo() override;
   StreamingStatus ProduceItemToChannel(uint8_t *data, uint32_t data_size) override;
   StreamingStatus NotifyChannelConsumed(uint64_t offset_id) override;
-  uint64_t GetLastBundleId();
+  uint64_t GetLastBundleId() const;
 
  private:
   StreamingStatus CreateQueue();
