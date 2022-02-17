@@ -68,13 +68,13 @@ StreamingStatus StreamingQueueProducer::ClearTransferCheckpoint(
 StreamingStatus StreamingQueueProducer::RefreshChannelInfo() {
   uint64_t consumed_message_id = queue_->GetMinConsumedMsgID();
   auto &queue_info = channel_info_.queue_info;
-  if (consumed_message_id != static_cast<uint64_t>(-1)) {
+  if (consumed_message_id != std::numeric_limits<uint64_t>::max()) {
     queue_info.consumed_message_id =
         std::max(queue_info.consumed_message_id, consumed_message_id);
   }
   uint64_t consumed_bundle_id = queue_->GetMinConsumedBundleID();
-  if (consumed_bundle_id != static_cast<uint64_t>(-1)) {
-    if (queue_info.consumed_bundle_id != static_cast<uint64_t>(-1)) {
+  if (consumed_bundle_id != std::numeric_limits<uint64_t>::max()) {
+    if (queue_info.consumed_bundle_id != std::numeric_limits<uint64_t>::max()) {
       queue_info.consumed_bundle_id =
           std::max(queue_info.consumed_bundle_id, consumed_bundle_id);
     } else {

@@ -71,7 +71,7 @@ TEST_F(StreamingBarrierHelperTest, BarrierIdByLastMessageId) {
 }
 
 TEST_F(StreamingBarrierHelperTest, CheckpointId) {
-  uint64_t checkpoint_id = static_cast<uint64_t>(-1);
+  uint64_t checkpoint_id = std::numeric_limits<uint64_t>::max();
   barrier_helper_->GetCurrentMaxCheckpointIdInQueue(random_id, checkpoint_id);
   ASSERT_EQ(checkpoint_id, 0);
   barrier_helper_->SetCurrentMaxCheckpointIdInQueue(random_id, 2);

@@ -83,7 +83,7 @@ class StreamingTransferTest : public ::testing::Test {
   std::vector<ObjectID> queue_vec;
   std::shared_ptr<RuntimeContext> writer_runtime_context;
   std::shared_ptr<RuntimeContext> reader_runtime_context;
-  int timer_interval = -1;
+  int timer_interval = std::numeric_limits<uint64_t>::max();
 };
 
 TEST_F(StreamingTransferTest, exchange_single_channel_test) {

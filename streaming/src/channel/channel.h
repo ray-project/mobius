@@ -30,7 +30,7 @@ struct StreamingQueueInfo {
   // Message id in last upstream notification.
   uint64_t consumed_message_id = 0;
   // Last bundle id consumed by downstream.
-  uint64_t consumed_bundle_id = -1;
+  uint64_t consumed_bundle_id = std::numeric_limits<uint64_t>::max();
 };
 
 struct ChannelCreationParameter {

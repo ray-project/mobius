@@ -319,7 +319,8 @@ StreamingStatus DataReader::GetMergedMessageBundle(std::shared_ptr<DataBundle> &
   } else if (message->meta->IsBarrier() && BarrierAlign(message)) {
     last_message_ts_ = cur_time;
     is_valid_break = true;
-  } else if (timer_interval_ != -1 && cur_time - last_message_ts_ >= timer_interval_ &&
+  } else if (timer_interval_ != std::numeric_limits<uint64_t>::max() &&
+             cur_time - last_message_ts_ >= timer_interval_ &&
              message->meta->IsEmptyMsg()) {
     // Sent empty message when reaching timer_interval
     last_message_ts_ = cur_time;
@@ -468,7 +469,7 @@ void DataReader::NotifyConsumed(std::shared_ptr<DataBundle> &message) {
     // notification in streaming data reader view.
     // To avoid replicated small bundle id, we only mark the latest bundle if for
     // notification.
-    if (queue_info.consumed_bundle_id == static_cast<uint64_t>(-1) ||
+    if (queue_info.consumed_bundle_id == std::numeric_limits<uint64_t>::max() ||
         queue_info.consumed_bundle_id < message->bundle_id) {
       queue_info.consumed_bundle_id = message->bundle_id;
     }
