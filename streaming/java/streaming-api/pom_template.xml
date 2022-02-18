@@ -20,17 +20,17 @@
     <dependency>
       <groupId>io.ray</groupId>
       <artifactId>ray-api</artifactId>
-      <version>${project.version}</version>
+      <version>${ray.version}</version>
     </dependency>
     <dependency>
       <groupId>io.ray</groupId>
       <artifactId>ray-runtime</artifactId>
-      <version>${project.version}</version>
+      <version>${ray.version}</version>
     </dependency>
     <dependency>
       <groupId>io.ray</groupId>
       <artifactId>streaming-state</artifactId>
-      <version>${project.version}</version>
+      <version>${streaming.version}</version>
     </dependency>
     {generated_bzl_deps}
   </dependencies>
