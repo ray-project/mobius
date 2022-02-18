@@ -15,18 +15,18 @@ Key Features
 ------------
 
 
-#. 
+#.
    **Cross Language**. Based on Ray's multi-language actor, Ray Streaming can also run in multiple
    languages(only Python and Java is supported currently) with high efficiency. You can implement your
    operator in different languages and run them in one job.
 
-#. 
+#.
    **Single Node Failover**. We designed a special failover mechanism that only needs to rollback the
    failed node it's own, in most cases, to recover the job. This will be a huge benefit if your job is
    sensitive about failure recovery time. In other frameworks like Flink, instead, the entire job should
    be restarted once a node has failure.
 
-#. 
+#.
    **AutoScaling**. (Moved from internal in the future). Generate a new graph with different configurations in runtime without stopping job.
 
 #. 
@@ -117,7 +117,36 @@ Use Python Operators in Java
 Training
 -----------
 
- To be published
+
+Training solution is one of the major topics for online machine learning systems, different from the traditional batch training approach, online training needs to learn from infinite streaming data, with high stability and performance for both system and algorithm level.
+
+.. image:: training/assets/training_infra.jpg
+   :target: training/assets/training_infra.jpg
+   :alt: training
+
+Key Features
+------------
+
+
+#.
+   **Elastic**. Both ps and worker level elastic during long term running, support dynamic networking for new node add and remove without restart job.
+
+#.
+   **Single Node Failover**. Based on ray streaming's capability of Single Node Failover, dynamic networking support single-node failover without restarting the entire job.
+
+#.
+   **Large scale sparse embedding**. Provide add-ones of tensorflow, support training with large scale and elastic sparse embedding features.
+
+
+#.
+   **Streaming input support**. A general dataset creator to support all data sources as backend, including both streaming and batch data.
+
+#.
+   **Algorithm toolkits for online learning**. An algorithm toolkit to help the long-term training models keep converging.
+
+#.
+   **Validation for continuous model delivery**. A validation mechanism to help our system keep delivering high-quality models and intercept all the abnormal models.
+
 
 
 Getting Involved
