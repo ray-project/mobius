@@ -102,6 +102,7 @@ TEST_F(StreamingTransferTest, exchange_single_channel_test) {
 }
 
 TEST_F(StreamingTransferTest, exchange_multichannel_test) {
+  timer_interval = 0xffff;
   int channel_num = 4;
   InitTransfer(4);
   writer->Run();

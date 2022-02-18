@@ -137,7 +137,8 @@ StreamingStatus DataWriter::Init(const std::vector<ObjectID> &queue_id_vec,
                                  const std::vector<uint64_t> &channel_message_id_vec,
                                  const std::vector<uint64_t> &queue_size_vec) {
   STREAMING_CHECK(!queue_id_vec.empty() && !channel_message_id_vec.empty());
-  STREAMING_LOG(INFO) << "Job name => " << runtime_context_->GetConfig().GetJobName();
+  STREAMING_LOG(INFO) << "Job name => " << runtime_context_->GetConfig().GetJobName()
+                      << ", reliability level => " << runtime_context_->GetConfig().GetReliabilityLevel();
 
   output_queue_ids_ = queue_id_vec;
   transfer_config_->Set(ConfigEnum::QUEUE_ID_VECTOR, queue_id_vec);
