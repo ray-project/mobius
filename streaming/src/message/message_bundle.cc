@@ -6,6 +6,7 @@
 #include "config/streaming_config.h"
 #include "ray/common/status.h"
 #include "util/streaming_logging.h"
+#include "util/streaming_util.h"
 
 namespace ray {
 namespace streaming {
@@ -43,7 +44,7 @@ StreamingMessageBundleMetaPtr StreamingMessageBundleMeta::FromBytes(const uint8_
   STREAMING_CHECK(bytes);
 
   uint32_t byte_offset = 0;
-  STREAMING_CHECK(CheckBundleMagicNum(bytes));
+  STREAMING_CHECK(CheckBundleMagicNum(bytes)) << Util::Byte2hex(bytes, sizeof(uint32_t));
   byte_offset += sizeof(uint32_t);
 
   auto result = std::make_shared<StreamingMessageBundleMeta>(bytes + byte_offset);

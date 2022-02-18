@@ -5,6 +5,51 @@
 using namespace ray;
 using namespace ray::streaming;
 
+class MockDataWriter : public DataWriter {
+ public:
+  MockDataWriter(std::shared_ptr<RuntimeContext> &runtime_context)
+      : DataWriter(runtime_context) {}
+  uint64_t GetSendEmptyCnt(const ObjectID &queue_id) {
+    return channel_info_map_[queue_id].sent_empty_cnt;
+  }
+};
+
+TEST(StreamingMockTransfer, mock_produce_consume) {
+  std::shared_ptr<Config> transfer_config;
+  ObjectID channel_id = ObjectID::FromRandom();
+  ProducerChannelInfo producer_channel_info;
+  producer_channel_info.channel_id = channel_id;
+  producer_channel_info.current_message_id = 0;
+  MockProducer producer(transfer_config, producer_channel_info);
+
+  ConsumerChannelInfo consumer_channel_info;
+  consumer_channel_info.channel_id = channel_id;
+  MockConsumer consumer(transfer_config, consumer_channel_info);
+
+  producer.CreateTransferChannel();
+  uint8_t data[3] = {1, 2, 3};
+  StreamingMessagePtr message =
+      std::make_shared<StreamingMessage>(data, 3, 7, StreamingMessageType::Message);
+  std::list<StreamingMessagePtr> message_list;
+  message_list.push_back(message);
+  StreamingMessageBundle bundle(message_list, 1, 1, StreamingMessageBundleType::Bundle);
+  uint64_t bundle_size = bundle.ClassBytesSize();
+  uint8_t *bundle_bytes = new uint8_t[bundle_size];
+  bundle.ToBytes(bundle_bytes);
+
+  producer.ProduceItemToChannel(bundle_bytes, bundle_size);
+
+  std::shared_ptr<DataBundle> message_bundle(new DataBundle());
+  consumer.ConsumeItemFromChannel(message_bundle, -1);
+  EXPECT_EQ(message_bundle->data_size, bundle_size);
+  EXPECT_EQ(std::memcmp(message_bundle->data, bundle_bytes, bundle_size), 0);
+  consumer.NotifyChannelConsumed(1);
+
+  delete[] bundle_bytes;
+  auto status = consumer.ConsumeItemFromChannel(message_bundle, -1);
+  EXPECT_EQ(status, StreamingStatus::NoSuchItem);
+}
+
 class StreamingTransferTest : public ::testing::Test {
  public:
   StreamingTransferTest() {
@@ -12,7 +57,7 @@ class StreamingTransferTest : public ::testing::Test {
     reader_runtime_context = std::make_shared<RuntimeContext>();
     writer_runtime_context->MarkMockTest();
     reader_runtime_context->MarkMockTest();
-    writer = std::make_shared<DataWriter>(writer_runtime_context);
+    writer = std::make_shared<MockDataWriter>(writer_runtime_context);
     reader = std::make_shared<DataReader>(reader_runtime_context);
   }
   virtual ~StreamingTransferTest() = default;
@@ -25,7 +70,7 @@ class StreamingTransferTest : public ::testing::Test {
     std::vector<ChannelCreationParameter> params(queue_vec.size());
     std::vector<TransferCreationStatus> creation_status;
     writer->Init(queue_vec, params, channel_id_vec, queue_size_vec);
-    reader->Init(queue_vec, params, channel_id_vec, creation_status, -1);
+    reader->Init(queue_vec, params, channel_id_vec, creation_status, timer_interval);
   }
   void DestroyTransfer() {
     writer.reset();
@@ -33,11 +78,12 @@ class StreamingTransferTest : public ::testing::Test {
   }
 
  protected:
-  std::shared_ptr<DataWriter> writer;
+  std::shared_ptr<MockDataWriter> writer;
   std::shared_ptr<DataReader> reader;
   std::vector<ObjectID> queue_vec;
   std::shared_ptr<RuntimeContext> writer_runtime_context;
   std::shared_ptr<RuntimeContext> reader_runtime_context;
+  int64_t timer_interval = -1;
 };
 
 TEST_F(StreamingTransferTest, exchange_single_channel_test) {
@@ -48,6 +94,7 @@ TEST_F(StreamingTransferTest, exchange_single_channel_test) {
   writer->WriteMessageToBufferRing(queue_vec[0], data, data_size);
   std::shared_ptr<DataBundle> msg;
   reader->GetBundle(5000, msg);
+  STREAMING_LOG(INFO) << Util::Byte2hex(msg->data, msg->data_size);
   StreamingMessageBundlePtr bundle_ptr = StreamingMessageBundle::FromBytes(msg->data);
   auto &message_list = bundle_ptr->GetMessageList();
   auto &message = message_list.front();
@@ -79,7 +126,7 @@ TEST_F(StreamingTransferTest, exchange_consumed_test) {
   std::shared_ptr<uint8_t> data(new uint8_t[data_size]);
   auto func = [data, data_size](int index) { std::fill_n(data.get(), data_size, index); };
 
-  size_t num = 100000;
+  size_t num = 40000;
   std::thread write_thread([this, data, data_size, &func, num]() {
     for (size_t i = 0; i < num; ++i) {
       func(i);
@@ -157,6 +204,32 @@ TEST_F(StreamingTransferTest, flow_control_test) {
     EXPECT_EQ(std::memcmp(message->Payload(), data.get(), data_size), 0);
   }
   write_thread.join();
+}
+
+TEST_F(StreamingTransferTest, empty_message_flow_control) {
+  // NOTE(lingxuan.zlx): No empty message will be sent after version 2.1,
+  // so we choose exectly once strategy to fit unit test.
+  StreamingConfig config;
+  config.SetReliabilityLevel(ReliabilityLevel::EXACTLY_ONCE);
+  config.SetEmptyMessageTimeInterval(5);
+  config.SetWriterConsumedStep(5);
+  config.SetBundleConsumedStep(5);
+  config.SetReaderConsumedStep(2);
+  timer_interval = 10;
+  writer_runtime_context->SetConfig(config);
+  InitTransfer();
+  writer->Run();
+  size_t reader_target_empty_cnt = 10;
+  for (size_t i = 0; i < reader_target_empty_cnt; ++i) {
+    std::shared_ptr<DataBundle> msg;
+    while (StreamingStatus::OK != reader->GetBundle(12, msg)) {
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_TRUE(msg && msg->meta && msg->meta->IsEmptyMsg());
+  }
+  STREAMING_LOG(INFO) << writer->GetSendEmptyCnt(queue_vec[0]) << " "
+                      << reader_target_empty_cnt;
+  EXPECT_TRUE(writer->GetSendEmptyCnt(queue_vec[0]) < 10 * reader_target_empty_cnt);
 }
 
 int main(int argc, char **argv) {

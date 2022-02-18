@@ -66,7 +66,21 @@ StreamingStatus StreamingQueueProducer::ClearTransferCheckpoint(
 }
 
 StreamingStatus StreamingQueueProducer::RefreshChannelInfo() {
-  channel_info_.queue_info.consumed_message_id = queue_->GetMinConsumedMsgID();
+  uint64_t consumed_message_id = queue_->GetMinConsumedMsgID();
+  auto &queue_info = channel_info_.queue_info;
+  if (consumed_message_id != std::numeric_limits<uint64_t>::max()) {
+    queue_info.consumed_message_id =
+        std::max(queue_info.consumed_message_id, consumed_message_id);
+  }
+  uint64_t consumed_bundle_id = queue_->GetMinConsumedBundleID();
+  if (consumed_bundle_id != std::numeric_limits<uint64_t>::max()) {
+    if (queue_info.consumed_bundle_id != std::numeric_limits<uint64_t>::max()) {
+      queue_info.consumed_bundle_id =
+          std::max(queue_info.consumed_bundle_id, consumed_bundle_id);
+    } else {
+      queue_info.consumed_bundle_id = consumed_bundle_id;
+    }
+  }
   return StreamingStatus::OK;
 }
 
@@ -102,8 +116,13 @@ StreamingStatus StreamingQueueProducer::ProduceItemToChannel(uint8_t *data,
 
     return StreamingStatus::FullChannel;
   }
+  // NOTE(lingxuan.zlx): Current bundle should be recorded after it's finished to push
+  // item into channel.
+  channel_info_.current_bundle_id = GetLastBundleId();
   return StreamingStatus::OK;
 }
+
+uint64_t StreamingQueueProducer::GetLastBundleId() { return queue_->GetCurrentSeqId(); }
 
 Status StreamingQueueProducer::PushQueueItem(uint8_t *data, uint32_t data_size,
                                              uint64_t timestamp, uint64_t msg_id_start,
@@ -192,37 +211,38 @@ StreamingStatus StreamingQueueConsumer::RefreshChannelInfo() {
   return StreamingStatus::OK;
 }
 
-StreamingStatus StreamingQueueConsumer::ConsumeItemFromChannel(uint8_t *&data,
-                                                               uint32_t &data_size,
-                                                               uint32_t timeout) {
+StreamingStatus StreamingQueueConsumer::ConsumeItemFromChannel(
+    std::shared_ptr<DataBundle> &message, uint32_t timeout) {
   STREAMING_LOG(INFO) << "GetQueueItem qid: " << channel_info_.channel_id;
   STREAMING_CHECK(queue_ != nullptr);
   QueueItem item = queue_->PopPendingBlockTimeout(timeout * 1000);
+  message->bundle_id = item.SeqId();
   if (item.SeqId() == QUEUE_INVALID_SEQ_ID) {
     STREAMING_LOG(INFO) << "GetQueueItem timeout.";
-    data = nullptr;
-    data_size = 0;
+    message->data = nullptr;
+    message->data_size = 0;
     return StreamingStatus::OK;
   }
 
-  data = item.Buffer()->Data();
-  data_size = item.Buffer()->Size();
+  message->data = item.Buffer()->Data();
+  message->data_size = item.DataSize();
 
   STREAMING_LOG(DEBUG) << "GetQueueItem qid: " << channel_info_.channel_id
                        << " seq_id: " << item.SeqId() << " msg_id: " << item.MaxMsgId()
-                       << " data_size: " << data_size;
+                       << " data_size: " << item.DataSize();
   return StreamingStatus::OK;
 }
 
 StreamingStatus StreamingQueueConsumer::NotifyChannelConsumed(uint64_t offset_id) {
   STREAMING_CHECK(queue_ != nullptr);
-  queue_->OnConsumed(offset_id);
+  queue_->OnConsumed(offset_id, channel_info_.queue_info.consumed_bundle_id);
   return StreamingStatus::OK;
 }
 
 // For mock queue transfer
 struct MockQueueItem {
-  uint64_t seq_id;
+  uint64_t bundle_id;
+  uint64_t message_id;
   uint32_t data_size;
   std::shared_ptr<uint8_t> data;
 };
@@ -275,12 +295,16 @@ StreamingStatus MockProducer::ProduceItemToChannel(uint8_t *data, uint32_t data_
 
   STREAMING_LOG(DEBUG) << "ProduceItemToChannel, qid=" << channel_info_.channel_id
                        << ", msg_id_start=" << msg_id_start
-                       << ", msg_id_end=" << msg_id_end << ", meta=" << *meta;
+                       << ", msg_id_end=" << msg_id_end << ", current bundle id "
+                       << current_bundle_id_ << ", meta=" << *meta;
 
   MockQueueItem item;
   item.data.reset(new uint8_t[data_size], std::default_delete<uint8_t[]>());
   item.data_size = data_size;
-  item.seq_id = msg_id_end;
+  current_bundle_id_++;
+  item.bundle_id = current_bundle_id_;
+  item.message_id = msg_id_end;
+  channel_info_.current_bundle_id = current_bundle_id_;
   std::memcpy(item.data.get(), data, data_size);
   ring_buffer->Push(item);
   mock_queue.queue_info_map[channel_info_.channel_id].last_message_id = msg_id_end;
@@ -292,10 +316,12 @@ StreamingStatus MockProducer::RefreshChannelInfo() {
   MockQueue &mock_queue = MockQueue::GetMockQueue();
   channel_info_.queue_info.consumed_message_id =
       mock_queue.queue_info_map[channel_info_.channel_id].consumed_message_id;
+  channel_info_.queue_info.consumed_bundle_id =
+      mock_queue.queue_info_map[channel_info_.channel_id].consumed_bundle_id;
   return StreamingStatus::OK;
 }
 
-StreamingStatus MockConsumer::ConsumeItemFromChannel(uint8_t *&data, uint32_t &data_size,
+StreamingStatus MockConsumer::ConsumeItemFromChannel(std::shared_ptr<DataBundle> &message,
                                                      uint32_t timeout) {
   std::unique_lock<std::mutex> lock(MockQueue::mutex);
   MockQueue &mock_queue = MockQueue::GetMockQueue();
@@ -307,11 +333,12 @@ StreamingStatus MockConsumer::ConsumeItemFromChannel(uint8_t *&data, uint32_t &d
   if (mock_queue.message_buffer[channel_id]->Empty()) {
     return StreamingStatus::NoSuchItem;
   }
-  auto item = mock_queue.message_buffer[channel_id]->Front();
+  MockQueueItem item = mock_queue.message_buffer[channel_id]->Front();
   mock_queue.consumed_buffer[channel_id]->Push(item);
+  message->data = item.data.get();
+  message->data_size = item.data_size;
+  message->bundle_id = item.bundle_id;
   mock_queue.message_buffer[channel_id]->Pop();
-  data = item.data.get();
-  data_size = item.data_size;
   return StreamingStatus::OK;
 }
 
@@ -324,9 +351,16 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
                        << ", offset id " << offset_id << " ring buffer size "
                        << ring_buffer->Size() << ", consumed messge id "
                        << mock_queue.queue_info_map[channel_id].consumed_message_id;
-  while (!ring_buffer->Empty() && ring_buffer->Front().seq_id < offset_id) {
+  // NOTE(lingxuan.zlx): why we erase all of messages whose id is less than consumed
+  // offset id? To speed up fetch data from upstream, we keep loop fetch from transfer
+  // channel in at least once mode. Once fetched data is null, this consumer send
+  // duplicated consumed notified message id of last bundle item. Previous bundle might be
+  // cleared from consumed buffer before, so we just keep this last bundle in buffer list.
+  while (!ring_buffer->Empty() && ring_buffer->Front().message_id < offset_id) {
     ring_buffer->Pop();
   }
+  mock_queue.queue_info_map[channel_id].consumed_bundle_id =
+      channel_info_.queue_info.consumed_bundle_id;
   mock_queue.queue_info_map[channel_id].consumed_message_id = offset_id;
   return StreamingStatus::OK;
 }
@@ -334,8 +368,10 @@ StreamingStatus MockConsumer::NotifyChannelConsumed(uint64_t offset_id) {
 StreamingStatus MockConsumer::RefreshChannelInfo() {
   std::unique_lock<std::mutex> lock(MockQueue::mutex);
   MockQueue &mock_queue = MockQueue::GetMockQueue();
-  channel_info_.queue_info.last_message_id =
-      mock_queue.queue_info_map[channel_info_.channel_id].last_message_id;
+  channel_info_.queue_info.consumed_message_id =
+      mock_queue.queue_info_map[channel_info_.channel_id].consumed_message_id;
+  channel_info_.queue_info.consumed_bundle_id =
+      mock_queue.queue_info_map[channel_info_.channel_id].consumed_bundle_id;
   return StreamingStatus::OK;
 }
 
