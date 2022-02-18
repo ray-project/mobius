@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
 
-from ray.streaming.datastream import StreamSource
-from ray.streaming.function import LocalFileSourceFunction
-from ray.streaming.function import CollectionSourceFunction
-from ray.streaming.function import SourceFunction
-from ray.streaming.runtime.gateway_client import GatewayClient
+from raystreaming.datastream import StreamSource
+from raystreaming.function import LocalFileSourceFunction
+from raystreaming.function import CollectionSourceFunction
+from raystreaming.function import SourceFunction
+from raystreaming.runtime.gateway_client import GatewayClient
 
 
 class StreamingContext:
     """
     Main entry point for ray streaming functionality.
     A StreamingContext is also a wrapper of java
-    `io.ray.streaming.api.context.StreamingContext`
+    `raystreaming.api.context.StreamingContext`
     """
 
     class Builder:

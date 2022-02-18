@@ -6,18 +6,18 @@ import time
 from typing import Optional
 
 import ray
-import ray.streaming.runtime.processor as processor
+import raystreaming.runtime.processor as processor
 from ray.actor import ActorHandle
-from ray.streaming.generated import remote_call_pb2
-from ray.streaming.runtime.command import WorkerRollbackRequest
-from ray.streaming.runtime.failover import Barrier
-from ray.streaming.runtime.graph import ExecutionVertexContext, ExecutionVertex
-from ray.streaming.runtime.remote_call import CallResult, RemoteCallMst
-from ray.streaming.runtime.context_backend import ContextBackendFactory
-from ray.streaming.runtime.task import SourceStreamTask, OneInputStreamTask
-from ray.streaming.runtime.transfer import channel_bytes_to_str
-from ray.streaming.config import Config
-import ray.streaming._streaming as _streaming
+from raystreaming.generated import remote_call_pb2
+from raystreaming.runtime.command import WorkerRollbackRequest
+from raystreaming.runtime.failover import Barrier
+from raystreaming.runtime.graph import ExecutionVertexContext, ExecutionVertex
+from raystreaming.runtime.remote_call import CallResult, RemoteCallMst
+from raystreaming.runtime.context_backend import ContextBackendFactory
+from raystreaming.runtime.task import SourceStreamTask, OneInputStreamTask
+from raystreaming.runtime.transfer import channel_bytes_to_str
+from raystreaming.config import Config
+import raystreaming._streaming as _streaming
 
 logger = logging.getLogger(__name__)
 

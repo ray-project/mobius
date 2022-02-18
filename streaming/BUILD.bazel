@@ -468,6 +468,7 @@ pyx_library(
     name = "_streaming",
     srcs = glob([
         "python/raystreaming/_streaming.pyx",
+        "python/raystreaming/__init__.py",
         "python/raystreaming/__init__.pxd",
         "python/raystreaming/includes/*.pxd",
         "python/raystreaming/includes/*.pxi",

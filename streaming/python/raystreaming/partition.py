@@ -3,7 +3,7 @@ import inspect
 from abc import ABC, abstractmethod
 
 from ray import cloudpickle
-from ray.streaming.runtime import gateway_client
+from raystreaming.runtime import gateway_client
 
 
 class Partition(ABC):

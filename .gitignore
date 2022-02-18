@@ -183,6 +183,10 @@ tools/prometheus*
 # ray project files
 project-id
 .mypy_cache/
+streaming/python/raystreaming/_streaming.so
+streaming/python/raystreaming/generated
+streaming/python/raystreaming/jars
+streaming/python/build
 
 # gitpod cache related
 .pip-cache/

@@ -1,9 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
 
-import ray.streaming.context as context
-from ray.streaming import message
-from ray.streaming.operator import OperatorType
+import raystreaming.context as context
+from raystreaming import message
+from raystreaming.operator import OperatorType
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class StreamingProcessor(Processor, ABC):
 
 
 class SourceProcessor(StreamingProcessor):
-    """Processor for :class:`ray.streaming.operator.SourceOperator` """
+    """Processor for :class:`raystreaming.operator.SourceOperator` """
 
     def __init__(self, operator):
         super().__init__(operator)

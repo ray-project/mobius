@@ -6,25 +6,25 @@ import typing
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from ray.streaming.collector import OutputCollector
-from ray.streaming.config import Config
-from ray.streaming.context import RuntimeContextImpl
-from ray.streaming.generated import remote_call_pb2
-from ray.streaming.runtime import serialization
-from ray.streaming.runtime.command import WorkerCommitReport
-from ray.streaming.runtime.failover import Barrier, OpCheckpointInfo
-from ray.streaming.runtime.remote_call import RemoteCallMst
-from ray.streaming.runtime.serialization import \
+from raystreaming.collector import OutputCollector
+from raystreaming.config import Config
+from raystreaming.context import RuntimeContextImpl
+from raystreaming.generated import remote_call_pb2
+from raystreaming.runtime import serialization
+from raystreaming.runtime.command import WorkerCommitReport
+from raystreaming.runtime.failover import Barrier, OpCheckpointInfo
+from raystreaming.runtime.remote_call import RemoteCallMst
+from raystreaming.runtime.serialization import \
     PythonSerializer, CrossLangSerializer
-from ray.streaming.runtime.transfer import CheckpointBarrier
-from ray.streaming.runtime.transfer import DataMessage
-from ray.streaming.runtime.transfer import ChannelID, DataWriter, DataReader
-from ray.streaming.runtime.transfer import ChannelRecoverInfo
-from ray.streaming.runtime.transfer import ChannelInterruptException
+from raystreaming.runtime.transfer import CheckpointBarrier
+from raystreaming.runtime.transfer import DataMessage
+from raystreaming.runtime.transfer import ChannelID, DataWriter, DataReader
+from raystreaming.runtime.transfer import ChannelRecoverInfo
+from raystreaming.runtime.transfer import ChannelInterruptException
 
 if typing.TYPE_CHECKING:
-    from ray.streaming.runtime.worker import JobWorker
-    from ray.streaming.runtime.processor import Processor, SourceProcessor
+    from raystreaming.runtime.worker import JobWorker
+    from raystreaming.runtime.processor import Processor, SourceProcessor
 
 logger = logging.getLogger(__name__)
 

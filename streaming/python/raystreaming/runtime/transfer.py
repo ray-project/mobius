@@ -6,10 +6,10 @@ from enum import Enum
 from abc import ABC, abstractmethod
 
 import ray
-import ray.streaming._streaming as _streaming
-import ray.streaming.generated.streaming_pb2 as streaming_pb
+import raystreaming._streaming as _streaming
+import raystreaming.generated.streaming_pb2 as streaming_pb
 from ray.actor import ActorHandle
-from ray.streaming.config import Config
+from raystreaming.config import Config
 from ray._raylet import JavaFunctionDescriptor
 from ray._raylet import PythonFunctionDescriptor
 from ray._raylet import Language
