@@ -83,7 +83,7 @@ class StreamingTransferTest : public ::testing::Test {
   std::vector<ObjectID> queue_vec;
   std::shared_ptr<RuntimeContext> writer_runtime_context;
   std::shared_ptr<RuntimeContext> reader_runtime_context;
-  int64_t timer_interval = -1;
+  int64_t timer_interval = std::numeric_limits<int64_t>::max();
 };
 
 TEST_F(StreamingTransferTest, exchange_single_channel_test) {
@@ -102,6 +102,7 @@ TEST_F(StreamingTransferTest, exchange_single_channel_test) {
 }
 
 TEST_F(StreamingTransferTest, exchange_multichannel_test) {
+  timer_interval = 0xffff;
   int channel_num = 4;
   InitTransfer(4);
   writer->Run();
@@ -111,7 +112,7 @@ TEST_F(StreamingTransferTest, exchange_multichannel_test) {
     writer->WriteMessageToBufferRing(queue_vec[i], data, data_size);
     std::shared_ptr<DataBundle> msg;
     reader->GetBundle(5000, msg);
-    EXPECT_EQ(msg->from, queue_vec[i]);
+    EXPECT_EQ(msg->from, queue_vec[i]) << *msg.get();
     StreamingMessageBundlePtr bundle_ptr = StreamingMessageBundle::FromBytes(msg->data);
     auto &message_list = bundle_ptr->GetMessageList();
     auto &message = message_list.front();

@@ -33,13 +33,15 @@ void DataReader::Init(const std::vector<ObjectID> &input_ids,
 void DataReader::Init(const std::vector<ObjectID> &input_ids,
                       const std::vector<ChannelCreationParameter> &init_params,
                       int64_t timer_interval) {
-  STREAMING_LOG(INFO) << input_ids.size() << " queue to init.";
+  STREAMING_LOG(INFO) << "Reader " << input_ids.size()
+                      << " queue to init, timer interval " << timer_interval;
 
   transfer_config_->Set(ConfigEnum::QUEUE_ID_VECTOR, input_ids);
 
   last_fetched_queue_item_ = nullptr;
   timer_interval_ = timer_interval;
-  last_message_ts_ = 0;
+  // NOTE(lingxuan.zlx): Last recived message timestamp is marked in current system time.
+  last_message_ts_ = current_sys_time_ms();
   input_queue_ids_ = input_ids;
   last_message_latency_ = 0;
   last_bundle_unit_ = 0;

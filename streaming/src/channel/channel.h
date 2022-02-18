@@ -105,7 +105,7 @@ class ProducerChannel {
   virtual StreamingStatus RefreshChannelInfo() = 0;
   virtual StreamingStatus ProduceItemToChannel(uint8_t *data, uint32_t data_size) = 0;
   virtual StreamingStatus NotifyChannelConsumed(uint64_t channel_offset) = 0;
-  virtual uint64_t GetLastBundleId() = 0;
+  virtual uint64_t GetLastBundleId() const = 0;
 
  protected:
   std::shared_ptr<Config> transfer_config_;
@@ -199,7 +199,7 @@ class MockProducer : public ProducerChannel {
   StreamingStatus NotifyChannelConsumed(uint64_t channel_offset) override {
     return StreamingStatus::OK;
   }
-  uint64_t GetLastBundleId() { return current_bundle_id_; }
+  uint64_t GetLastBundleId() const { return current_bundle_id_; }
 
  private:
   uint64_t current_bundle_id_;
