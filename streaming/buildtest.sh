@@ -10,7 +10,7 @@ function compile()
 function test_streaming_cpp() 
 {
     pushd $script_dir
-      bazel test //:streaming_lib
+      bazel test //:all
     popd
 }
 
