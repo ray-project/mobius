@@ -6,6 +6,8 @@ arg1="${1-}"
 
 achitecture="${HOSTTYPE}"
 platform="unknown"
+echo "platform is ${platform}"
+
 case "${OSTYPE}" in
   msys)
     echo "Platform is Windows."
