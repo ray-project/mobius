@@ -143,7 +143,7 @@ class StreamingQueueProducer : public ProducerChannel {
   StreamingStatus RefreshChannelInfo() override;
   StreamingStatus ProduceItemToChannel(uint8_t *data, uint32_t data_size) override;
   StreamingStatus NotifyChannelConsumed(uint64_t offset_id) override;
-  uint64_t GetLastBundleId() const;
+  uint64_t GetLastBundleId() const override;
 
  private:
   StreamingStatus CreateQueue();
@@ -199,7 +199,7 @@ class MockProducer : public ProducerChannel {
   StreamingStatus NotifyChannelConsumed(uint64_t channel_offset) override {
     return StreamingStatus::OK;
   }
-  uint64_t GetLastBundleId() const { return current_bundle_id_; }
+  uint64_t GetLastBundleId() const override { return current_bundle_id_; }
 
  private:
   uint64_t current_bundle_id_;

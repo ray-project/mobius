@@ -19,7 +19,7 @@ for cmd in bazel_build_cmd:
 # Package raystreaming
 setup(
     name="raystreaming",
-    version="1.0",
+    version="0.0.1",
     author="Ray Streaming Team",
     description="streaming module",
     packages=find_packages(),
