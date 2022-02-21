@@ -14,6 +14,6 @@ function test_streaming_cpp()
     popd
 }
 
-compile
+#compile
 test_streaming_cpp
 
