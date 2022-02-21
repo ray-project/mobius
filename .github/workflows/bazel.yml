@@ -18,11 +18,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install JDK
-      run: sudo apt-get install -yq openjdk-8-jdk
-
     - name: Install bazel
       run: sudo sh scripts/install-bazel.sh
 
     - name: Build streaming and test
-      run: cd streaming && bazel test //:all
+      run: cd streaming && sh streaming/buildtest.sh
