@@ -25,9 +25,10 @@ case "${OSTYPE}" in
   *)
     echo "Platform is Linux (or WSL)."
     platform="linux"
+    ;;
 esac
 
-if [ "${platform}" = "darwin"]; then
+if [ "${platform}" = "darwin" ]; then
     wget "https://github.com/bazelbuild/bazel/releases/download/5.0.0/bazel-5.0.0-installer-darwin-x86_64.sh" -O bazel-5.0.0-installer-darwin-x86_64.sh
     sh bazel-5.0.0-installer-darwin-x86_64.sh
 else
