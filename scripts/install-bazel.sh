@@ -21,8 +21,8 @@ case "${OSTYPE}" in
     platform="linux"
     ;;
   *)
-    echo "Unrecognized platform."
-    exit 1
+    echo "Platform is Linux (or WSL)."
+    platform="linux"
 esac
 
 if [ "${platform}" = "darwin"]; then
