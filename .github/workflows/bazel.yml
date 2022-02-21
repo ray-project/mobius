@@ -17,18 +17,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name:  Install
+    - name: Install bazel
       run:  |
             if [ "$RUNNER_OS" == "Linux" ]; then
                   export OSTYPE="linux-gnu"
-            elif [ "$RUNNER_OS" == "macOs" ]; then
+            elif [ "$RUNNER_OS" == "macOS" ]; then
                   export OSTYPE="darwin"
             else
                   echo "$RUNNER_OS not supported"
                   exit 1
             fi
-    - name: Install bazel
-      run: sudo sh scripts/install-bazel.sh
+            sudo sh scripts/install-bazel.sh
 
     - name: Build streaming and test
       run: sh -c "bash streaming/buildtest.sh"
