@@ -18,7 +18,7 @@ jobs:
     - name: Install bazel
       run:  |
             apt-get update
-            apt-get install -yq wget gcc openjdk-8-jdk python3.7 python3.7-dev
+            apt-get install -yq wget gcc openjdk-8-jdk python3.7
             sh scripts/install-bazel.sh
 
     - name: Build streaming and test
