@@ -22,7 +22,7 @@ jobs:
       run: sudo apt-get install -yq openjdk-8-jdk
 
     - name: Install bazel
-      run: sh scripts/install-bazel.sh
+      run: sudo sh scripts/install-bazel.sh
 
     - name: Build streaming and test
       run: cd streaming && bazel test //:all
