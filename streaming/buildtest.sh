@@ -14,6 +14,8 @@ function test_streaming_cpp()
       # NOTE(lingxuan.zlx): unsupported host instruction of bazel on github workflow
       bazel test "streaming_message_ring_buffer_tests" "barrier_helper_tests" "streaming_message_serialization_tests" "streaming_mock_transfer" \
       "streaming_util_tests" "streaming_perf_tests" "event_service_tests" "queue_protobuf_tests" "data_writer_tests"
+      exit_code = $?
+      exit $exit_code
     popd
 }
 

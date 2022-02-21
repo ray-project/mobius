@@ -45,6 +45,7 @@ class StreamingQueueTestBase : public ::testing::TestWithParam<uint64_t> {
           TestSetupUtil::StartRaylet("127.0.0.1", node_manager_port_ + i, "127.0.0.1",
                                      "\"CPU,4.0,resource" + std::to_string(i) + ",10\"",
                                      &raylet_store_socket_names_[i]);
+      STREAMING_LOG(INFO) << "Start raylet " << raylet_socket_names_[i];
     }
   }
 
