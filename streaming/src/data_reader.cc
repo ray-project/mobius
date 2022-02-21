@@ -40,7 +40,7 @@ void DataReader::Init(const std::vector<ObjectID> &input_ids,
 
   last_fetched_queue_item_ = nullptr;
   timer_interval_ = timer_interval;
-  // NOTE(lingxuan.zlx): Last recived message timestamp is marked in current system time.
+  // NOTE(lingxuan.zlx): Last recieved message timestamp is marked in current system time.
   last_message_ts_ = current_sys_time_ms();
   input_queue_ids_ = input_ids;
   last_message_latency_ = 0;
@@ -301,7 +301,8 @@ StreamingStatus DataReader::StashNextMessageAndPop(std::shared_ptr<DataBundle> &
   // Record some metrics.
   channel_info.last_queue_item_delay =
       new_msg->meta->GetMessageBundleTs() - message->meta->GetMessageBundleTs();
-  channel_info.last_queue_item_latency = current_time_ms() - current_time_ms();
+  channel_info.last_queue_item_latency =
+      current_sys_time_ms() - message->meta->GetMessageBundleTs();
   return StreamingStatus::OK;
 }
 
@@ -312,9 +313,13 @@ StreamingStatus DataReader::GetMergedMessageBundle(std::shared_ptr<DataBundle> &
 
   auto &offset_info = channel_info_map_[message->from];
   uint64_t cur_queue_previous_msg_id = offset_info.current_message_id;
+  int64_t cur_time = current_sys_time_ms();
   STREAMING_LOG(DEBUG) << "[Reader] [Bundle]" << *message
-                       << ", cur_queue_previous_msg_id=" << cur_queue_previous_msg_id;
-  int64_t cur_time = current_time_ms();
+                       << ", cur_queue_previous_msg_id=" << cur_queue_previous_msg_id
+                       << ", bundle id=" << message->bundle_id
+                       << ", current time=" << cur_time
+                       << ", timer interval=" << timer_interval_
+                       << ", last_message_ts=" << last_message_ts_;
   if (message->meta->IsBundle()) {
     last_message_ts_ = cur_time;
     is_valid_break = true;
