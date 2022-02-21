@@ -17,14 +17,6 @@ jobs:
 
     - name: Install bazel
       run:  |
-            if [ "$RUNNER_OS" == "Linux" ]; then
-                  export OSTYPE="linux-gnu"
-            elif [ "$RUNNER_OS" == "macOS" ]; then
-                  export OSTYPE="darwin"
-            else
-                  echo "$RUNNER_OS not supported"
-                  exit 1
-            fi
             sudo apt-get install -yq wget gcc openjdk-8-jdk python3.7 python3.7-dev
             sudo sh scripts/install-bazel.sh
 
