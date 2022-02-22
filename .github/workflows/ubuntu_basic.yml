@@ -1,0 +1,25 @@
+name: ubuntu-basic
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  streaming-cpp-test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container: docker.io/library/ubuntu:latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install bazel
+      run:  |
+            apt-get update
+            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
+            sh scripts/install-bazel.sh
+
+    - name: Build streaming and test
+      run: sh -c "bash streaming/buildtest.sh"
