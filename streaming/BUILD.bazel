@@ -132,6 +132,7 @@ cc_library(
     strip_include_prefix = "src",
     visibility = ["//visibility:public"],
     deps = [
+        "exported_internal.so",
         "stats_lib.so",
         ":streaming_config",
         ":streaming_util",
