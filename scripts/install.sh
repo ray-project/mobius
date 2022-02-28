@@ -6,9 +6,13 @@ function pre_action()
   echo "Installation started."
 
   # install bazel
-  echo "Install bazel..."
-  cd $script_dir
-  sh ./install-bazel.sh
+  if ! type "bazel" > /dev/null; then
+    echo "Install bazel..."
+    cd $script_dir
+    sh ./install-bazel.sh
+  else
+    echo "Skip bazel installation."
+  fi
 }
 
 function install_streaming()
