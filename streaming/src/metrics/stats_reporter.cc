@@ -1,5 +1,6 @@
 #include "metrics/stats_reporter.h"
 #include "util/streaming_logging.h"
+#include "ray/internal/internal.h"
 
 namespace ray {
 namespace streaming {
@@ -33,7 +34,7 @@ bool StatsReporter::Start(const StreamingMetricsConfig &conf) {
                       << ", stats disabled : "
                       << stats::StatsConfig::instance().IsStatsDisabled();
   for (auto &tag : global_tags_) {
-    global_tag_key_list_.push_back(stats::TagKeyType::Register(tag.first));
+    global_tag_key_list_.push_back(internal::TagRegister(tag.first));
   }
   return true;
 }
@@ -90,7 +91,7 @@ void StatsReporter::UpdateGauge(const std::string &metric_name,
     std::vector<stats::TagKeyType> tag_key_list(global_tag_key_list_.begin(),
                                                 global_tag_key_list_.end());
     for (auto &tag : tags) {
-      tag_key_list.push_back(stats::TagKeyType::Register(tag.first));
+      tag_key_list.push_back(internal::TagRegister(tag.first));
     }
     metric = std::shared_ptr<ray::stats::Metric>(
         new ray::stats::Gauge(merged_metric_name, "", "", tag_key_list));

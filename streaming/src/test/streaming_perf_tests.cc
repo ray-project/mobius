@@ -24,7 +24,7 @@ class StreamingReporterCounterTest : public ::testing::Test {
     absl::Duration harvest_interval = absl::Milliseconds(kReportFlushInterval / 2);
     ray::stats::StatsConfig::instance().SetReportInterval(report_interval);
     ray::stats::StatsConfig::instance().SetHarvestInterval(harvest_interval);
-    const stats::TagsType global_tags = {{stats::ResourceNameKey, "CPU"}};
+    const stats::TagsType global_tags = {};
     std::shared_ptr<stats::MetricExporterClient> exporter(
         new stats::StdoutExporterClient());
     ray::stats::Init(global_tags, 10054, exporter);
