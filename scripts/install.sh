@@ -39,8 +39,6 @@ function post_action
 }
 
 # script started
-pre_action
-
 if [[ -z $1 ]]; then pre_action && install_all
 elif [[ $1 = 'skip_pre' ]]; then install_all
 else
