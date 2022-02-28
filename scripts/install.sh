@@ -20,7 +20,7 @@ function install_streaming()
   echo "Install streaming..."
   # install c++ and java
   cd $script_dir/../streaming && bazel build java:streaming_java_pkg
-  cd $script_dir/../streamin/java && mvn clean install
+  cd $script_dir/../streaming/java && mvn clean install
 
   # install python
   cd $script_dir/../streaming/python && python setup.py install
