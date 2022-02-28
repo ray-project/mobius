@@ -18,7 +18,7 @@ function pre_action()
 function install_streaming()
 {
   echo "Install streaming..."
-  # install java
+  # install c++ and java
   cd $script_dir/../streaming && bazel build java:streaming_java_pkg
   cd $script_dir/../streamin/java && mvn clean install
 
