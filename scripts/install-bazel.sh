@@ -6,7 +6,6 @@ arg1="${1-}"
 
 achitecture="${HOSTTYPE}"
 platform="unknown"
-echo "platform is ${platform}"
 
 case "${OSTYPE}" in
   msys)
@@ -27,6 +26,7 @@ case "${OSTYPE}" in
     platform="linux"
     ;;
 esac
+echo "platform is ${platform}"
 
 if [ "${platform}" = "darwin" ]; then
     wget "https://github.com/bazelbuild/bazel/releases/download/5.0.0/bazel-5.0.0-installer-darwin-x86_64.sh" -O bazel-5.0.0-installer-darwin-x86_64.sh

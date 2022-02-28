@@ -41,17 +41,20 @@ function post_action
 # script started
 pre_action
 
-if [[ -z $1 ]];
-  then install_all
+if [[ -z $1 ]]; then pre_action && install_all
+elif [[ $1 = 'skip_pre' ]]; then install_all
 else
   case $1 in
       all)
+          pre_action
           install_all
       ;;
       streaming)
+          pre_action
           install_streaming
       ;;
       training)
+          pre_action
           install_training
       ;;
   esac
