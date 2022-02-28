@@ -9,7 +9,7 @@ function pre_action()
   if ! type "bazel" > /dev/null; then
     echo "Install bazel..."
     cd $script_dir
-    sh ./install-bazel.sh
+    sh ./install-bazel.sh --user
   else
     echo "Skip bazel installation."
   fi
