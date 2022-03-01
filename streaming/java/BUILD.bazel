@@ -292,14 +292,14 @@ jar_jar(
 genrule(
     name = "streaming_java_pkg",
     srcs = [
-        "//java:streaming_dist_shaded.jar",
-        "//java:gen_maven_deps",
+        ":gen_maven_deps",
+        ":streaming_dist_shaded",
     ],
     outs = ["streaming_java_pkg.out"],
     cmd = """
         WORK_DIR="$$(pwd)"
         rm -rf "$$WORK_DIR/python/raystreaming/jars" && mkdir -p "$$WORK_DIR/python/raystreaming/jars"
-        cp -f $(location //java:streaming_dist_shaded.jar) "$$WORK_DIR/python/raystreaming/jars/raystreaming_dist.jar"
+        cp -f $(location //java:streaming_dist_shaded) "$$WORK_DIR/python/raystreaming/jars/raystreaming_dist.jar"
         date > $@
     """,
     local = 1,
