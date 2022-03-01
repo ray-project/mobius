@@ -3,6 +3,7 @@
 gcc: gcc9
 java: jdk8+
 python: 3.6+
+maven: 3.6+
 bazel: 4.2.1+ (please remove the lower version if installed already)
 ```
 
