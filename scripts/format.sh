@@ -77,7 +77,7 @@ format_all()
     echo "format python using black..."
     git ls-files -- '*.py' "${GIT_LS_EXCLUDES[@]}" | xargs -P 10 black "${BLACK_EXCLUDES[@]}"
 
-    echo "format java using codestyle..."
+    echo "format java using 'maven-checkstyle-plugin'..."
     cd "${script_dir}"/../streaming/java || exit 1
     mvn clean spotless:apply
 }
