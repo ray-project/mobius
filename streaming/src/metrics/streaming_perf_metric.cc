@@ -1,7 +1,8 @@
+#include "metrics/streaming_perf_metric.h"
+
 #include <sstream>
 
 #include "metrics/stats_reporter.h"
-#include "metrics/streaming_perf_metric.h"
 #include "util/streaming_logging.h"
 
 namespace ray {

@@ -1,6 +1,7 @@
 #include "metrics/stats_reporter.h"
-#include "util/streaming_logging.h"
+
 #include "ray/internal/internal.h"
+#include "util/streaming_logging.h"
 
 namespace ray {
 namespace streaming {

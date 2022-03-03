@@ -62,6 +62,9 @@ check_format_command_exist()
 # Format all files.
 format_all()
 {
+    # go to root dir
+    cd "${script_dir}"/.. || exit 1
+
     echo "check shell using shellcheck..."
     shell_files=($(git ls-files -- '*.sh'))
     if [ 0 -lt "${#shell_files[@]}" ]; then
