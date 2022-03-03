@@ -1,7 +1,7 @@
 #!/bin/bash
 
-script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd) || exit 1
-
+cd "$(dirname "${BASH_SOURCE:-$0}")" || exit
+ROOT="$(git rev-parse --show-toplevel)"
 
 CLANG_FORMAT_VERSION_REQUIRED="12.0.0"
 CLANG_FORMAT_VERSION=""
@@ -63,7 +63,7 @@ check_format_command_exist()
 format_all()
 {
     # go to root dir
-    cd "${script_dir}"/.. || exit 1
+    cd "${ROOT}" || exit 1
 
     echo "check shell using shellcheck..."
     shell_files=($(git ls-files -- '*.sh'))
@@ -78,7 +78,7 @@ format_all()
     git ls-files -- '*.py' "${GIT_LS_EXCLUDES[@]}" | xargs -P 10 black "${BLACK_EXCLUDES[@]}"
 
     echo "format java using 'maven-checkstyle-plugin'..."
-    cd "${script_dir}"/../streaming/java || exit 1
+    cd "${ROOT}"/streaming/java || exit 1
     mvn clean spotless:apply
 }
 
