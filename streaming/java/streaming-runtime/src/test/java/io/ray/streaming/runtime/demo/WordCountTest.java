@@ -79,34 +79,36 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
     streamingContext.withConfig(config);
     int totalNum = 100000;
     DataStreamSource.fromSource(streamingContext, new MySourceFunction(totalNum))
-            .flatMap(
-                    (FlatMapFunction<String, WordAndCount>)
-                            (value, collector) -> {
-                              String[] records = value.split(" ");
-                              for (String record : records) {
-                                collector.collect(new WordAndCount(record, 1));
-                              }
-                            })
-            .keyBy(pair -> pair.word)
-            .reduce(
-                    (ReduceFunction<WordAndCount>)
-                            (oldValue, newValue) ->
-                                    new WordAndCount(oldValue.word, oldValue.count + newValue.count))
-            .sink((SinkFunction<WordAndCount>) result -> userDefinedWordCount.put(result.word, result.count));
+        .flatMap(
+            (FlatMapFunction<String, WordAndCount>)
+                (value, collector) -> {
+                  String[] records = value.split(" ");
+                  for (String record : records) {
+                    collector.collect(new WordAndCount(record, 1));
+                  }
+                })
+        .keyBy(pair -> pair.word)
+        .reduce(
+            (ReduceFunction<WordAndCount>)
+                (oldValue, newValue) ->
+                    new WordAndCount(oldValue.word, oldValue.count + newValue.count))
+        .sink(
+            (SinkFunction<WordAndCount>)
+                result -> userDefinedWordCount.put(result.word, result.count));
 
     streamingContext.execute("testUserDefinedSourceWordCount");
 
     while (true) {
-        int totalWords = userDefinedWordCount.values().stream().mapToInt(Integer::intValue).sum();
-        if (totalWords >= totalNum) {
-          LOG.info("Total word size : {}.", totalWords);
-          for (Map.Entry<String, Integer> entry : userDefinedWordCount.entrySet()) {
-            LOG.info("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
-          }
-          break;
+      int totalWords = userDefinedWordCount.values().stream().mapToInt(Integer::intValue).sum();
+      if (totalWords >= totalNum) {
+        LOG.info("Total word size : {}.", totalWords);
+        for (Map.Entry<String, Integer> entry : userDefinedWordCount.entrySet()) {
+          LOG.info("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
         }
+        break;
+      }
       try {
-          LOG.info("Total word size : {}.", totalWords);
+        LOG.info("Total word size : {}.", totalWords);
         Thread.sleep(1000);
       } catch (InterruptedException e) {
         LOG.warn("Got an exception while sleeping.", e);
@@ -131,16 +133,15 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
     private Random random;
     private int totalNum;
     private int count;
+
     public MySourceFunction(int totalNum) {
       random = new Random();
       this.totalNum = totalNum;
       this.count = 0;
-
     }
+
     @Override
-    public void init(int parallelism, int index) {
-
-    }
+    public void init(int parallelism, int index) {}
 
     @Override
     public void fetch(SourceContext<String> ctx) throws Exception {
@@ -152,8 +153,6 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
     }
 
     @Override
-    public void close() {
-
-    }
+    public void close() {}
   }
 }

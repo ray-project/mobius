@@ -3,13 +3,12 @@
 #include <string>
 #include <thread>
 
-#include "opencensus/stats/internal/delta_producer.h"
-#include "opencensus/stats/internal/stats_exporter_impl.h"
-#include "ray/stats/stats.h"
-
 #include "config/streaming_config.h"
 #include "gtest/gtest.h"
 #include "metrics/streaming_perf_metric.h"
+#include "opencensus/stats/internal/delta_producer.h"
+#include "opencensus/stats/internal/stats_exporter_impl.h"
+#include "ray/stats/stats.h"
 
 using namespace ray::streaming;
 using namespace ray;

@@ -122,7 +122,9 @@ StreamingStatus StreamingQueueProducer::ProduceItemToChannel(uint8_t *data,
   return StreamingStatus::OK;
 }
 
-uint64_t StreamingQueueProducer::GetLastBundleId() const { return queue_->GetCurrentSeqId(); }
+uint64_t StreamingQueueProducer::GetLastBundleId() const {
+  return queue_->GetCurrentSeqId();
+}
 
 Status StreamingQueueProducer::PushQueueItem(uint8_t *data, uint32_t data_size,
                                              uint64_t timestamp, uint64_t msg_id_start,

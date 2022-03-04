@@ -38,21 +38,23 @@ public class CrossLangSerializer implements Serializer {
     List list = (List) msgPackSerializer.deserialize(bytes);
     Byte typeId = (Byte) list.get(0);
     switch (typeId) {
-      case RECORD_TYPE_ID: {
-        String stream = (String) list.get(1);
-        Object value = list.get(2);
-        Record record = new Record(value);
-        record.setStream(stream);
-        return record;
-      }
-      case KEY_RECORD_TYPE_ID: {
-        String stream = (String) list.get(1);
-        Object key = list.get(2);
-        Object value = list.get(3);
-        KeyRecord keyRecord = new KeyRecord(key, value);
-        keyRecord.setStream(stream);
-        return keyRecord;
-      }
+      case RECORD_TYPE_ID:
+        {
+          String stream = (String) list.get(1);
+          Object value = list.get(2);
+          Record record = new Record(value);
+          record.setStream(stream);
+          return record;
+        }
+      case KEY_RECORD_TYPE_ID:
+        {
+          String stream = (String) list.get(1);
+          Object key = list.get(2);
+          Object value = list.get(3);
+          KeyRecord keyRecord = new KeyRecord(key, value);
+          keyRecord.setStream(stream);
+          return keyRecord;
+        }
       default:
         throw new UnsupportedOperationException("Unsupported type " + typeId);
     }

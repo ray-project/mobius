@@ -1,10 +1,5 @@
 #!/bin/bash
 # Current github bazel version is 5.0.0
-ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
-
-arg1="${1-}"
-
-achitecture="${HOSTTYPE}"
 platform="unknown"
 
 case "${OSTYPE}" in
