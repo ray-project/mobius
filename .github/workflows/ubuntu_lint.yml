@@ -23,7 +23,7 @@ jobs:
             sh scripts/install-bazel.sh
 
     - name: Prepare format tools
-      run: sh -c "bash script/prepare_format_tools.sh"
+      run: sh -c "bash scripts/prepare_format_tools.sh"
 
     - name: Lint and Check
       run: sh -c "bash streaming/buildtest.sh"
