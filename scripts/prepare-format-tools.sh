@@ -3,13 +3,15 @@
 # Install format tools on ubuntu.
 
 install_buildifier() {
-    apt-get install -yq golang-go
-    export GO111MODULE=on
-    go install github.com/bazelbuild/buildtools/buildifier@latest
+    pushd /tmp/
+    git clone git@github.com:bazelbuild/buildtools.git
+    cd bazelbuild
+    export PATH=$PATH:/tmp/bazelbuild/bazel-bin/buildifier/buildifier_
+    popd
 }
 
 install_clang_format() {
-    pip3 install clang-format==12.0.0
+    pip3 install clang-format==12.0.1
 }
 
 install_black_format() {
