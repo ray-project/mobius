@@ -3,10 +3,10 @@
 # Install format tools on ubuntu.
 
 install_buildifier() {
-    pushd /tmp/
+    pushd /
     git clone git@github.com:bazelbuild/buildtools.git
     cd bazelbuild
-    export PATH=$PATH:/tmp/bazelbuild/bazel-bin/buildifier/buildifier_
+    export PATH=$PATH:/bazelbuild/bazel-bin/buildifier/buildifier_
     popd
 }
 
