@@ -19,7 +19,11 @@ jobs:
       run:  |
             apt-get update
             apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
+            apt-get install git go pip3 maven
             sh scripts/install-bazel.sh
 
-    - name: Lint
-      run: sh -c "bash scripts/check-git-format-output.sh"
+    - name: Prepare format tools
+      run: sh -c "bash script/prepare_format_tools.sh"
+
+    - name: Lint and Check
+      run: sh -c "bash streaming/buildtest.sh"
