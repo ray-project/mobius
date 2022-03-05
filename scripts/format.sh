@@ -52,7 +52,7 @@ check_format_command_exist()
 {
   # check buildifier
   if command -v buildifier >/dev/null; then
-      CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $3}')
+      CLANG_FORMAT_VERSION=$(buildifier --version | awk '{print $3}')
   else
       echo "'buildifier' is not installed. Use '-sb' to skip formatting bazel files or install the buildifier from
       'https://github.com/bazelbuild/buildtools/tree/master/buildifier'."

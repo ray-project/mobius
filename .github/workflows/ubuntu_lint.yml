@@ -1,0 +1,25 @@
+name: ubuntu-lint
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  streaming-cpp-test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container: docker.io/library/ubuntu:latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Init Env
+      run:  |
+            apt-get update
+            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
+            sh scripts/install-bazel.sh
+
+    - name: Lint
+      run: sh -c "bash scripts/check-git-format-output.sh"

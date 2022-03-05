@@ -21,6 +21,7 @@ function test_streaming_cpp()
     popd || exit
 }
 
-compile
+# To shorten compile time we disable compile before cpp test.
+#compile
 test_streaming_cpp
 
