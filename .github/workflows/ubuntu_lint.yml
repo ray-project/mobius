@@ -16,6 +16,7 @@ jobs:
      # More detail see https://github.com/actions/checkout/issues/335.
     - name: Init Before Check
       run: |
+            apt-get update
             apt-get install -yq git python3-pip maven
 
     - name: Checkout
@@ -23,7 +24,6 @@ jobs:
 
     - name: Init Env
       run:  |
-            apt-get update
             apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
             sh scripts/install-bazel.sh
 
