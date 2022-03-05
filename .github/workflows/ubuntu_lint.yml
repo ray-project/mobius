@@ -26,4 +26,4 @@ jobs:
       run: sh -c "bash scripts/prepare_format_tools.sh"
 
     - name: Lint and Check
-      run: sh -c "bash streaming/buildtest.sh"
+      run: sh -c "bash scripts/format.sh"
