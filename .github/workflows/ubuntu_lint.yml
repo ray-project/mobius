@@ -24,7 +24,7 @@ jobs:
 
     - name: Init Env
       run:  |
-            apt-get update
+            apt-get update && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" apt-get install -y tzdata
             apt-get install -yq openjdk-8-jdk wget gcc g++ python3.7 zlib1g-dev zip
             apt-get install -yq python3-pip maven
             sh scripts/install-bazel.sh
