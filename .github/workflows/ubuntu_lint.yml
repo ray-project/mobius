@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  streaming-cpp-test:
+  Ubuntu-Lint:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     container: docker.io/library/ubuntu:latest
@@ -19,7 +19,7 @@ jobs:
       run:  |
             apt-get update
             apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
-            apt-get install git go pip3 maven
+            apt-get install -yq git golang-go python3-pip maven
             sh scripts/install-bazel.sh
 
     - name: Prepare format tools
