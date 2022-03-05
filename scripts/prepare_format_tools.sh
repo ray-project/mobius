@@ -3,6 +3,8 @@
 # Install format tools on ubuntu.
 
 install_buildifier() {
+    apt-get install golang-go
+    export GO111MODULE=on
     go install github.com/bazelbuild/buildtools/buildifier@latest
 }
 
