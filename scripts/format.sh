@@ -56,7 +56,7 @@ check_format_command_exist()
 {
   # check buildifier
   if command -v $CURRENT_DIR/buildifier >/dev/null; then
-      BUILDIFIER_VERSION=$(${CURRENT_DIR}/buildifier --version | awk '{print $3}')
+      BUILDIFIER_VERSION=$(buildifier --version | awk '{print $3}')
   else
       echo "'${CURRENT_DIR}/buildifier' is not installed. Use '-sb' to skip formatting bazel files or install the buildifier from
       'https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier'."
