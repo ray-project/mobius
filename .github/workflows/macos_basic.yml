@@ -1,4 +1,4 @@
-name: BAZEL-BUILD-AND-TEST
+name: macos-building
 
 on:
   push:

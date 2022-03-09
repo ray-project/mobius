@@ -1,4 +1,4 @@
-name: ubuntu-basic
+name: ubuntu-building
 
 on:
   push:
