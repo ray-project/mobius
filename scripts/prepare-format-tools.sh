@@ -5,6 +5,7 @@ current_dir=$(dirname "${BASH_SOURCE:-$0}")
 
 install_buildifier() {
     wget "https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier" -O $current_dir/buildifier
+    chmod a+x $current_dir/buildifier
     export PATH=$PATH:$current_dir
 }
 
