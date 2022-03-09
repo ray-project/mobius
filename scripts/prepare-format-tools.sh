@@ -4,7 +4,7 @@ current_dir=$(dirname "${BASH_SOURCE:-$0}")
 # Install format tools on ubuntu.
 
 install_buildifier() {
-    wget " https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier" -O $current_dir/buildifier
+    wget "https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier" -O $current_dir/buildifier
 }
 
 install_clang_format() {
