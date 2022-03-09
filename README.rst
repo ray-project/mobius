@@ -7,7 +7,12 @@ Mobius : Online Machine Learning.
 `Mobius <https://tech.antfin.com/products/ARCMOBIUS>`_ is an AI infra platform including realtime computing and training.  
 
 .. image:: https://github.com/ray-project/mobius/workflows/ubuntu-building/badge.svg
+   :target: https://github.com/ray-project/mobius/actions/workflows/ubuntu-building.yml
+
 .. image:: https://github.com/ray-project/mobius/workflows/macos-building/badge.svg
+   :target: https://github.com/ray-project/mobius/actions/workflows/macos-building.yml
+
+|
 
 Ray Streaming
 =============
