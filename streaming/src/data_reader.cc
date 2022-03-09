@@ -17,7 +17,7 @@ namespace streaming {
 const uint32_t DataReader::kReadItemTimeout = 1000;
 
 void DataReader::Init(const std::vector<ObjectID> &input_ids,
-                      const std::vector<ChannelCreationParameter> &init_params,
+			      const std::vector<ChannelCreationParameter> &init_params,
                       const std::vector<uint64_t> &streaming_msg_ids,
                       std::vector<TransferCreationStatus> &creation_status,
                       int64_t timer_interval) {
