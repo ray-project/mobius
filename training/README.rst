@@ -6,8 +6,8 @@ Online Training
 Training solution is one of the major topics for online machine learning systems, different from the traditional batch training approach,
 online training needs to learn from infinite streaming data, with high stability and performance for both system and algorithm level.
 
-.. image:: assets/training_infra.jpg
-   :target: assets/training_infra.jpg
+.. image:: ../docs/assets/training/training_infra.jpg
+   :target: ../docs/assets/training/training_infra.jpg
    :alt: training
 
 
@@ -21,14 +21,14 @@ Penrose
 ============
 Penrose act as an training middle tier between explicit training framework and external environments， and datasource. High level architecture as below:
 
-.. image:: assets/penrose_arch.jpg
-   :target: assets/penrose_arch.jpg
+.. image:: ../docs/assets/training/penrose_arch.jpg
+   :target: ../docs/assets/training/penrose_arch.jpg
    :alt: penrose_arch
 
 It implements the interface provided by ray streaming like TFOperator, which make sure the training framework can be invoked by ray streaming, then explicit training framework is invoked by dedicated executors, actually we hope ray streaming is one of the external environments we want to support, we hope it's transparent to the training code, and let users focus on their model.
 
-.. image:: assets/penrose_uml.jpg
-   :target: assets/penrose_uml.jpg
+.. image:: ../docs/assets/training/penrose_uml.jpg
+   :target: ../docs/assets/training/penrose_uml.jpg
    :alt: penrose_uml
 
 Above diagram shows the basic uml for penrose, penrose handles below stuffs:

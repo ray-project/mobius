@@ -1,5 +1,5 @@
-.. image:: streaming/assets/infinite.svg
-   :target: streaming/assets/infinite.svg
+.. image:: docs/assets/infinite.svg
+   :target: docs/assets/infinite.svg
    :alt: mobius
 
 Mobius : Online Machine Learning.
@@ -128,8 +128,8 @@ Training
 
 Training solution is one of the major topics for online machine learning systems, different from the traditional batch training approach, online training needs to learn from infinite streaming data, with high stability and performance for both system and algorithm level.
 
-.. image:: training/assets/training_infra.jpg
-   :target: training/assets/training_infra.jpg
+.. image:: docs/assets/training/training_infra.jpg
+   :target: docs/assets/training/training_infra.jpg
    :alt: training
 
 Key Features
