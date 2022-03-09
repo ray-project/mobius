@@ -15,7 +15,7 @@ exclude_regex="(.*thirdparty/)"
 sh -c "bash format.sh"
 format_error_code=$?
 output="$(git diff)"
-if [ "$format_error_code" = "0" && "$output" = "0" ] ; then
+if [ [ "$format_error_code" = "0" ] && [ "$output" = "0" ] ] ; then
   echo "format passed."
   exit 0
 else
