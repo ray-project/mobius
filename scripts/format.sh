@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd "$(dirname "${BASH_SOURCE:-$0}")" || exit
+CURRENT_DIR=$(dirname "${BASH_SOURCE:-$0}")
+cd $CURRENT_DIR || exit
 ROOT="$(git rev-parse --show-toplevel)"
 
 CLANG_FORMAT_VERSION_REQUIRED="12.0.0"
@@ -51,8 +52,8 @@ version_caution() {
 check_format_command_exist()
 {
   # check buildifier
-  if command -v buildifier >/dev/null; then
-      CLANG_FORMAT_VERSION=$(buildifier --version | awk '{print $3}')
+  if command -v $CURRENT_DIR/buildifier >/dev/null; then
+      BUILDIFIER_VERSION=$(${CURRENT_DIR}/buildifier --version | awk '{print $3}')
   else
       echo "'buildifier' is not installed. Use '-sb' to skip formatting bazel files or install the buildifier from
       'https://github.com/bazelbuild/buildtools/tree/master/buildifier'."
