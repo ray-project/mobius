@@ -2,7 +2,7 @@
    :target: streaming/assets/infinite.svg
    :alt: mobius
 
-Mobius : Online Machine Learning. ![](https://github.com/ray-project/mobiss/workflows/ubuntu-building/badge.svg) ![](https://github.com/ray-project/mobiss/workflows/macos-building/badge.svg)
+Mobius : Online Machine Learning. ![](https://github.com/ray-project/mobius/workflows/ubuntu-building/badge.svg) ![](https://github.com/ray-project/mobius/workflows/macos-building/badge.svg)
 ============
 `Mobius <https://tech.antfin.com/products/ARCMOBIUS>`_ is an AI infra platform including realtime computing and training.
 [](https://github.com/jovany-wang/metable/workflows/bazel-build/badge.svg)
