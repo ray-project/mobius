@@ -1,4 +1,4 @@
-[![mobius](../streaming/assets/infinite.svg)](streaming/assets/infinite.svg)
+[![mobius](assets/infinite.svg)](assets/infinite.svg)
 
 Mobius : Online Machine Learning. ============
 [Mobius](https://tech.antfin.com/products/ARCMOBIUS) is an AI infra
@@ -115,7 +115,7 @@ systems, different from the traditional batch training approach, online
 training needs to learn from infinite streaming data, with high
 stability and performance for both system and algorithm level.
 
-[![training](../training/assets/training_infra.jpg)](training/assets/training_infra.jpg)
+[![training](assets/training_infra.jpg)](assets/training_infra.jpg)
 
 Key Features
 ------------
