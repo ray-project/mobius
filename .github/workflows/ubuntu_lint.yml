@@ -1,0 +1,36 @@
+name: ubuntu-lint
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  Ubuntu-Lint:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container: docker.io/library/ubuntu:latest
+
+    steps:
+     # More detail see https://github.com/actions/checkout/issues/335.
+    - name: Init Before Check
+      run: |
+            apt-get update
+            apt-get install -yq git
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Init Env
+      run:  |
+            apt-get update && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" apt-get install -y tzdata
+            apt-get install -yq openjdk-8-jdk wget gcc g++ python3.7 zlib1g-dev zip
+            apt-get install -yq python3-pip maven
+            sh scripts/install-bazel.sh
+
+    - name: Prepare format tools
+      run: sh -c "bash scripts/prepare-format-tools.sh"
+
+    - name: Lint and Check
+      run: sh -c "bash scripts/format.sh" && sh -c "bash scripts/check-git-format-output.sh"

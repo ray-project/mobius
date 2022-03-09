@@ -1,6 +1,9 @@
 #!/bin/bash
 
-cd "$(dirname "${BASH_SOURCE:-$0}")" || exit
+CURRENT_DIR=$(dirname "${BASH_SOURCE:-$0}")
+echo "Current directory ${CURRENT_DIR}."
+cd $CURRENT_DIR || exit
+ls .
 ROOT="$(git rev-parse --show-toplevel)"
 
 CLANG_FORMAT_VERSION_REQUIRED="12.0.0"
@@ -24,9 +27,11 @@ GIT_LS_EXCLUDES=(
 )
 SKIP_BAZEL=0
 SKIP_CPP=0
-SKIP_JAVA=0
+# Skip java lint by default.
+SKIP_JAVA=1
 SKIP_PYTHON=0
 SKIP_SHELL=0
+alias BUILDIFIER_CMD="buildifier"
 
 usage()
 {
@@ -51,11 +56,14 @@ version_caution() {
 check_format_command_exist()
 {
   # check buildifier
-  if command -v buildifier >/dev/null; then
-      CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $3}')
+  if  command -v buildifier >/dev/null ; then
+      BUILDIFIER_VERSION=$(buildifier --version | awk '{print $3}')
+  elif [ -f "buildifier" ] ; then
+      BUILDIFIER_VERSION=$(./buildifier --version | awk '{print $3}')
+      alias BUILDIFIER_CMD="./buildifier"
   else
       echo "'buildifier' is not installed. Use '-sb' to skip formatting bazel files or install the buildifier from
-      'https://github.com/bazelbuild/buildtools/tree/master/buildifier'."
+      'https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier'."
       exit 1
   fi
 
@@ -111,7 +119,7 @@ format_all()
       echo "=================== format bazel files using buildifier ==================="
       bazel_files="$(git ls-files -- '*.BUILD' '*.bazel' '*.bzl' 'BUILD' 'WORKSPACE')"
       if [ 0 -lt "${#bazel_files[@]}" ]; then
-          buildifier -mode=fix -diff_command="diff -u" "${bazel_files[@]}"
+          BUILDIFIER_CMD -mode=fix -diff_command="diff -u" "${bazel_files[@]}"
       fi
     else
       echo "=================== skip formatting bazel files ==================="
