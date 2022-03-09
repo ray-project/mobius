@@ -1,6 +1,8 @@
 #!/bin/bash
 
 CURRENT_DIR=$(dirname "${BASH_SOURCE:-$0}")
+echo "Current directory ${CURRENT_DIR}."
+ls $CURRENT_DIR
 cd $CURRENT_DIR || exit
 ROOT="$(git rev-parse --show-toplevel)"
 
@@ -25,7 +27,8 @@ GIT_LS_EXCLUDES=(
 )
 SKIP_BAZEL=0
 SKIP_CPP=0
-SKIP_JAVA=0
+# Skip java lint by default.
+SKIP_JAVA=1
 SKIP_PYTHON=0
 SKIP_SHELL=0
 
@@ -55,8 +58,8 @@ check_format_command_exist()
   if command -v $CURRENT_DIR/buildifier >/dev/null; then
       BUILDIFIER_VERSION=$(${CURRENT_DIR}/buildifier --version | awk '{print $3}')
   else
-      echo "'buildifier' is not installed. Use '-sb' to skip formatting bazel files or install the buildifier from
-      'https://github.com/bazelbuild/buildtools/tree/master/buildifier'."
+      echo "'${CURRENT_DIR}/buildifier' is not installed. Use '-sb' to skip formatting bazel files or install the buildifier from
+      'https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier'."
       exit 1
   fi
 
@@ -151,8 +154,6 @@ format_all()
     fi
 }
 
-# Skip java dy default.
-SKIP_JAVA=1
 # script started
 while [ $# -gt 0 ]; do
   key="$1"
