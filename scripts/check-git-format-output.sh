@@ -12,12 +12,14 @@ else
 fi
 
 exclude_regex="(.*thirdparty/)"
-output="$(sh format.sh)"
-if [ "$output" = "no modified files to format" ] || [ "$output" = "clang-format did not modify any files" ] ; then
+sh -c "bash format.sh"
+format_error_code=$?
+output="$(git diff)"
+if [ "$format_error_code" = "0" && "$output" = "0" ] ; then
   echo "format passed."
   exit 0
 else
-  echo "format failed:"
+  echo "format failed: ${format_error_code}"
   echo "$output"
   exit 1
 fi
