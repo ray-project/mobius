@@ -150,6 +150,8 @@ format_all()
     fi
 }
 
+# Skip java dy default.
+SKIP_JAVA=1
 # script started
 while [ $# -gt 0 ]; do
   key="$1"

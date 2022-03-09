@@ -1,10 +1,10 @@
 #!/bin/bash
 
+current_dir=$(dirname "${BASH_SOURCE:-$0}")
 # Install format tools on ubuntu.
 
 install_buildifier() {
-    apt-get install -y golang-go
-    go get github.com/bazelbuild/buildtools/buildifier
+    wget " https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/buildifier" -O $current_dir/buildifier
 }
 
 install_clang_format() {
