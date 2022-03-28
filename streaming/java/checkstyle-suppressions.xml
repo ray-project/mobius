@@ -12,6 +12,7 @@
   <suppress files=".*" checks="MissingJavadocMethod"/>
   <suppress files=".*" checks="MissingJavadocType"/>
   <suppress files=".*" checks="InvalidJavadocPosition"/>
+  <suppress files=".*" checks="Indentation"/>
   <suppress files=".*" checks="RequireEmptyLineBeforeBlockTagGroup"/>
   <suppress files=".*" checks="SingleLineJavadoc"/>
   <suppress files=".*" checks="VariableDeclarationUsageDistance"/>
