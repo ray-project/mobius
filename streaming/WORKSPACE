@@ -10,6 +10,15 @@ http_archive(
         sha256 = "69a2dc6e0d78e14758ef60ab2eb34b99c88f3e1c6292b1181dbf83e164272032",
 )
 
+http_archive(
+    name = "platforms",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.5/platforms-0.0.5.tar.gz",
+        "https://github.com/bazelbuild/platforms/releases/download/0.0.5/platforms-0.0.5.tar.gz",
+    ],
+    sha256 = "379113459b0feaf6bfbb584a91874c065078aa673222846ac765f86661c27407",
+)
+
 
 load("@com_github_ray_project_ray//bazel:ray_deps_setup.bzl", "ray_deps_setup")
 
