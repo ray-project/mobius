@@ -1,6 +1,18 @@
 #!/bin/bash
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 
+# run a bunch of ut cases
+# param 1 could be like examples below：
+# raylet, java, python_core, python_non_core, streaming
+# or combination of several param, splited by white space or comma, such as:
+# raylet  java  python_core
+# empty param means run all cases
+
+function ut_all()
+{
+    run_case  "$@"
+}
+
 function compile()
 {
     pushd "$script_dir" || exit
@@ -21,7 +33,139 @@ function test_streaming_cpp()
     popd || exit
 }
 
+function test_streaming_java() 
+{
+    pushd "$script_dir" || exit
+
+    bazel build libstreaming_java.so
+    exit $?
+
+    popd || exit
+}
+
+
+
+function streaming_package() 
+{
+    pushd "$script_dir" || exit
+
+    bazel build streaming_pkg
+    exit $?
+
+    popd || exit
+}
+
+function run_case()
+{
+    local test_categories="$1"
+    if [[ "$test_categories" == "" ]]; then
+      test_categories="streaming_package streaming_cpp streaming_java streaming_python"
+    fi
+
+    cd $script_dir
+
+    if [[ "$test_categories" == *package* ]]; then
+      echo "Running package."
+      set +e
+      
+      streaming_package
+      CODE=$?
+
+      if [[ $CODE != 0 ]]; then
+        exit $CODE
+      fi
+    fi
+
+    if [[ "$test_categories" == *java* ]]; then
+      echo "Running package."
+      set +e
+      
+      test_streaming_java
+      CODE=$?
+
+      if [[ $CODE != 0 ]]; then
+        exit $CODE
+      fi
+    fi
+
+    if [[ "$test_categories" == *cpp* ]]; then
+      echo "Running cpp tests."
+      set +e
+      
+      test_streaming_cpp
+      CODE=$?
+
+      if [[ $CODE != 0 ]]; then
+        exit $CODE
+      fi
+    fi
+}
+
+function usage(){
+  echo "use like this:"
+  echo 'sh buildtest.sh  --test_categories="compile,streaming_cpp,streaming_java" --'
+  echo 'sh buildtest.sh --"'
+  echo '--test_categories: specify which type of tests you want to run'
+  echo '                   you can specify one or several types'
+  echo '                   splited by white space or comma'
+}
+
+
+TEST_CATEGORIES=""
+
+optspec=":hv-:"
+while getopts "$optspec" optchar; do
+    case "${optchar}" in
+        -)
+            case "${OPTARG}" in
+                test_categories)
+                    val="${!OPTIND}"; OPTIND=$(( OPTIND + 1 ))
+                    echo "Parsing option: '--${OPTARG}', value: '${val}'" >&2;
+                    ;;
+                test_categories=*)
+                    val=${OPTARG#*=}
+                    opt=${OPTARG%=$val}
+                    echo "Parsing option: '--${opt}', value: '${val}'" >&2
+                    TEST_CATEGORIES=${val}
+                    ;;
+                *)
+                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "Unknown option --${OPTARG}" >&2
+                    fi
+                    ;;
+            esac;;
+        h)
+            usage
+            exit 2
+            ;;
+        *)
+            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+                echo "Non-option argument: '-${OPTARG}'" >&2
+            fi
+            ;;
+    esac
+done
+
+if [[ $TEST_CATEGORIES == "raylet" ]]; then
+    shift $((OPTIND - 1))
+    sanitizer=$1
+
+    case ${sanitizer} in
+        "asan")
+            SANITIZER_PARAM="--config=asan";;
+        "tsan")
+            SANITIZER_PARAM="--config=tsan"
+            cat /proc/sys/kernel/randomize_va_space
+            ;;
+        *)
+            echo "no "${sanitizer}
+    esac
+fi
+
 # To shorten compile time we disable compile before cpp test.
 #compile
-test_streaming_cpp
 
+#if [[ "$TEST_CATEGORIES" != *lint* ]]; then
+#  compile
+#fi
+ut_all $TEST_CATEGORIES
