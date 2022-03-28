@@ -21,5 +21,8 @@ jobs:
             apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
             sh scripts/install-bazel.sh
 
-    - name: Build streaming and test
-      run: sh -c "bash streaming/buildtest.sh"
+    - name: Streaming java test
+      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
+
+    - name: Streaming cpp test
+      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
