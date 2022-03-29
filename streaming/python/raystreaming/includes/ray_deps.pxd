@@ -159,3 +159,34 @@ cdef class Buffer:
 
     @staticmethod
     cdef make(const shared_ptr[CBuffer]& buffer)
+
+cdef class BaseID:
+    # To avoid the error of "Python int too large to convert to C ssize_t",
+    # here `cdef size_t` is required.
+    cdef size_t hash(self)
+
+
+cdef class ActorID(BaseID):
+    cdef CActorID data
+
+    cdef CActorID native(self)
+
+    cdef size_t hash(self)
+
+cdef class FunctionDescriptor:
+    cdef:
+        CFunctionDescriptor descriptor
+
+cdef class ObjectRef(BaseID):
+    cdef:
+        CObjectID data
+        # Flag indicating whether or not this object ref was added to the set
+        # of active IDs in the core worker so we know whether we should clean
+        # it up.
+        c_bool in_core_worker
+
+    cdef CObjectID native(self)
+
+cdef class JavaFunctionDescriptor(FunctionDescriptor):
+    cdef:
+        CJavaFunctionDescriptor *typed_descriptor

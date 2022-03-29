@@ -16,12 +16,10 @@ from raystreaming.includes.ray_deps cimport (
     LANGUAGE_JAVA,
     CBuffer,
     CObjectID,
-)
-
-from ray._raylet cimport (
     ActorID,
-    ObjectRef,
     FunctionDescriptor,
+    JavaFunctionDescriptor,
+    ObjectRef,
 )
 
 cimport raystreaming.includes.libstreaming as libstreaming
@@ -42,7 +40,6 @@ from raystreaming.includes.libstreaming cimport (
     CStreamingBarrierHeader,
     kBarrierHeaderSize,
 )
-from ray._raylet import JavaFunctionDescriptor
 
 import logging
 
