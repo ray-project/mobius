@@ -9,19 +9,16 @@ from libcpp.list cimport list as c_list
 from libcpp.unordered_map cimport unordered_map as c_unordered_map
 from cython.operator cimport dereference, postincrement
 
-from ray.includes.common cimport (
+from raystreaming.includes.ray_deps cimport (
+    Buffer,
     CRayFunction,
     LANGUAGE_PYTHON,
     LANGUAGE_JAVA,
-    CBuffer
+    CBuffer,
+    CObjectID,
 )
 
-from ray.includes.unique_ids cimport (
-    CActorID,
-    CObjectID
-)
 from ray._raylet cimport (
-    Buffer,
     ActorID,
     ObjectRef,
     FunctionDescriptor,

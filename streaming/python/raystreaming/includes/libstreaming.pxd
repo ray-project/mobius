@@ -21,19 +21,12 @@ cdef inline object PyObject_to_object(PyObject* o):
     cpython.Py_DECREF(result)
     return result
 
-from ray.includes.common cimport (
-    CLanguage,
-    CRayObject,
-    CRayStatus,
-    CRayFunction
-)
-
-from ray.includes.unique_ids cimport (
+from raystreaming.includes.ray_deps cimport (
+    CRayFunction,
     CActorID,
-    CJobID,
-    CTaskID,
     CObjectID,
 )
+
 
 cdef extern from "common/status.h" namespace "ray::streaming" nogil:
     cdef cppclass CStreamingStatus "ray::streaming::StreamingStatus":
