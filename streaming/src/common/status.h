@@ -22,6 +22,7 @@ enum class StreamingStatus : uint32_t {
   OutOfMemory = 13,
   Invalid = 14,
   UnknownError = 15,
+  TimeOut = 17,
   TailStatus = 999,
   MIN = OK,
   MAX = TailStatus
