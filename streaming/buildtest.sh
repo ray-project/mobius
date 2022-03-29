@@ -60,9 +60,11 @@ function test_streaming_python()
     if [[ $OSTYPE == "darwin" ]]; then
         pushd $script_dir/python
         python3 setup.py install --verbose
+        popd
     else
         pip install -e python --verbose 
     fi
+    python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
     exit $?
 
     popd || exit

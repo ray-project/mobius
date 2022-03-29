@@ -18,7 +18,7 @@ jobs:
     - name: Install bazel
       run:  |
             apt-get update
-            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
+            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.6 zlib1g-dev zip
             apt-get install -yq pip
             sh scripts/install-bazel.sh
 

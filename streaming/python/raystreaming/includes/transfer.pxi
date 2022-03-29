@@ -9,17 +9,22 @@ from libcpp.list cimport list as c_list
 from libcpp.unordered_map cimport unordered_map as c_unordered_map
 from cython.operator cimport dereference, postincrement
 
-from raystreaming.includes.ray_deps cimport (
-    Buffer,
+from ray.includes.common cimport (
     CRayFunction,
     LANGUAGE_PYTHON,
     LANGUAGE_JAVA,
-    CBuffer,
-    CObjectID,
+    CBuffer
+)
+
+from ray.includes.unique_ids cimport (
+    CActorID,
+    CObjectID
+)
+from ray._raylet cimport (
+    Buffer,
     ActorID,
-    FunctionDescriptor,
-    JavaFunctionDescriptor,
     ObjectRef,
+    FunctionDescriptor,
 )
 
 cimport raystreaming.includes.libstreaming as libstreaming
@@ -40,6 +45,7 @@ from raystreaming.includes.libstreaming cimport (
     CStreamingBarrierHeader,
     kBarrierHeaderSize,
 )
+from ray._raylet import JavaFunctionDescriptor
 
 import logging
 
