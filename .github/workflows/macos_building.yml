@@ -30,4 +30,4 @@ jobs:
             sudo sh scripts/install-bazel.sh
 
     - name: Build streaming and test
-      run: sh -c "bash streaming/buildtest.sh"
+      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
