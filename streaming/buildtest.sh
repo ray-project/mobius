@@ -5,7 +5,7 @@ function init()
 {
     pushd "$script_dir" || exit
     python3 -m pip install virtualenv
-    python3 virtualenv -p python3 py3
+    python3 -m virtualenv -p python3 py3
     source py3/bin/activate
     echo "Source py3 env."
     popd || exit
