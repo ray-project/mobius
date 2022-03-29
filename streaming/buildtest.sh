@@ -43,6 +43,16 @@ function test_streaming_java()
     popd || exit
 }
 
+function test_streaming_python() 
+{
+    pushd "$script_dir" || exit
+
+    pip install -e python --verbose 
+    exit $?
+
+    popd || exit
+}
+
 
 
 function streaming_package() 
@@ -77,10 +87,22 @@ function run_case()
     fi
 
     if [[ "$test_categories" == *java* ]]; then
-      echo "Running package."
+      echo "Running java test cases."
       set +e
       
       test_streaming_java
+      CODE=$?
+
+      if [[ $CODE != 0 ]]; then
+        exit $CODE
+      fi
+    fi
+
+    if [[ "$test_categories" == *python* ]]; then
+      echo "Running python test cases."
+      set +e
+      
+      test_streaming_python
       CODE=$?
 
       if [[ $CODE != 0 ]]; then
