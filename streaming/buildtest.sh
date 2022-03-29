@@ -1,6 +1,16 @@
 #!/bin/bash
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 
+function init()
+{
+    pushd "$script_dir" || exit
+    pip install virtualenv
+    virtualenv -p python3 py3
+    source py3/bin/activate
+    echo "Source py3 env."
+    popd || exit
+}
+
 # run a bunch of ut cases
 # param 1 could be like examples below：
 # raylet, java, python_core, python_non_core, streaming
@@ -190,4 +200,5 @@ fi
 #if [[ "$TEST_CATEGORIES" != *lint* ]]; then
 #  compile
 #fi
+init
 ut_all $TEST_CATEGORIES
