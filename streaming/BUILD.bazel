@@ -2,7 +2,7 @@
 # C/C++ documentation: https://docs.bazel.build/versions/master/be/c-cpp.html
 
 load("@rules_proto_grpc//python:defs.bzl", "python_proto_compile")
-load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "copy_to_workspace", "PYX_COPTS", "PYX_SRCS")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "PYX_COPTS", "PYX_SRCS", "copy_to_workspace")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@com_github_grpc_grpc//bazel:cython_library.bzl", "pyx_library")
 load("@com_github_google_flatbuffers//:build_defs.bzl", "flatbuffer_cc_library")
@@ -262,6 +262,19 @@ cc_library(
 )
 
 cc_library(
+    name = "streaming_buffer_pool",
+    srcs = glob(["src/buffer_pool/*.cc"]),
+    hdrs = glob(["src/buffer_pool/*.h"]),
+    copts = COPTS,
+    includes = ["src/"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":streaming_common",
+        ":streaming_util",
+    ],
+)
+
+cc_library(
     name = "streaming_lib",
     srcs = glob([
         "src/*.cc",
@@ -322,7 +335,10 @@ cc_test(
         "src/test/ring_buffer_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -332,7 +348,10 @@ cc_test(
         "src/test/barrier_helper_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -342,7 +361,10 @@ cc_test(
         "src/test/message_serialization_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -352,7 +374,10 @@ cc_test(
         "src/test/mock_transfer_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -362,7 +387,10 @@ cc_test(
         "src/test/streaming_util_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -372,7 +400,10 @@ cc_test(
         "src/test/streaming_perf_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -382,7 +413,10 @@ cc_test(
         "src/test/event_service_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -391,7 +425,10 @@ cc_test(
     srcs = [
         "src/test/queue_protobuf_tests.cc",
     ],
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
 )
 
@@ -401,8 +438,24 @@ cc_test(
         "src/test/data_writer_tests.cc",
     ],
     copts = COPTS,
-    tags = ["team:ant-group", "basic"],
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
     deps = test_common_deps,
+)
+
+cc_test(
+    name = "buffer_pool_tests",
+    srcs = [
+        "src/test/buffer_pool_tests.cc",
+    ],
+    copts = COPTS,
+    tags = [
+        "basic",
+        "team:ant-group",
+    ],
+    deps = test_common_deps + [":streaming_buffer_pool"],
 )
 
 python_proto_compile(
