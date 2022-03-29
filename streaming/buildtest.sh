@@ -56,8 +56,13 @@ function test_streaming_java()
 function test_streaming_python() 
 {
     pushd "$script_dir" || exit
-
-    pip install -e python --verbose 
+    # Avoid macos build in python2
+    if [[ $OSTYPE == "darwin" ]]; then
+        pushd $script_dir/python
+        python3 setup.py install --verbose
+    else
+        pip install -e python --verbose 
+    fi
     exit $?
 
     popd || exit

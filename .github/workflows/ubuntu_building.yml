@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  streaming-cpp-test:
+  streaming-ubuntu-pipeline:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     container: docker.io/library/ubuntu:latest
