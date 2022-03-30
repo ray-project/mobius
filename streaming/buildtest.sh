@@ -1,12 +1,24 @@
 #!/bin/bash
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 
+function create_py_env()
+{
+    PY3_DIR=${1}
+    python3 -m pip install virtualenv
+    python3 -m virtualenv -p python3 $PY3_DIR
+}
+
 function init()
 {
     pushd "$script_dir" || exit
-    python3 -m pip install virtualenv
-    python3 -m virtualenv -p python3 py3
-    source py3/bin/activate
+    PY3_DIR=$script_dir/../py3
+    if [ -d $PY3_DIR ]
+    then
+        echo "Reuse $PY3_DIR env"
+    else
+        create_py_env $PY3_DIR
+    fi
+    source $PY3_DIR/bin/activate
     echo "Source py3 env."
     popd || exit
 }
