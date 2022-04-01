@@ -12,7 +12,7 @@ class GatewayClient:
     _PYTHON_GATEWAY_CLASSNAME = b"io.ray.streaming.runtime.python.PythonGateway"
 
     def __init__(self):
-        self._python_gateway_actor = ray.java_actor_class(
+        self._python_gateway_actor = ray.cross_language.java_actor_class(
             GatewayClient._PYTHON_GATEWAY_CLASSNAME
         ).remote()
 

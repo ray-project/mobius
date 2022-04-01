@@ -1,6 +1,28 @@
 #!/bin/bash
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 
+function create_py_env()
+{
+    PY3_DIR=${1}
+    python3 -m pip install virtualenv
+    python3 -m virtualenv -p python3 $PY3_DIR
+}
+
+function init()
+{
+    pushd "$script_dir" || exit
+    PY3_DIR=$script_dir/../py3
+    if [ -d $PY3_DIR ]
+    then
+        echo "Reuse $PY3_DIR env"
+    else
+        create_py_env $PY3_DIR
+    fi
+    source $PY3_DIR/bin/activate
+    echo "Source py3 env."
+    popd || exit
+}
+
 # run a bunch of ut cases
 # param 1 could be like examples below：
 # raylet, java, python_core, python_non_core, streaming
@@ -43,6 +65,23 @@ function test_streaming_java()
     popd || exit
 }
 
+function test_streaming_python() 
+{
+    pushd "$script_dir" || exit
+    # Avoid macos build in python2
+    if [[ $OSTYPE == "darwin" ]]; then
+        pushd $script_dir/python
+        python3 setup.py install --verbose
+        popd
+    else
+        pip install -e python --verbose 
+    fi
+    python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
+    exit $?
+
+    popd || exit
+}
+
 
 
 function streaming_package() 
@@ -77,10 +116,22 @@ function run_case()
     fi
 
     if [[ "$test_categories" == *java* ]]; then
-      echo "Running package."
+      echo "Running java test cases."
       set +e
       
       test_streaming_java
+      CODE=$?
+
+      if [[ $CODE != 0 ]]; then
+        exit $CODE
+      fi
+    fi
+
+    if [[ "$test_categories" == *python* ]]; then
+      echo "Running python test cases."
+      set +e
+      
+      test_streaming_python
       CODE=$?
 
       if [[ $CODE != 0 ]]; then
@@ -168,4 +219,5 @@ fi
 #if [[ "$TEST_CATEGORIES" != *lint* ]]; then
 #  compile
 #fi
+init
 ut_all $TEST_CATEGORIES

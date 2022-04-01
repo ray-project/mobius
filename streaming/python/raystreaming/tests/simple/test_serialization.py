@@ -1,5 +1,5 @@
-from ray.streaming.runtime.serialization import CrossLangSerializer
-from ray.streaming.message import Record, KeyRecord
+from raystreaming.runtime.serialization import CrossLangSerializer
+from raystreaming.message import Record, KeyRecord
 
 
 def test_serialize():

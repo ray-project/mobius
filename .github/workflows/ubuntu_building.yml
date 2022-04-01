@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  streaming-cpp-test:
+  streaming-ubuntu-pipeline:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     container: docker.io/library/ubuntu:latest
@@ -18,8 +18,19 @@ jobs:
     - name: Install bazel
       run:  |
             apt-get update
-            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.7 zlib1g-dev zip
+            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.8 zlib1g-dev zip
+            apt-get install -yq pip
             sh scripts/install-bazel.sh
+
+    - name: Install ray wheel
+      run: |
+           python3 -m pip install virtualenv
+           python3 -m virtualenv -p python3 py3
+           . py3/bin/activate
+           pip install pytest
+           pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl
+    - name: Streaming python test
+      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
     - name: Streaming java test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
