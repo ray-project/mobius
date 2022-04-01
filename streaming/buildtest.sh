@@ -76,7 +76,9 @@ function test_streaming_python()
     else
         pip install -e python --verbose 
     fi
-    python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
+    #python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
+    bazel build java:streaming_java_pkg
+    python3 -m pytest $script_dir/python/raystreaming/tests/ --capture=no
     exit $?
 
     popd || exit
