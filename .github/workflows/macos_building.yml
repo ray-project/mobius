@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        python-version: ['3.8']
 
     steps:
     - uses: actions/checkout@v2
@@ -30,15 +29,15 @@ jobs:
             fi
             sudo sh scripts/install-bazel.sh
 
-    - name: Install ray wheel
-      run: |
-           which python3
-           python3 --version
-           which python3.8
-           python3.8 -m pip3 install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/macos/ray-2.0.0.dev0-cp38-cp38-macosx_11_0_x86_64.whl
+            #- name: Install ray wheel
+            #  run: |
+            #       which python3
+            #       python3 --version
+            #       which python3.8
+            #       python3.8 -m pip3 install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/macos/ray-2.0.0.dev0-cp38-cp38-macosx_11_0_x86_64.whl
 
-    - name: Streaming python test
-      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
+            #- name: Streaming python test
+            #  run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
     - name: Streaming java test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"

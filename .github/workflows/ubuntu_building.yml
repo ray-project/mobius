@@ -26,7 +26,8 @@ jobs:
       run: |
            python3 -m pip install virtualenv
            python3 -m virtualenv -p python3 py3
-           sh -c "bash source py3/bin/activate && pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl"
+           . py3/bin/activate
+           pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl
     - name: Streaming python test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
