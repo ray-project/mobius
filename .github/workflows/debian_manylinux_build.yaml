@@ -1,0 +1,33 @@
+name: debian-manylinux-building
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  streaming-debian-manylinux-pipeline:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux_2_24_x86_64
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install bazel
+      run:  |
+            apt-get update
+            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.8 zlib1g-dev zip
+            apt-get install -yq pip
+            sh scripts/install-bazel.sh
+
+    - name: Install ray wheel
+      run: |
+           python3 -m pip install virtualenv
+           python3 -m virtualenv -p python3 py3
+           . py3/bin/activate
+           pip install pytest
+           pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/0bb82f29b65dca348acf5aa516d21ef3f176a3e1/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl
+    - name: Streaming python manylinux
+      run: sh -c "bash streaming/python/build_wheels.sh"
