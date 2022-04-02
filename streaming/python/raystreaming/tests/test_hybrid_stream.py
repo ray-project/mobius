@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+import sys
 import ray
 from ray.streaming import StreamingContext
 from ray._private.test_utils import wait_for_condition
@@ -35,7 +36,7 @@ def test_hybrid_stream():
     jar_path = os.path.abspath(jar_path)
     print("jar_path", jar_path)
     assert not ray.is_initialized()
-    ray.init(job_config=ray.job_config.JobConfig(code_search_path=[jar_path]))
+    ray.init(job_config=ray.job_config.JobConfig(code_search_path=sys.path + [jar_path]))
 
     sink_file = "/tmp/ray_streaming_test_hybrid_stream.txt"
     if os.path.exists(sink_file):
