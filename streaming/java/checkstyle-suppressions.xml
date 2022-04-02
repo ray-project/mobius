@@ -16,6 +16,7 @@
   <suppress files=".*" checks="RequireEmptyLineBeforeBlockTagGroup"/>
   <suppress files=".*" checks="SingleLineJavadoc"/>
   <suppress files=".*" checks="VariableDeclarationUsageDistance"/>
+  <suppress files=".*" checks="LeftCurly"/>
   <!-- suppress check for flatbuffer-generated files. -->
   <suppress checks=".*" files="io[\\/]ray[\\/]streaming[\\/]runtime[\\/]generated[\\/]"/>
 
