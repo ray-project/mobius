@@ -30,7 +30,7 @@ public class EnvUtil {
 
   public static void loadNativeLibraries() {
     JniUtils.loadLibrary(BinaryFileUtil.CORE_WORKER_JAVA_LIBRARY, true);
-    JniUtils.loadLibrary("streaming_java");
+    io.ray.streaming.runtime.util.JniUtils.loadLibrary("streaming_java");
   }
 
   /**
