@@ -4,9 +4,11 @@ import time
 from typing import List
 
 import ray
+import pytest
 from ray.streaming import StreamingContext
 
 
+@pytest.mark.skip(reason="Current log output in console, we can not capture from logs")
 def test_word_count():
     try:
         ray.init(job_config=ray.job_config.JobConfig(code_search_path=sys.path))

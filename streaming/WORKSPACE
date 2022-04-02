@@ -2,12 +2,12 @@ workspace(name = "com_github_ray_streaming")
 
 # LOAD RAY WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-ray_version = "94caac87222784a36b76f9ee2e607fd796217477"
+ray_version = "0bb82f29b65dca348acf5aa516d21ef3f176a3e1"
 http_archive(
         name="com_github_ray_project_ray",
         strip_prefix = "ray-{}".format(ray_version),
         urls = ["https://github.com/ray-project/ray/archive/{}.zip".format(ray_version)],
-        sha256 = "69a2dc6e0d78e14758ef60ab2eb34b99c88f3e1c6292b1181dbf83e164272032",
+        sha256 = "56b0bf6f0d5506be4bff694e9a3bedc6c8f3373b0ecd9f20fc2a25aed5efc569",
 )
 
 http_archive(
