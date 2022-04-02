@@ -299,8 +299,9 @@ class InputStreamTask(StreamTask):
                     self.is_initial_state = False
                 finally:
                     self.worker.initial_state_lock.release()
-
-                if item is None:
+                # Continue to pull data from transfer if pulled data is None or empty
+                # message.
+                if item is None or item.body is None:
                     continue
 
                 if isinstance(item, DataMessage):

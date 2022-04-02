@@ -552,7 +552,7 @@ genrule(
     name = "streaming_pkg",
     srcs = [
         ":cp_streaming_so",
-        ":cp_all_py_proto",
+        ":copy_streaming_py_proto",
     ],
     outs = ["streaming_pkg.out"],
     cmd = """

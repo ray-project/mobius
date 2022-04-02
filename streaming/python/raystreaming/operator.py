@@ -365,8 +365,10 @@ def load_operator(descriptor_operator_bytes: bytes):
         assert class_name
         mod = importlib.import_module(module_name)
         cls = getattr(mod, class_name)
+        logger.info(f"Load cls type {cls}, {class_name} {mod}")
+        from raystreaming.operator import Operator
+
         assert issubclass(cls, Operator)
-        print("cls", cls)
         return cls()
 
 
