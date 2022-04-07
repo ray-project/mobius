@@ -15,7 +15,7 @@ bazel_build_cmd = [
 
 SUFFIX_ENV = ""
 if "PYTHON_BIN_PATH" in os.environ:
-    SUFIXX_ENV += "--python_path={}".format(os.environ["PYTHON_BIN_PATH"])
+    SUFFIX_ENV += "--python_path={}".format(os.environ["PYTHON_BIN_PATH"])
 
 update_bazel_build_cmd = [" ".join([x, SUFFIX_ENV]) for x in bazel_build_cmd]
 print("Update bazel build cmd {}".format(update_bazel_build_cmd))
