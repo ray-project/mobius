@@ -2,7 +2,6 @@ import os
 import subprocess
 import sys
 
-import sys
 import ray
 from ray.streaming import StreamingContext
 from ray._private.test_utils import wait_for_condition
