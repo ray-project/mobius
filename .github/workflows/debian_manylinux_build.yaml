@@ -24,6 +24,6 @@ jobs:
 
     - name: Install ray wheel
       run: |
-           pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/0bb82f29b65dca348acf5aa516d21ef3f176a3e1/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl
+           /opt/python/cp38-cp38/bin/python -m pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/0bb82f29b65dca348acf5aa516d21ef3f176a3e1/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl
     - name: Streaming python manylinux
       run: sh -c "bash streaming/python/build_wheels.sh"
