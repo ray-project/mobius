@@ -6,7 +6,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 build_with_python_verion() {
 pushd $script_dir
 PYTHON_VERSION=$1
-echo 'Build Python Version ${PYTHON_BIN_PATH'
+echo 'Build Python Version ${PYTHON_BIN_PATH}'
 export PYTHON_BIN_PATH='/opt/python/${PYTHON_VERSION}/bin/python'
 PYTHON_BIN_PATH='/opt/python/${PYTHON_VERSION}/bin/python' /opt/python/${PYTHON_VERSION}/bin/python setup.py bdist_wheel
 auditwheel repair --plat manylinux2014_x86_64 dist/raystreaming-0.0.1-${PYTHON_VERSION}-linux_x86_64.whl

@@ -13,11 +13,11 @@ bazel_build_cmd = [
     "bazel build //java:streaming_java_pkg --jobs=4",
 ]
 
-PREFIX_ENV = ""
+SUFFIX_ENV = ""
 if "PYTHON_BIN_PATH" in os.environ:
-    PREFIX_ENV += "PYTHON_BIN_PATH={}".format(os.environ["PYTHON_BIN_PATH"])
+    SUFIXX_ENV += "--python_path={}".format(os.environ["PYTHON_BIN_PATH"])
 
-update_bazel_build_cmd = [" ".join([PREFIX_ENV, x]) for x in bazel_build_cmd]
+update_bazel_build_cmd = [" ".join([x, SUFFIX_ENV]) for x in bazel_build_cmd]
 print("Update bazel build cmd {}".format(update_bazel_build_cmd))
 for cmd in update_bazel_build_cmd:
     process = subprocess.Popen(update_bazel_build_cmd, cwd=cwd, shell=True)
