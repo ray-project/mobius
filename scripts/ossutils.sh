@@ -13,8 +13,9 @@ ossutil64 -i ${OSS_ID:-default-id} -e ${OSS_HOST:-default-host} -k ${OSS_KEY:-de
 
 publish_python () {
 pushd $current_dir
-PYTHON_DIST_DIR=../../python/dist
+PYTHON_DIST_DIR=../streaming/python/dist
 COMMIT_ID=`git rev-parse HEAD`
+echo "Head Commit ID :${COMMIT_ID}"
 if [ -d $PYTHON_DIST_DIR ] ; then
 	copy $PYTHON_DIST_DIR /publish/python/$COMMIT_ID
 else
