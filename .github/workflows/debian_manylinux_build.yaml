@@ -18,7 +18,8 @@ jobs:
     - name: Apt get update and Install bazel
       run:  |
             apt-get update
-            apt-get install -yq wget gcc g++ openjdk-8-jdk zlib1g-dev zip
+            apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip
+            apt install build-essential
             sh scripts/install-bazel.sh
 
     - name: Streaming python manylinux
