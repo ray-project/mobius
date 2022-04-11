@@ -10,7 +10,8 @@ jobs:
   streaming-debian-manylinux-pipeline:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_24_x86_64
+    container: quay.io/pypa/manylinux_2_28_poc_x86_64
+    #container: quay.io/pypa/manylinux_2_24_x86_64
 
     steps:
     - uses: actions/checkout@v2
