@@ -10,7 +10,7 @@ jobs:
   streaming-debian-manylinux-pipeline:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_24_x86_64
+    container: quay.io/pypa/manylinux_2_24_x86_64:lastest
 
     steps:
     - uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
       run:  |
             apt-get update
             apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip
-            apt install build-essential
+            apt install -yq build-essential
             sh scripts/install-bazel.sh
 
     - name: Streaming python manylinux
