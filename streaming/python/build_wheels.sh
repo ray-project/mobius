@@ -6,6 +6,9 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 build_with_python_version() {
 pushd $script_dir
 PYTHON_VERSION=$1
+PYTHON3_HOME="/opt/python/${PYTHON_VERSION}"
+export PATH=$PYTHON3_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$PYTHON3_HOME/lib:$LD_LIBRARY_PATH
 export PYTHON3_BIN_PATH="/opt/python/${PYTHON_VERSION}/bin/python"
 echo "Build Python Version ${PYTHONe_BIN_PATH}"
 PYTHON_BIN_PATH=$PYTHON3_BIN_PATH PYTHON3_BIN_PATH=$PYTHON3_BIN_PATH /opt/python/${PYTHON_VERSION}/bin/python setup.py bdist_wheel
