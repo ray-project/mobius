@@ -20,7 +20,7 @@ if "PYTHON_BIN_PATH" in os.environ:
 update_bazel_build_cmd = [" ".join([x, SUFFIX_ENV]) for x in bazel_build_cmd]
 print("Update bazel build cmd {}".format(update_bazel_build_cmd))
 for cmd in update_bazel_build_cmd:
-    process = subprocess.Popen(update_bazel_build_cmd, cwd=cwd, shell=True)
+    process = subprocess.Popen(cmd, cwd=cwd, shell=True)
     process.wait()
 
 # Package raystreaming
