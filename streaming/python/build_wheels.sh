@@ -19,6 +19,7 @@ fi
 
 bash $script_dir/../../scripts/install-ray.sh
 python setup.py bdist_wheel
+ls dist/
 auditwheel repair --plat manylinux_2_24_x86_64 dist/raystreaming-0.0.1-${PYTHON_VERSION}-*.whl
 #bazel clean --expunge
 /opt/python/$PYTHON_VERSION/bin/python setup.py clean --all

@@ -9,8 +9,8 @@ file_path = os.getcwd()
 # Build streaming package including java pkg by default
 cwd = f"{file_path}/.."
 bazel_build_cmd = [
-    "bazel build streaming_pkg --jobs=4",
-    "bazel build //java:streaming_java_pkg --jobs=4",
+    "bazel build //java:streaming_java_pkg",
+    "bazel build streaming_pkg",
 ]
 
 SUFFIX_ENV = ""
