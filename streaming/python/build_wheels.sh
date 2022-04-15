@@ -18,9 +18,9 @@ fi
 bash $script_dir/../../scripts/install-ray.sh
 python setup.py bdist_wheel
 ls dist/
-auditwheel repair --plat manylinux_2_27_x86_64 dist/raystreaming-0.0.1-${PYTHON_VERSION}-*.whl
-exit_code = $?
-if [ exit_code != 0 ]; then
+auditwheel repair --plat manylinux_2_27_x86_64 dist/raystreaming-*.whl
+exit_code=$?
+if [ $exit_code != 0 ]; then
 	echo "Exit code $exit_code"
 	exit $exit_code
 fi
@@ -30,8 +30,9 @@ pushd
 }
 
 build_with_python_version cp38-cp38
-build_with_python_version cp37-cp37m
-build_with_python_version cp36-cp36m
+# Waiting for next ray released version.
+#build_with_python_version cp37-cp37m
+#build_with_python_version cp36-cp36m
 
 # upload wheels to pypi
 #twine upload dist/*.whl --verbose
