@@ -8,7 +8,7 @@ on:
 
 jobs:
   streaming-debian-manylinux-pipeline:
-    timeout-minutes: 60
+    timeout-minutes: 120
     runs-on: ubuntu-latest
     container: quay.io/pypa/manylinux_2_24_x86_64
 

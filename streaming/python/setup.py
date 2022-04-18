@@ -9,8 +9,8 @@ file_path = os.getcwd()
 # Build streaming package including java pkg by default
 cwd = f"{file_path}/.."
 bazel_build_cmd = [
-    "bazel build streaming_pkg --jobs=4",
-    "bazel build //java:streaming_java_pkg --jobs=4",
+    "bazel build //java:streaming_java_pkg",
+    "bazel build streaming_pkg",
 ]
 
 SUFFIX_ENV = ""
@@ -20,7 +20,7 @@ if "PYTHON_BIN_PATH" in os.environ:
 update_bazel_build_cmd = [" ".join([x, SUFFIX_ENV]) for x in bazel_build_cmd]
 print("Update bazel build cmd {}".format(update_bazel_build_cmd))
 for cmd in update_bazel_build_cmd:
-    process = subprocess.Popen(update_bazel_build_cmd, cwd=cwd, shell=True)
+    process = subprocess.Popen(cmd, cwd=cwd, shell=True)
     process.wait()
 
 # Package raystreaming
