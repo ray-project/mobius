@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ray/internal/internal.h"
+
 #include "queue/queue_handler.h"
 #include "queue/transport.h"
 
@@ -19,7 +21,7 @@ class ReaderClient {
   /// function descriptor to be called by DataWriter, synchronous semantics
   ReaderClient() {
     downstream_handler_ = ray::streaming::DownstreamQueueMessageHandler::CreateService(
-        CoreWorkerProcess::GetCoreWorker().GetWorkerContext().GetCurrentActorID());
+        ray::internal::GetCurrentActorID());
   }
 
   /// Post buffer to downstream queue service, asynchronously.
@@ -38,7 +40,7 @@ class WriterClient {
  public:
   WriterClient() {
     upstream_handler_ = ray::streaming::UpstreamQueueMessageHandler::CreateService(
-        CoreWorkerProcess::GetCoreWorker().GetWorkerContext().GetCurrentActorID());
+        ray::internal::GetCurrentActorID());
   }
 
   void OnWriterMessage(std::shared_ptr<LocalMemoryBuffer> buffer);

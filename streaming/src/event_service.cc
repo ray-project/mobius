@@ -3,6 +3,8 @@
 #include <chrono>
 #include <unordered_set>
 
+#include "ray/internal/internal.h"
+
 namespace ray {
 namespace streaming {
 
@@ -117,7 +119,7 @@ Event &EventQueue::Front() {
 }
 
 EventService::EventService(uint32_t event_size)
-    : worker_id_(CoreWorkerProcess::IsInitialized()
+    : worker_id_(ray::internal::IsInitialized()
                      ? CoreWorkerProcess::GetCoreWorker().GetWorkerID()
                      : WorkerID::Nil()),
       event_queue_(std::make_shared<EventQueue>(event_size)),
@@ -170,8 +172,8 @@ void EventService::Execute(Event &event) {
 }
 
 void EventService::LoopThreadHandler() {
-  if (CoreWorkerProcess::IsInitialized()) {
-    CoreWorkerProcess::SetCurrentThreadWorkerId(worker_id_);
+  if (ray::internal::IsInitialized()) {
+    ray::internal::SetCurrentThreadWorker(worker_id_);
   }
   while (true) {
     if (stop_flag_) {
