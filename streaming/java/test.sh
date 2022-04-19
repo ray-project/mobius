@@ -18,16 +18,8 @@ popd
 echo "build ray streaming"
 bazel build @com_github_ray_streaming//java:all
 
-# Check that ray libstreaming_java doesn't include symbols from ray by accident.
-# Otherwise the symbols may conflict.
-symbols_conflict=$(nm bazel-bin/streaming/libstreaming_java.so | grep TaskFinisherInterface || true)
-if [ -n "${symbols_conflict}" ]; then
-    echo "streaming should not include symbols from ray: ${symbols_conflict}"
-    exit 1
-fi
-
 echo "Running streaming tests."
-java -cp "$ROOT_DIR"/../../bazel-bin/streaming/java/all_streaming_tests_deploy.jar\
+java -cp "$ROOT_DIR"/../bazel-bin/java/all_streaming_tests_deploy.jar\
  org.testng.TestNG -d /tmp/ray_streaming_java_test_output "$ROOT_DIR"/testng.xml ||
 exit_code=$?
 if [ -z ${exit_code+x} ]; then
@@ -63,11 +55,6 @@ if [ $exit_code -ne 2 ] && [ $exit_code -ne 0 ] ; then
 fi
 
 echo "Testing maven install."
-cd "$ROOT_DIR"/../../java
-echo "build ray maven deps"
-bazel build gen_maven_deps
-echo "maven install ray"
-mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN clean install -DskipTests -Dcheckstyle.skip
 cd "$ROOT_DIR"
 echo "maven install ray streaming"
 mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN clean install -DskipTests -Dcheckstyle.skip

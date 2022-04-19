@@ -22,12 +22,6 @@ def sink_func1(x):
     print("HybridStreamTest sink_func1 value:", x)
 
 
-@pytest.mark.skip(
-    reason=(
-        "We cannot fetch libstreaming_java.so from ray_dist.jar,"
-        + "which will fixed later."
-    )
-)
 def test_hybrid_stream():
     subprocess.check_call(
         [
