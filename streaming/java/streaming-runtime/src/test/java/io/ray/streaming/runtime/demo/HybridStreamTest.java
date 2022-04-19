@@ -21,13 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class HybridStreamTest extends BaseTest {
+public class HybridStreamTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(HybridStreamTest.class);
-
-  public HybridStreamTest() {
-    super(true);
-  }
 
   public static class Mapper1 implements MapFunction<Object, Object> {
 

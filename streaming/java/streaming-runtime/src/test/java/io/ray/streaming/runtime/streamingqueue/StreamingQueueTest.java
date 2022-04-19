@@ -62,7 +62,6 @@ public class StreamingQueueTest extends BaseTest implements Serializable {
   void beforeMethod(Method method) {
     System.setProperty("ray.head-args.0", "--num-cpus=4");
     System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-    System.setProperty("ray.redirect-output", "true");
     super.testBegin(method);
   }
 

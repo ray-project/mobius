@@ -50,7 +50,8 @@ public abstract class BaseTest {
     if (this.isClusterMode) {
       System.setProperty(RAY_MODE, RAY_CLUSTER_MODE);
       System.setProperty("ray.job.jvm-options.0", "-DUT_PATTERN=true");
-      System.setProperty("ray.session-dir", "/tmp/ray");
+      System.setProperty("ray.redirect-output", "true");
+      System.setProperty("ray.session_dir", "/tmp/ray");
     }
     if (Ray.isInitialized()) {
       Ray.shutdown();
