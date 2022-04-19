@@ -14,7 +14,6 @@ class ClusterStarter {
     if (!isLocal) {
       System.setProperty("ray.run-mode", "CLUSTER");
       System.setProperty("ray.redirect-output", "true");
-      System.setProperty("ray.session_dir", "/tmp/ray");
     } else {
       System.setProperty("ray.run-mode", "SINGLE_PROCESS");
     }
