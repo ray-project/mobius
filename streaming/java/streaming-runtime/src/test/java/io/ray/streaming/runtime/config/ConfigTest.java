@@ -1,6 +1,6 @@
 package io.ray.streaming.runtime.config;
 
-import io.ray.streaming.runtime.BaseUnitTest;
+import io.ray.streaming.runtime.BaseTest;
 import io.ray.streaming.runtime.config.global.CommonConfig;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import org.nustaq.serialization.FSTConfiguration;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ConfigTest extends BaseUnitTest {
+public class ConfigTest extends BaseTest {
 
   @Test
   public void testBaseFunc() {

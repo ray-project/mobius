@@ -2,7 +2,7 @@ package io.ray.streaming.runtime.master.resourcemanager.strategy;
 
 import io.ray.api.id.UniqueId;
 import io.ray.streaming.jobgraph.JobGraph;
-import io.ray.streaming.runtime.BaseUnitTest;
+import io.ray.streaming.runtime.BaseTest;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.config.types.ResourceAssignStrategyType;
 import io.ray.streaming.runtime.core.graph.ExecutionGraphTest;
@@ -25,7 +25,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class PipelineFirstStrategyTest extends BaseUnitTest {
+public class PipelineFirstStrategyTest extends BaseTest {
 
   private Logger LOG = LoggerFactory.getLogger(PipelineFirstStrategyTest.class);
 

@@ -3,7 +3,7 @@ package io.ray.streaming.runtime.master.resourcemanager;
 import io.ray.api.Ray;
 import io.ray.api.id.UniqueId;
 import io.ray.api.runtimecontext.NodeInfo;
-import io.ray.streaming.runtime.BaseUnitTest;
+import io.ray.streaming.runtime.BaseTest;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.config.global.CommonConfig;
 import io.ray.streaming.runtime.core.resource.Container;
@@ -18,7 +18,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class ResourceManagerTest extends BaseUnitTest {
+public class ResourceManagerTest extends BaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ResourceManagerTest.class);
 
