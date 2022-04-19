@@ -8,7 +8,6 @@ import io.ray.streaming.api.function.impl.FilterFunction;
 import io.ray.streaming.api.function.impl.MapFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.BaseTest;
 import io.ray.streaming.runtime.util.EnvUtil;
 import java.io.IOException;
 import java.nio.file.Files;
