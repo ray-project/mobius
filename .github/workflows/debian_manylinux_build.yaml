@@ -1,0 +1,39 @@
+name: debian-manylinux-building
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  streaming-debian-manylinux-pipeline:
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux_2_24_x86_64
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Apt get update and Install bazel
+      run:  |
+            apt-get update
+            apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip git
+            cp /etc/apt/sources.list /etc/apt/sources.list.bak
+            cp .github/sources.list /etc/apt/sources.list
+            apt-get update
+            apt-get install -yq gcc g++
+            sh scripts/install-bazel.sh
+
+    - name: Streaming python manylinux
+      run: sh -c "bash streaming/python/build_wheels.sh"
+
+    - name: Package to aliyun oss
+      env:
+         OSS_HOST: ${{ secrets.OSS_HOST }}
+         OSS_ID: ${{ secrets.OSS_ID }}
+         OSS_KEY: ${{ secrets.OSS_KEY }}
+         OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
+      run:  |
+            sh -c "bash scripts/ossutils.sh install"
+            sh -c "bash scripts/ossutils.sh publish_python"

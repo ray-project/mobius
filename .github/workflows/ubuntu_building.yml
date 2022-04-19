@@ -28,7 +28,7 @@ jobs:
            python3 -m virtualenv -p python3 py3
            . py3/bin/activate
            pip install pytest
-           pip install https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ubuntu/0bb82f29b65dca348acf5aa516d21ef3f176a3e1/ray-2.0.0.dev0-cp38-cp38-linux_x86_64.whl
+           sh -c "bash scripts/install-ray.sh"
     - name: Streaming python test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
