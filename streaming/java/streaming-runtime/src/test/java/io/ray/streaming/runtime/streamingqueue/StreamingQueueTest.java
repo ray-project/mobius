@@ -76,17 +76,6 @@ public class StreamingQueueTest extends BaseTest implements Serializable {
 
   @Test(timeOut = 300000)
   public void testReaderWriter() {
-    LOGGER.info(
-        "StreamingQueueTest.testReaderWriter run-mode: {}", System.getProperty("ray.run-mode"));
-    Ray.shutdown();
-    System.setProperty("ray.head-args.0", "--num-cpus=4");
-    System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-
-    System.setProperty("ray.run-mode", "CLUSTER");
-    System.setProperty("ray.redirect-output", "true");
-    // ray init
-    Ray.init();
-
     ActorHandle<WriterWorker> writerActor = Ray.actor(WriterWorker::new, "writer").remote();
     ActorHandle<ReaderWorker> readerActor = Ray.actor(ReaderWorker::new, "reader").remote();
 
@@ -133,17 +122,6 @@ public class StreamingQueueTest extends BaseTest implements Serializable {
 
   @Test(timeOut = 60000)
   public void testWordCount() {
-    Ray.shutdown();
-    System.setProperty("ray.head-args.0", "--num-cpus=4");
-    System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-
-    System.setProperty("ray.run-mode", "CLUSTER");
-    System.setProperty("ray.redirect-output", "true");
-    // ray init
-    Ray.init();
-    LOGGER.info("testWordCount");
-    LOGGER.info(
-        "StreamingQueueTest.testWordCount run-mode: {}", System.getProperty("ray.run-mode"));
     String resultFile = "/tmp/io.ray.streaming.runtime.streamingqueue.testWordCount.txt";
     deleteResultFile(resultFile);
 

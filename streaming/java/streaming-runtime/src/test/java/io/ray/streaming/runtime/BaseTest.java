@@ -43,11 +43,11 @@ public abstract class BaseTest {
   @BeforeMethod
   public void testBegin(Method method) {
     LOG.info(
-        ">>>>>>>>>>>>>>>>>>>> Test case: {}.{} began >>>>>>>>>>>>>>>>>>>>",
+        ">>>>>>>>>>>>>>>>>>>> Test case(Cluster mode: {}): {}.{} began >>>>>>>>>>>>>>>>>>>>",
+        isClusterMode,
         method.getDeclaringClass(),
         method.getName());
     if (this.isClusterMode) {
-      LOG.info("Running in Ray cluster mode.");
       System.setProperty(RAY_MODE, RAY_CLUSTER_MODE);
       System.setProperty("ray.job.jvm-options.0", "-DUT_PATTERN=true");
       System.setProperty("ray.session-dir", "/tmp/ray");

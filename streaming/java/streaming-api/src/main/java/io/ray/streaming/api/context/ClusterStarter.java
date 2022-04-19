@@ -13,6 +13,7 @@ class ClusterStarter {
     Preconditions.checkArgument(!Ray.isInitialized());
     if (!isLocal) {
       System.setProperty("ray.run-mode", "CLUSTER");
+      System.setProperty("ray.redirect-output", "true");
     } else {
       System.setProperty("ray.run-mode", "SINGLE_PROCESS");
     }
