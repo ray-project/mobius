@@ -171,7 +171,7 @@ java_binary(
         ":io_ray_ray_streaming-runtime",
         ":io_ray_ray_streaming-runtime_test",
         ":io_ray_ray_streaming-state",
-        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
+        "@com_github_ray_project_ray//java:io_ray_ray_api",
         "@maven//:org_testng_testng",
         "@maven//:org_yaml_snakeyaml",
         "@ray_streaming_maven//:org_mockito_mockito_all",
