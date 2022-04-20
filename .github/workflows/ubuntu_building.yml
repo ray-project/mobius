@@ -15,12 +15,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install basics
+      run: |
+           apt-get update
+           apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip
+           apt-get install -yq pip
+
     - name: Install bazel
-      run:  |
-            apt-get update
-            apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip
-            apt-get install -yq pip
-            sh scripts/install-bazel.sh
+      run: |
+           sh scripts/install-bazel.sh
 
     - name: Install ray wheel
       run: |
@@ -29,6 +32,7 @@ jobs:
            . py3/bin/activate
            pip install pytest
            sh -c "bash scripts/install-ray.sh"
+        
     - name: Streaming python test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
