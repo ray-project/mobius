@@ -117,6 +117,7 @@ define_java_module(
     ],
     test_deps = [
         "@com_github_ray_project_ray//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         ":io_ray_ray_streaming-state",
         ":io_ray_ray_streaming-api",
         ":io_ray_ray_streaming-runtime",
