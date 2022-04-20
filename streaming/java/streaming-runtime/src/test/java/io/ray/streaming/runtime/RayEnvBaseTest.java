@@ -44,11 +44,12 @@ public abstract class RayEnvBaseTest {
 
   @BeforeMethod(alwaysRun = true)
   public void testBegin(Method method) {
+    jobName = TestHelper.getTestName(this, method);
     LOG.info(
-        ">>>>>>>>>>>>>>>>>>>> Test case(Cluster mode: {}): {}.{} began >>>>>>>>>>>>>>>>>>>>",
+        ">>>>>>>>>>>>>>>>>>>> Test case(Cluster mode: {}): {} began >>>>>>>>>>>>>>>>>>>>",
         isClusterMode,
-        method.getDeclaringClass(),
-        method.getName());
+        jobName);
+
     if (isClusterMode) {
       System.setProperty(RAY_MODE, RAY_CLUSTER_MODE);
       System.setProperty("ray.job.jvm-options.0", "-DUT_PATTERN=true");
@@ -63,7 +64,6 @@ public abstract class RayEnvBaseTest {
     TestHelper.setUTFlag();
     rayAsyncContext = Ray.getAsyncContext();
 
-    jobName = TestHelper.getTestName(this, method);
     TestHelper.cleanUpJobRunningRubbish(jobName);
   }
 
