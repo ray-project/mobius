@@ -69,12 +69,12 @@ public abstract class RayEnvBaseTest {
 
   @AfterMethod(alwaysRun = true)
   public void testEnd(Method method) {
+    String jobName = TestHelper.getTestName(this, method);
     if (!isClusterMode) {
-      String testName = TestHelper.getTestName(this, method);
       try {
-        TestHelper.destroyUTJobMasterByJobName(testName);
+        TestHelper.destroyUTJobMasterByJobName(jobName);
       } catch (Exception e) {
-        LOG.warn("Error when destroying job master for test: {}.", testName);
+        LOG.warn("Error when destroying job master for test: {}.", jobName);
       }
     }
 
@@ -83,9 +83,6 @@ public abstract class RayEnvBaseTest {
     if (isClusterMode) {
       System.clearProperty(RAY_MODE);
     }
-    LOG.info(
-        ">>>>>>>>>>>>>>>>>>>> Test case: {}.{} end >>>>>>>>>>>>>>>>>>>>",
-        method.getDeclaringClass(),
-        method.getName());
+    LOG.info(">>>>>>>>>>>>>>>>>>>> Test case: {} end >>>>>>>>>>>>>>>>>>>>", jobName);
   }
 }

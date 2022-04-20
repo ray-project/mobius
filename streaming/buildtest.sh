@@ -60,6 +60,8 @@ function test_streaming_java()
     pushd "$script_dir" || exit
 
     bazel build libstreaming_java.so
+    pushd $script_dir/java
+    sh test.sh
     exit $?
 
     popd || exit
