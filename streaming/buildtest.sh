@@ -86,8 +86,6 @@ function test_streaming_python()
     popd || exit
 }
 
-
-
 function streaming_package() 
 {
     pushd "$script_dir" || exit
