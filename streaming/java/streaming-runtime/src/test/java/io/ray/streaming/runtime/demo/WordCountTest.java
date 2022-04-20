@@ -1,7 +1,6 @@
 package io.ray.streaming.runtime.demo;
 
 import com.google.common.collect.ImmutableMap;
-import io.ray.api.Ray;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
@@ -30,8 +29,6 @@ public class WordCountTest extends BaseTest implements Serializable {
 
   @Test(timeOut = 60000)
   public void testWordCount() {
-    Ray.shutdown();
-
     StreamingContext streamingContext = StreamingContext.buildContext();
     Map<String, String> config = new HashMap<>();
     config.put(Config.CHANNEL_TYPE, "MEMORY_CHANNEL");
@@ -71,8 +68,6 @@ public class WordCountTest extends BaseTest implements Serializable {
 
   @Test(timeOut = 60000)
   public void testUserDefinedSourceWordCount() {
-    Ray.shutdown();
-
     StreamingContext streamingContext = StreamingContext.buildContext();
     Map<String, String> config = new HashMap<>();
     config.put(Config.CHANNEL_TYPE, "MEMORY_CHANNEL");
@@ -96,7 +91,7 @@ public class WordCountTest extends BaseTest implements Serializable {
             (SinkFunction<WordAndCount>)
                 result -> userDefinedWordCount.put(result.word, result.count));
 
-    streamingContext.execute("testUserDefinedSourceWordCount");
+    streamingContext.execute(jobName);
 
     while (true) {
       int totalWords = userDefinedWordCount.values().stream().mapToInt(Integer::intValue).sum();

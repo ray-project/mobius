@@ -1,6 +1,7 @@
 package io.ray.streaming.runtime;
 
 import io.ray.api.Ray;
+import io.ray.streaming.runtime.util.TestHelper;
 import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,8 @@ public abstract class BaseTest {
   private static final String RAY_CLUSTER_MODE = "CLUSTER";
 
   protected transient Object rayAsyncContext;
-
-  private boolean isClusterMode;
+  protected boolean isClusterMode;
+  protected String jobName;
 
   public BaseTest(boolean isClusterMode) {
     this.isClusterMode = isClusterMode;
@@ -40,14 +41,14 @@ public abstract class BaseTest {
     TestHelper.clearUTFlag();
   }
 
-  @BeforeMethod
+  @BeforeMethod(alwaysRun = true)
   public void testBegin(Method method) {
     LOG.info(
         ">>>>>>>>>>>>>>>>>>>> Test case(Cluster mode: {}): {}.{} began >>>>>>>>>>>>>>>>>>>>",
         isClusterMode,
         method.getDeclaringClass(),
         method.getName());
-    if (this.isClusterMode) {
+    if (isClusterMode) {
       System.setProperty(RAY_MODE, RAY_CLUSTER_MODE);
       System.setProperty("ray.job.jvm-options.0", "-DUT_PATTERN=true");
       System.setProperty("ray.redirect-output", "true");
@@ -60,13 +61,25 @@ public abstract class BaseTest {
     Ray.init();
     TestHelper.setUTFlag();
     rayAsyncContext = Ray.getAsyncContext();
+
+    jobName = TestHelper.getTestName(this, method);
+    TestHelper.cleanUpJobRunningRubbish(jobName);
   }
 
-  @AfterMethod
+  @AfterMethod(alwaysRun = true)
   public void testEnd(Method method) {
+    if (!isClusterMode) {
+      String testName = TestHelper.getTestName(this, method);
+      try {
+        TestHelper.destroyUTJobMasterByJobName(testName);
+      } catch (Exception e) {
+        LOG.warn("Error when destroying job master for test: {}.", testName);
+      }
+    }
+
     TestHelper.clearUTFlag();
     Ray.shutdown();
-    if (this.isClusterMode) {
+    if (isClusterMode) {
       System.clearProperty(RAY_MODE);
     }
     LOG.info(

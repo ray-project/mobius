@@ -12,24 +12,10 @@ import io.ray.streaming.runtime.util.RayUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ResourceManagerTest extends BaseTest {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ResourceManagerTest.class);
-
-  private Object rayAsyncContext;
-
-  @BeforeMethod
-  public void init() {
-    // ray init
-    Ray.init();
-    rayAsyncContext = Ray.getAsyncContext();
-  }
 
   @Test
   public void testGcsMockedApi() {

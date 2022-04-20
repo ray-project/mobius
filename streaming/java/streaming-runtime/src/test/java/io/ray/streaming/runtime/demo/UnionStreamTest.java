@@ -1,9 +1,9 @@
 package io.ray.streaming.runtime.demo;
 
-import io.ray.api.Ray;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
+import io.ray.streaming.runtime.BaseTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,13 +16,12 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class UnionStreamTest {
+public class UnionStreamTest extends BaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(UnionStreamTest.class);
 
   @Test(timeOut = 60000)
   public void testUnionStream() throws Exception {
-    Ray.shutdown();
     String sinkFileName = "/tmp/testUnionStream.txt";
     Files.deleteIfExists(Paths.get(sinkFileName));
 
@@ -51,7 +50,7 @@ public class UnionStreamTest {
                     throw new RuntimeException(e);
                   }
                 });
-    context.execute("UnionStreamTest");
+    context.execute(jobName);
     int sleptTime = 0;
     TimeUnit.SECONDS.sleep(3);
     while (true) {
@@ -70,6 +69,5 @@ public class UnionStreamTest {
       TimeUnit.SECONDS.sleep(1);
     }
     context.stop();
-    LOG.info("HybridStreamTest succeed");
   }
 }
