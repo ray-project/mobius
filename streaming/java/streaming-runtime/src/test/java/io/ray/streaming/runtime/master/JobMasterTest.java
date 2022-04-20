@@ -1,11 +1,11 @@
 package io.ray.streaming.runtime.master;
 
-import io.ray.streaming.runtime.BaseTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import java.util.HashMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class JobMasterTest extends BaseTest {
+public class JobMasterTest extends RayEnvBaseTest {
 
   @Test
   public void testCreation() {

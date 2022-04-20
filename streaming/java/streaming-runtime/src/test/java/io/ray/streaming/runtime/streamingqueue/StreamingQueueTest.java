@@ -7,7 +7,7 @@ import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.BaseTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
 import io.ray.streaming.runtime.util.EnvUtil;
 import io.ray.streaming.util.Config;
@@ -31,7 +31,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class StreamingQueueTest extends BaseTest implements Serializable {
+public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
 
   private static Logger LOGGER = LoggerFactory.getLogger(StreamingQueueTest.class);
 

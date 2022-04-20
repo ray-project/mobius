@@ -61,6 +61,7 @@ public class TestHelper {
   }
 
   public static void setUTJobMasterByJobName(String jobName, JobMaster jobMaster) {
+    LOG.info("Set {}'s job-master in ut map.", jobName);
     UT_JOB_MASTER_MAP.put(jobName, jobMaster);
   }
 
@@ -80,7 +81,7 @@ public class TestHelper {
         LOG.error("Failed to destroy job master for ut test: {}.", jobname);
       }
     } else {
-      LOG.error("Failed to destroy job master (empty) for ut test: {}.", jobname);
+      LOG.warn("ExecutionGraphTes: {}.", jobname);
     }
 
     LOG.info(

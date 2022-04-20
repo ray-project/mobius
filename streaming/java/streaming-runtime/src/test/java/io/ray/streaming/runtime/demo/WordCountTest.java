@@ -7,7 +7,7 @@ import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.function.impl.SourceFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.BaseTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.util.Config;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-public class WordCountTest extends BaseTest implements Serializable {
+public class WordCountTest extends RayEnvBaseTest implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(WordCountTest.class);
 
@@ -98,7 +98,7 @@ public class WordCountTest extends BaseTest implements Serializable {
       if (totalWords >= totalNum) {
         LOG.info("Total word size : {}.", totalWords);
         for (Map.Entry<String, Integer> entry : userDefinedWordCount.entrySet()) {
-          LOG.info("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
+          LOG.debug("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
         }
         break;
       }

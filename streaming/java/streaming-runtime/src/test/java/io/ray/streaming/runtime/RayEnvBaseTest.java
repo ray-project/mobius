@@ -11,9 +11,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
-public abstract class BaseTest {
+/** Basic implements for test which need ray environment. */
+public abstract class RayEnvBaseTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(BaseTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RayEnvBaseTest.class);
 
   private static final String RAY_MODE = "ray.run-mode";
   private static final String RAY_CLUSTER_MODE = "CLUSTER";
@@ -22,11 +23,11 @@ public abstract class BaseTest {
   protected boolean isClusterMode;
   protected String jobName;
 
-  public BaseTest(boolean isClusterMode) {
+  public RayEnvBaseTest(boolean isClusterMode) {
     this.isClusterMode = isClusterMode;
   }
 
-  public BaseTest() {
+  public RayEnvBaseTest() {
     // Default is false!
     this.isClusterMode = false;
   }

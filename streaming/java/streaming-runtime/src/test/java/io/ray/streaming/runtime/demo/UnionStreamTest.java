@@ -3,7 +3,7 @@ package io.ray.streaming.runtime.demo;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.BaseTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class UnionStreamTest extends BaseTest {
+public class UnionStreamTest extends RayEnvBaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(UnionStreamTest.class);
 

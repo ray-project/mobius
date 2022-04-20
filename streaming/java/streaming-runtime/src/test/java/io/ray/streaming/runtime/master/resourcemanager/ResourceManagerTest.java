@@ -3,7 +3,7 @@ package io.ray.streaming.runtime.master.resourcemanager;
 import io.ray.api.Ray;
 import io.ray.api.id.UniqueId;
 import io.ray.api.runtimecontext.NodeInfo;
-import io.ray.streaming.runtime.BaseTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.config.global.CommonConfig;
 import io.ray.streaming.runtime.core.resource.Container;
@@ -15,7 +15,7 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ResourceManagerTest extends BaseTest {
+public class ResourceManagerTest extends RayEnvBaseTest {
 
   @Test
   public void testGcsMockedApi() {
