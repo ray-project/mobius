@@ -45,7 +45,7 @@ if [ $exit_code -ne 2 ] && [ $exit_code -ne 0 ] ; then
         fi
       done
     fi
-    for f in /home/travis/build/ray-project/ray/hs_err*log; do
+    for f in /tmp/ray/*session*/hs_err*log; do
       if [ -f "$f" ]; then
         echo "Cat file $f"
         cat "$f"
