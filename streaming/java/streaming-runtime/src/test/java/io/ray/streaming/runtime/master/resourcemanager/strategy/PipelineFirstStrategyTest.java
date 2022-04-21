@@ -2,7 +2,6 @@ package io.ray.streaming.runtime.master.resourcemanager.strategy;
 
 import io.ray.api.id.UniqueId;
 import io.ray.streaming.jobgraph.JobGraph;
-import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.config.types.ResourceAssignStrategyType;
 import io.ray.streaming.runtime.core.graph.ExecutionGraphTest;
