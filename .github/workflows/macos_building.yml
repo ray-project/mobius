@@ -20,8 +20,8 @@ jobs:
     - name: Install basics
       run: |
            brew update
-           brew install --cask adoptopenjdk8
-           brew install maven
+           brew install --cask homebrew/cask-versions/adoptopenjdk8
+           brew install maven git
 
     - name: Install bazel
       run:  |
@@ -44,6 +44,10 @@ jobs:
 
             #- name: Streaming python test
             #  run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
+
+    - name: Install OSS
+      run: |
+           sh scripts/ossutils.sh install
 
     - name: Streaming java test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"

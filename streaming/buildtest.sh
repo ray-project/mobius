@@ -2,6 +2,8 @@
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
 TMP_LOG_OUTPUT="$script_dir"/tmp/logs
 
+mkdir -p "$TMP_LOG_OUTPUT"
+
 function suppress_output()
 {
   "$script_dir"/../scripts/suppress_output "$@"

@@ -18,12 +18,16 @@ jobs:
     - name: Install basics
       run: |
            apt-get update
-           apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip
+           apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip git
            apt-get install -yq pip
 
     - name: Install bazel
       run: |
            sh scripts/install-bazel.sh
+
+    - name: Install OSS
+      run: |
+           sh scripts/ossutils.sh install
 
     - name: Install ray wheel
       run: |
@@ -34,10 +38,25 @@ jobs:
            sh -c "bash scripts/install-ray.sh"
         
     - name: Streaming python test
+      env:
+           OSS_HOST: oss-us-west-1.aliyuncs.com
+           OSS_BUCKET: ray-mobius-us
+           OSS_ID: ${{ secrets.OSS_ID }}
+           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
     - name: Streaming java test
+      env:
+           OSS_HOST: oss-us-west-1.aliyuncs.com
+           OSS_BUCKET: ray-mobius-us
+           OSS_ID: ${{ secrets.OSS_ID }}
+           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
 
     - name: Streaming cpp test
+      env:
+           OSS_HOST: oss-us-west-1.aliyuncs.com
+           OSS_BUCKET: ray-mobius-us
+           OSS_ID: ${{ secrets.OSS_ID }}
+           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
