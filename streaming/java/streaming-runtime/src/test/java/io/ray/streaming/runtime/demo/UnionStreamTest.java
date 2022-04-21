@@ -20,6 +20,10 @@ public class UnionStreamTest extends RayEnvBaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(UnionStreamTest.class);
 
+  public UnionStreamTest() {
+    super(true);
+  }
+
   @Test(timeOut = 60000)
   public void testUnionStream() throws Exception {
     String sinkFileName = "/tmp/testUnionStream.txt";
