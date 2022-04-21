@@ -20,7 +20,7 @@ jobs:
     - name: Install basics
       run: |
            brew update
-           brew install --cask doptopenjdk8
+           brew install --cask adoptopenjdk8
            brew install maven
 
     - name: Install bazel

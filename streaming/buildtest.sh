@@ -1,5 +1,15 @@
 #!/bin/bash
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
+TMP_LOG_OUTPUT="$script_dir"/tmp/logs
+
+function suppress_output()
+{
+  "$script_dir"/../scripts/suppress_output "$@"
+}
+
+function zip_and_upload_log() {
+    bash "$script_dir"/../scripts/ossutils.sh zip_dir_and_upload $1 $2 /ci/logs
+}
 
 function create_py_env()
 {
@@ -60,8 +70,8 @@ function test_streaming_java()
     pushd "$script_dir" || exit
 
     bazel build libstreaming_java.so
-    pushd $script_dir/java
-    bash test.sh
+    pushd "$script_dir"/java || exit
+    suppress_output bash test.sh
     exit $?
 
     popd || exit
@@ -72,7 +82,7 @@ function test_streaming_python()
     pushd "$script_dir" || exit
     # Avoid macos build in python2
     if [[ $OSTYPE == "darwin" ]]; then
-        pushd $script_dir/python
+        pushd "$script_dir"/python || exit
         python3 setup.py install --verbose
         popd
     else
@@ -80,7 +90,8 @@ function test_streaming_python()
     fi
     #python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
     bazel build java:streaming_java_pkg
-    python3 -m pytest $script_dir/python/raystreaming/tests/ --capture=no
+    suppress_output python3 -m pytest "$script_dir"/python/raystreaming/tests/ --capture=no 2>&1 | tee "$TMP_LOG_OUTPUT"/python-test.log
+    zip_and_upload_log "$TMP_LOG_OUTPUT" python-test
     exit $?
 
     popd || exit
@@ -103,7 +114,7 @@ function run_case()
       test_categories="streaming_package streaming_cpp streaming_java streaming_python"
     fi
 
-    cd $script_dir
+    cd "$script_dir" || exit
 
     if [[ "$test_categories" == *package* ]]; then
       echo "Running package."
