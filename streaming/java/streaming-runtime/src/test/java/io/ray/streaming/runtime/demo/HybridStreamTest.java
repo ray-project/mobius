@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-@Test(enabled = false)
 public class HybridStreamTest extends RayEnvBaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(HybridStreamTest.class);
@@ -49,7 +48,6 @@ public class HybridStreamTest extends RayEnvBaseTest {
 
   @Test(timeOut = 60000)
   public void testHybridDataStream() throws Exception {
-    Preconditions.checkArgument(EnvUtil.executeCommand(ImmutableList.of("ray", "stop"), 5));
     String sinkFileName = "/tmp/testHybridDataStream.txt";
     Files.deleteIfExists(Paths.get(sinkFileName));
 

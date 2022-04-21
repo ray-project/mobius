@@ -62,12 +62,10 @@ public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
   void beforeMethod(Method method) {
     System.setProperty("ray.head-args.0", "--num-cpus=4");
     System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-    super.testBegin(method);
   }
 
   @AfterMethod
   void afterMethod(Method method) {
-    super.testEnd(method);
     System.clearProperty("ray.run-mode");
     System.clearProperty("ray.head-args.0");
     System.clearProperty("ray.head-args.1");
