@@ -1,14 +1,11 @@
 package io.ray.streaming.runtime.demo;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FilterFunction;
 import io.ray.streaming.api.function.impl.MapFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
 import io.ray.streaming.runtime.RayEnvBaseTest;
-import io.ray.streaming.runtime.util.EnvUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
