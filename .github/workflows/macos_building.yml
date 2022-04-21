@@ -57,4 +57,9 @@ jobs:
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
 
     - name: Streaming cpp test
+      env:
+           OSS_HOST: oss-us-west-1.aliyuncs.com
+           OSS_BUCKET: ray-mobius-us
+           OSS_ID: ${{ secrets.OSS_ID }}
+           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
