@@ -156,7 +156,7 @@ public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
               serializeResultToFile(resultFile, wordCount);
             });
 
-    streamingContext.execute("testSQWordCount");
+    streamingContext.execute(jobName);
 
     Map<String, Integer> checkWordCount =
         (Map<String, Integer>) deserializeResultFromFile(resultFile);

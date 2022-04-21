@@ -53,7 +53,7 @@ public class WordCountTest extends RayEnvBaseTest implements Serializable {
                     new WordAndCount(oldValue.word, oldValue.count + newValue.count))
         .sink((SinkFunction<WordAndCount>) result -> wordCount.put(result.word, result.count));
 
-    streamingContext.execute("testWordCount");
+    streamingContext.execute(jobName);
 
     ImmutableMap<String, Integer> expected = ImmutableMap.of("eagle", 3, "hello", 1);
     while (!wordCount.equals(expected)) {

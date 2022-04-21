@@ -17,6 +17,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install basics
+      run: |
+           brew update
+           brew install --cask doptopenjdk8
+           brew install maven
+
     - name: Install bazel
       run:  |
             if [ "$RUNNER_OS" == "Linux" ]; then

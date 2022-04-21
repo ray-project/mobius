@@ -44,6 +44,11 @@ public abstract class RayEnvBaseTest {
 
   @BeforeMethod(alwaysRun = true)
   public void testBegin(Method method) {
+    if (Ray.isInitialized()) {
+      Ray.shutdown();
+    }
+    Assert.assertFalse(Ray.isInitialized());
+
     jobName = TestHelper.getTestName(this, method);
     LOG.info(
         ">>>>>>>>>>>>>>>>>>>> Test case(Cluster mode: {}): {} began >>>>>>>>>>>>>>>>>>>>",
@@ -55,10 +60,6 @@ public abstract class RayEnvBaseTest {
       System.setProperty("ray.job.jvm-options.0", "-DUT_PATTERN=true");
       System.setProperty("ray.redirect-output", "true");
     }
-    if (Ray.isInitialized()) {
-      Ray.shutdown();
-    }
-    Assert.assertFalse(Ray.isInitialized());
 
     Ray.init();
     TestHelper.setUTFlag();
