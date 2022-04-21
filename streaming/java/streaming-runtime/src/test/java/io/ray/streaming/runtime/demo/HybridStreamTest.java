@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+@Test(enabled = false)
 public class HybridStreamTest extends RayEnvBaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(HybridStreamTest.class);
