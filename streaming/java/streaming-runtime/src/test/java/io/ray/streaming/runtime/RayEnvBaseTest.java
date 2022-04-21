@@ -75,7 +75,7 @@ public abstract class RayEnvBaseTest {
       try {
         TestHelper.destroyUTJobMasterByJobName(jobName);
       } catch (Exception e) {
-        LOG.warn("Error when destroying job master for test: {}.", jobName);
+        LOG.warn("Error when destroying job master for test: {}.", jobName, e);
       }
     }
 

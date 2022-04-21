@@ -65,28 +65,28 @@ public class TestHelper {
     UT_JOB_MASTER_MAP.put(jobName, jobMaster);
   }
 
-  public static void destroyUTJobMasterByJobName(String jobname) {
+  public static void destroyUTJobMasterByJobName(String jobName) {
     LOG.info(
         "Before destroy job master for ut test: {}, ut-jobmaster-map is: {}.",
-        jobname,
+        jobName,
         UT_JOB_MASTER_MAP.keySet());
 
-    JobMaster jobMaster = UT_JOB_MASTER_MAP.get(jobname);
+    JobMaster jobMaster = UT_JOB_MASTER_MAP.get(jobName);
     if (null != jobMaster) {
       boolean result = jobMaster.destroy();
       if (result) {
-        UT_JOB_MASTER_MAP.remove(jobname);
-        LOG.info("Finished destroying job master for ut test: {}.", jobname);
+        UT_JOB_MASTER_MAP.remove(jobName);
+        LOG.info("Finished destroying job master for ut test: {}.", jobName);
       } else {
-        LOG.error("Failed to destroy job master for ut test: {}.", jobname);
+        LOG.error("Failed to destroy job master for ut test: {}.", jobName);
       }
     } else {
-      LOG.warn("ExecutionGraphTes: {}.", jobname);
+      LOG.warn("ExecutionGraphTes: {}.", jobName);
     }
 
     LOG.info(
         "After destroy job master for ut test: {}, ut-jobmaster-map is: {}.",
-        jobname,
+        jobName,
         UT_JOB_MASTER_MAP.keySet());
 
     if (UT_JOB_MASTER_MAP.containsKey(JOB_NAME_DEFAULT)) {
@@ -95,7 +95,7 @@ public class TestHelper {
         jobMaster.destroy();
         LOG.warn("Finished destroying job master for ut test: {}.", JOB_NAME_DEFAULT);
       }
-      UT_JOB_MASTER_MAP.remove(jobname);
+      UT_JOB_MASTER_MAP.remove(jobName);
     }
   }
 }
