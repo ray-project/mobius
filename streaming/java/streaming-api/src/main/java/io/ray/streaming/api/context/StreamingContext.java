@@ -91,7 +91,9 @@ public class StreamingContext implements Serializable {
   }
 
   public void stop() {
-    if (Ray.isInitialized()) {
+    // for single-process mode, we need to close all the async thread, so we can't close the ray env
+    // for single-process mode here
+    if (Ray.isInitialized() && !Ray.getRuntimeContext().isSingleProcess()) {
       ClusterStarter.stopCluster();
     }
   }
