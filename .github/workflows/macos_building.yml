@@ -21,7 +21,7 @@ jobs:
       run: |
            brew update
            brew install --cask homebrew/cask-versions/adoptopenjdk8
-           brew install maven git
+           brew install git
 
     - name: Install bazel
       run:  |
