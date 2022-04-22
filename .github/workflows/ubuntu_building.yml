@@ -6,11 +6,16 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  OSS_HOST: oss-us-west-1.aliyuncs.com
+  OSS_BUCKET: ray-mobius-us
+  OSS_ID: ${{ secrets.OSS_ID }}
+  OSS_KEY: ${{ secrets.OSS_KEY }}
+
 jobs:
   streaming-ubuntu-pipeline:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
-    container: docker.io/library/ubuntu:latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -39,25 +44,10 @@ jobs:
            sh -c "bash scripts/install-ray.sh"
         
     - name: Streaming python test
-      env:
-           OSS_HOST: oss-us-west-1.aliyuncs.com
-           OSS_BUCKET: ray-mobius-us
-           OSS_ID: ${{ secrets.OSS_ID }}
-           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
     - name: Streaming java test
-      env:
-           OSS_HOST: oss-us-west-1.aliyuncs.com
-           OSS_BUCKET: ray-mobius-us
-           OSS_ID: ${{ secrets.OSS_ID }}
-           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
 
     - name: Streaming cpp test
-      env:
-           OSS_HOST: oss-us-west-1.aliyuncs.com
-           OSS_BUCKET: ray-mobius-us
-           OSS_ID: ${{ secrets.OSS_ID }}
-           OSS_KEY: ${{ secrets.OSS_KEY }}
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
