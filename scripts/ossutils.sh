@@ -49,17 +49,16 @@ zip_log_and_upload() {
   echo "Zip log directory: ${1} into file: ${2}."
   zip -q -r "${2}" "${1}"
 
-  echo "Upload file: ${2} to OSS: /ci/logs${3}."
-  upload "$ZIP_FILE $3"
+  echo "Upload file: ${2} to OSS: /ci/logs${3}/${2}."
+  upload "$ZIP_FILE /ci/logs${3}/${2}"
 }
 
 publish_python () {
   pushd "$current_dir" || exit
   PYTHON_DIST_DIR=../streaming/python/dist
-  COMMIT_ID=$(git rev-parse HEAD)
-  echo "Head Commit ID :${COMMIT_ID}"
+  echo "Head Commit ID :${GITHUB_SHA}"
   if [ -d $PYTHON_DIST_DIR ] ; then
-    upload $PYTHON_DIST_DIR /publish/python/$COMMIT_ID
+    upload $PYTHON_DIST_DIR /publish/python/"$GITHUB_SHA"
   else
     echo "Python dist not found"
   fi

@@ -9,10 +9,9 @@ ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
 OUTPUT_DIR="/tmp/ray_streaming_java_test_output"
 
 function zip_and_upload_log() {
-    COMMIT_ID=$(git rev-parse HEAD)
     TIME=$(date '+%s')
     ZIP_FILE="java-test-log.zip"
-    bash "$ROOT_DIR"/../../scripts/ossutils.sh zip_log_and_upload "$1" "${ZIP_FILE}" "/${COMMIT_ID}/${TIME}"
+    bash "$ROOT_DIR"/../../scripts/ossutils.sh zip_log_and_upload "$1" "${ZIP_FILE}" "/${GITHUB_SHA}/${TIME}"
 }
 
 pushd "$ROOT_DIR"
