@@ -52,7 +52,7 @@ zip_dir_and_upload() {
   echo "Zip directory: ${1} into file: ${ZIP_FILE}."
   zip -q -r "${ZIP_FILE}" "${1}"
 
-  echo "Upload file: ${ZIP_FILE} to OSS: ${3}."
+  echo "Upload file: ${ZIP_FILE} to OSS: ${3}/${COMMIT_ID}."
   upload "$ZIP_FILE $3"
 }
 
