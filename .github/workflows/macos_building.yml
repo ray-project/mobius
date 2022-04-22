@@ -47,11 +47,12 @@ jobs:
             #  run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
     - name: Install OSS
-      run: |
-           sh scripts/ossutils.sh install
+      run: sh scripts/ossutils.sh install
 
     - name: Streaming java test
-      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
+      run: |
+           echo "Skip java test in macos for now."
+           # sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
 
     - name: Streaming cpp test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
