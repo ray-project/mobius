@@ -1,8 +1,9 @@
 #!/bin/bash
 current_dir=$(dirname "${BASH_SOURCE:-$0}")
 
+# shellcheck disable=SC2120
 install() {
-  oss_path=${1:-/usr/bin}
+  oss_path="unknown"
   platform="unknown"
 
   case "${OSTYPE}" in
@@ -27,20 +28,24 @@ install() {
   echo "platform is ${platform}"
   
   if [ "${platform}" = "darwin" ]; then
+      oss_path=${1:-/usr/local/bin}
       wget "https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/macos/ossutilmac64" -O "$oss_path"/ossutil64
   else
+      oss_path=${1:-/usr/bin}
       wget "https://ray-mobius-us.oss-us-west-1.aliyuncs.com/ci/linux/ossutil64" -O "$oss_path"/ossutil64
   fi
   
   chmod a+x "$oss_path"/ossutil64
+  ossutil64 --version
 }
 
-copy() {
+upload() {
   ossutil64 -i "${OSS_ID:-default-id}" -e "${OSS_HOST:-default-host}" -k "${OSS_KEY:-default-key}" cp "$1" oss://"${OSS_BUCKET:-default-bucket}${2}" -r -f
 } 
 
 # usage: zip_dir_and_upload [directory] [fileName-prefix] [target oss directory]
 zip_dir_and_upload() {
+  pushd "$current_dir" || exit
   COMMIT_ID=$(git rev-parse HEAD)
   TIME=$(date '+%s')
   ZIP_FILE="${2}-${COMMIT_ID}-${TIME}.zip"
@@ -49,7 +54,7 @@ zip_dir_and_upload() {
   zip -q -r "${ZIP_FILE}" "${1}"
 
   echo "Upload file: ${ZIP_FILE} to OSS: ${3}."
-  copy "$ZIP_FILE $3"
+  upload "$ZIP_FILE $3"
 }
 
 publish_python () {
@@ -58,19 +63,19 @@ publish_python () {
   COMMIT_ID=$(git rev-parse HEAD)
   echo "Head Commit ID :${COMMIT_ID}"
   if [ -d $PYTHON_DIST_DIR ] ; then
-    copy $PYTHON_DIST_DIR /publish/python/$COMMIT_ID
+    upload $PYTHON_DIST_DIR /publish/python/$COMMIT_ID
   else
     echo "Python dist not found"
   fi
   popd || exit
 }
 
-if [ $1 == "install" ] ; then
-  install $2
-elif [ $1 == "cp" ] ; then
-	copy $2 $3
-elif [ $1 == "zip_dir_and_upload" ] ; then
-	zip_dir_and_upload $2 $3 $4
-elif [ $1 == "publish_python" ] ; then
-	publish_python
+if [ "$1" == "install" ] ; then
+  install
+elif [ "$1" == "cp" ] ; then
+  upload "$2" "$3"
+elif [ "$1" == "zip_dir_and_upload" ] ; then
+  zip_dir_and_upload "$2" "$3" "$4"
+elif [ "$1" == "publish_python" ] ; then
+  publish_python
 fi

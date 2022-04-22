@@ -56,6 +56,7 @@ function compile()
 
 function test_streaming_cpp() 
 {
+    echo "Start streaming cpp test."
     pushd "$script_dir" || exit
 
     #bazel test //:all --test_filter=basic
@@ -69,6 +70,7 @@ function test_streaming_cpp()
 
 function test_streaming_java() 
 {
+    echo "Start streaming java test."
     pushd "$script_dir" || exit
 
     bazel build libstreaming_java.so
@@ -81,6 +83,7 @@ function test_streaming_java()
 
 function test_streaming_python() 
 {
+    echo "Start streaming python test."
     pushd "$script_dir" || exit
     # Avoid macos build in python2
     if [[ $OSTYPE == "darwin" ]]; then
@@ -92,8 +95,8 @@ function test_streaming_python()
     fi
     #python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
     bazel build java:streaming_java_pkg
-    suppress_output python3 -m pytest "$script_dir"/python/raystreaming/tests/ --capture=no 2>&1 | tee "$TMP_LOG_OUTPUT"/python-test.log
-    zip_and_upload_log "$TMP_LOG_OUTPUT" python-test
+    suppress_output python3 -m pytest "$script_dir"/python/raystreaming/tests/ --capture=no 2>&1 | tee "$TMP_LOG_OUTPUT"/python-test/python-test.log
+    zip_and_upload_log "$TMP_LOG_OUTPUT"/python-test python-test
     exit $?
 
     popd || exit
@@ -101,6 +104,7 @@ function test_streaming_python()
 
 function streaming_package() 
 {
+    echo "Start streaming package."
     pushd "$script_dir" || exit
 
     bazel build streaming_pkg

@@ -48,7 +48,7 @@ jobs:
 
     - name: Install OSS
       run: |
-           sudo sh scripts/ossutils.sh install
+           sh scripts/ossutils.sh install
 
     - name: Streaming java test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"

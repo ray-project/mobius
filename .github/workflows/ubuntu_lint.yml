@@ -10,6 +10,7 @@ jobs:
   Ubuntu-Lint:
     timeout-minutes: 60
     runs-on: ubuntu-20.04
+    container: docker.io/library/ubuntu:20.04
 
     steps:
      # More detail see https://github.com/actions/checkout/issues/335.
