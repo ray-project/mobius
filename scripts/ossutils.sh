@@ -38,6 +38,7 @@ install() {
   ossutil64 --version
 }
 
+# usage: upload [file] [target oss directory]
 upload() {
   ossutil64 -i "${OSS_ID:-default-id}" -e "${OSS_HOST:-default-host}" -k "${OSS_KEY:-default-key}" cp "$1" oss://"${OSS_BUCKET:-default-bucket}${2}" -r -f
 } 
@@ -50,7 +51,7 @@ zip_log_and_upload() {
   zip -q -r "${2}" "${1}"
 
   echo "Upload file: ${2} to OSS: /ci/logs${3}/${2}."
-  upload "$ZIP_FILE /ci/logs${3}/${2}"
+  upload "${2} /ci/logs${3}/${2}"
 }
 
 publish_python () {
