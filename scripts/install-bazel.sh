@@ -30,3 +30,5 @@ else
     wget "https://github.com/bazelbuild/bazel/releases/download/5.1.0/bazel_5.1.0-linux-x86_64.deb" -O bazel_5.1.0-linux-x86_64.deb
     dpkg -i bazel_5.1.0-linux-x86_64.deb
 fi
+
+bazel --version

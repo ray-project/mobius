@@ -30,11 +30,11 @@ jobs:
 
     - name: Install bazel
       run: |
-           sh scripts/install-bazel.sh
+           sh -c "bash scripts/install-bazel.sh"
 
     - name: Install OSS
       run: |
-           sh scripts/ossutils.sh install
+           sh -c "bash scripts/ossutils.sh install"
 
     - name: Install ray wheel
       run: |

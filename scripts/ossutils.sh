@@ -1,7 +1,6 @@
 #!/bin/bash
 current_dir=$(dirname "${BASH_SOURCE:-$0}")
 
-# shellcheck disable=SC2120
 install() {
   oss_path="unknown"
   platform="unknown"
@@ -71,7 +70,7 @@ publish_python () {
 }
 
 if [ "$1" == "install" ] ; then
-  install
+  install "$2"
 elif [ "$1" == "cp" ] ; then
   upload "$2" "$3"
 elif [ "$1" == "zip_dir_and_upload" ] ; then
