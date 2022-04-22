@@ -23,7 +23,6 @@ jobs:
     - name: Install basics
       run: |
            brew update
-           brew install --cask homebrew/cask-versions/adoptopenjdk8
 
     - name: Install bazel
       run:  |

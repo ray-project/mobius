@@ -24,7 +24,7 @@ jobs:
       run: |
            apt-get update
            apt-get install -yq software-properties-common
-           add-apt-repository -y ppa:deadsnakes/ppa
+           sudo add-apt-repository -y ppa:deadsnakes/ppa
            apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip git pip
 
     - name: Install bazel
