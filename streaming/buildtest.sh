@@ -10,7 +10,7 @@ function suppress_output()
 }
 
 function zip_and_upload_log() {
-    bash "$script_dir"/../scripts/ossutils.sh zip_dir_and_upload $1 $2 /ci/logs
+    bash "$script_dir"/../scripts/ossutils.sh zip_dir_and_upload "$1" "$2" "$3"
 }
 
 function create_py_env()
@@ -85,6 +85,11 @@ function test_streaming_python()
 {
     echo "Start streaming python test."
     pushd "$script_dir" || exit
+    mkdir -p "$TMP_LOG_OUTPUT"/python-test
+    COMMIT_ID=$(git rev-parse HEAD)
+    TIME=$(date '+%s')
+    ZIP_FILE="python-test-log.zip"
+
     # Avoid macos build in python2
     if [[ $OSTYPE == "darwin" ]]; then
         pushd "$script_dir"/python || exit
@@ -95,8 +100,8 @@ function test_streaming_python()
     fi
     #python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
     bazel build java:streaming_java_pkg
-    python3 -m pytest "$script_dir"/python/raystreaming/tests/ --capture=no 2>&1 | tee "$TMP_LOG_OUTPUT"/python-test/python-test.log
-    zip_and_upload_log "$TMP_LOG_OUTPUT"/python-test/ python-test
+    suppress_output python3 -m pytest "$script_dir"/python/raystreaming/tests/ --capture=no 2>&1 | tee "$TMP_LOG_OUTPUT"/python-test/python-test.log
+    zip_and_upload_log "$TMP_LOG_OUTPUT"/python-test/ "${ZIP_FILE}" "/${COMMIT_ID}/${TIME}"
     exit $?
 
     popd || exit

@@ -42,17 +42,14 @@ upload() {
   ossutil64 -i "${OSS_ID:-default-id}" -e "${OSS_HOST:-default-host}" -k "${OSS_KEY:-default-key}" cp "$1" oss://"${OSS_BUCKET:-default-bucket}${2}" -r -f
 } 
 
-# usage: zip_dir_and_upload [directory] [fileName-prefix] [target oss directory]
-zip_dir_and_upload() {
+# usage: zip_log_and_upload [directory] [fileName] [target oss directory]
+zip_log_and_upload() {
   pushd "$current_dir" || exit
-  COMMIT_ID=$(git rev-parse HEAD)
-  TIME=$(date '+%s')
-  ZIP_FILE="${2}-${COMMIT_ID}-${TIME}.zip"
 
-  echo "Zip directory: ${1} into file: ${ZIP_FILE}."
-  zip -q -r "${ZIP_FILE}" "${1}"
+  echo "Zip log directory: ${1} into file: ${2}."
+  zip -q -r "${2}" "${1}"
 
-  echo "Upload file: ${ZIP_FILE} to OSS: ${3}/${COMMIT_ID}."
+  echo "Upload file: ${2} to OSS: /ci/logs${3}."
   upload "$ZIP_FILE $3"
 }
 
