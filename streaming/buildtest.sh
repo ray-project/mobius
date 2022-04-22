@@ -10,7 +10,7 @@ function suppress_output()
 }
 
 function zip_and_upload_log() {
-    bash "$script_dir"/../scripts/ossutils.sh zip_dir_and_upload "$1" "$2" "$3"
+    bash "$script_dir"/../scripts/ossutils.sh zip_log_and_upload "$1" "$2" "$3"
 }
 
 function create_py_env()

@@ -12,7 +12,7 @@ function zip_and_upload_log() {
     COMMIT_ID=$(git rev-parse HEAD)
     TIME=$(date '+%s')
     ZIP_FILE="java-test-log.zip"
-    bash "$ROOT_DIR"/../../scripts/ossutils.sh zip_dir_and_upload "$1" "${ZIP_FILE}" "/${COMMIT_ID}/${TIME}"
+    bash "$ROOT_DIR"/../../scripts/ossutils.sh zip_log_and_upload "$1" "${ZIP_FILE}" "/${COMMIT_ID}/${TIME}"
 }
 
 pushd "$ROOT_DIR"

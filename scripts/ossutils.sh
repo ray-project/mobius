@@ -70,8 +70,8 @@ if [ "$1" == "install" ] ; then
   install "$2"
 elif [ "$1" == "cp" ] ; then
   upload "$2" "$3"
-elif [ "$1" == "zip_dir_and_upload" ] ; then
-  zip_dir_and_upload "$2" "$3" "$4"
+elif [ "$1" == "zip_log_and_upload" ] ; then
+  zip_log_and_upload "$2" "$3" "$4"
 elif [ "$1" == "publish_python" ] ; then
   publish_python
 fi
