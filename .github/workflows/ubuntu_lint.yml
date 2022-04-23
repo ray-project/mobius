@@ -26,7 +26,7 @@ jobs:
       run:  |
             apt-get update && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" apt-get install -y tzdata
             apt-get install -yq software-properties-common
-            sudo add-apt-repository -y ppa:deadsnakes/ppa
+            add-apt-repository -y ppa:deadsnakes/ppa
             apt-get install -yq openjdk-8-jdk wget gcc g++ python3.8 zlib1g-dev zip
             apt-get install -yq python3-pip maven
             pip install --upgrade click==8.0.2
