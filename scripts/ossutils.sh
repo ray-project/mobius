@@ -1,5 +1,6 @@
 #!/bin/bash
 current_dir=$(dirname "${BASH_SOURCE:-$0}")
+oss_suffix=".aliyuncs.com"
 
 install() {
   oss_path="unknown"
@@ -52,6 +53,8 @@ zip_log_and_upload() {
 
   echo "Upload file: ${2} to OSS: /ci/logs${3}."
   upload "${2}" /ci/logs"${3}"
+
+  echo "Log files can be downloaded from: https://${OSS_HOST:-default-host}${oss_suffix}/ci/logs${3}"
 }
 
 publish_python () {
