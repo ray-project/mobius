@@ -6,10 +6,16 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  OSS_HOST: oss-us-west-1.aliyuncs.com
+  OSS_BUCKET: ray-mobius-us
+  OSS_ID: ${{ secrets.OSS_ID }}
+  OSS_KEY: ${{ secrets.OSS_KEY }}
+
 jobs:
   streaming-debian-manylinux-pipeline:
     timeout-minutes: 120
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container: quay.io/pypa/manylinux_2_24_x86_64
 
     steps:
@@ -29,11 +35,6 @@ jobs:
       run: sh -c "bash streaming/python/build_wheels.sh"
 
     - name: Package to aliyun oss
-      env:
-         OSS_HOST: ${{ secrets.OSS_HOST }}
-         OSS_ID: ${{ secrets.OSS_ID }}
-         OSS_KEY: ${{ secrets.OSS_KEY }}
-         OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
       run:  |
             sh -c "bash scripts/ossutils.sh install"
             sh -c "bash scripts/ossutils.sh publish_python"

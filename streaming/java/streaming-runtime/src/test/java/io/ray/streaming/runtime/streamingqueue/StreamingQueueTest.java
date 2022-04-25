@@ -7,7 +7,7 @@ import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.BaseUnitTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
 import io.ray.streaming.runtime.util.EnvUtil;
 import io.ray.streaming.util.Config;
@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +31,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class StreamingQueueTest extends BaseUnitTest implements Serializable {
+public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
 
   private static Logger LOGGER = LoggerFactory.getLogger(StreamingQueueTest.class);
 
   static {
     EnvUtil.loadNativeLibraries();
+  }
+
+  public StreamingQueueTest() {
+    super(true);
   }
 
   @org.testng.annotations.BeforeSuite
@@ -54,20 +59,13 @@ public class StreamingQueueTest extends BaseUnitTest implements Serializable {
   }
 
   @BeforeMethod
-  void beforeMethod() {
-    LOGGER.info("beforeTest");
-    Ray.shutdown();
+  void beforeMethod(Method method) {
     System.setProperty("ray.head-args.0", "--num-cpus=4");
     System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-    System.setProperty("ray.run-mode", "CLUSTER");
-    System.setProperty("ray.redirect-output", "true");
-    Ray.init();
   }
 
   @AfterMethod
-  void afterMethod() {
-    LOGGER.info("afterTest");
-    Ray.shutdown();
+  void afterMethod(Method method) {
     System.clearProperty("ray.run-mode");
     System.clearProperty("ray.head-args.0");
     System.clearProperty("ray.head-args.1");
@@ -75,17 +73,6 @@ public class StreamingQueueTest extends BaseUnitTest implements Serializable {
 
   @Test(timeOut = 300000)
   public void testReaderWriter() {
-    LOGGER.info(
-        "StreamingQueueTest.testReaderWriter run-mode: {}", System.getProperty("ray.run-mode"));
-    Ray.shutdown();
-    System.setProperty("ray.head-args.0", "--num-cpus=4");
-    System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-
-    System.setProperty("ray.run-mode", "CLUSTER");
-    System.setProperty("ray.redirect-output", "true");
-    // ray init
-    Ray.init();
-
     ActorHandle<WriterWorker> writerActor = Ray.actor(WriterWorker::new, "writer").remote();
     ActorHandle<ReaderWorker> readerActor = Ray.actor(ReaderWorker::new, "reader").remote();
 
@@ -132,17 +119,6 @@ public class StreamingQueueTest extends BaseUnitTest implements Serializable {
 
   @Test(timeOut = 60000)
   public void testWordCount() {
-    Ray.shutdown();
-    System.setProperty("ray.head-args.0", "--num-cpus=4");
-    System.setProperty("ray.head-args.1", "--resources={\"RES-A\":4}");
-
-    System.setProperty("ray.run-mode", "CLUSTER");
-    System.setProperty("ray.redirect-output", "true");
-    // ray init
-    Ray.init();
-    LOGGER.info("testWordCount");
-    LOGGER.info(
-        "StreamingQueueTest.testWordCount run-mode: {}", System.getProperty("ray.run-mode"));
     String resultFile = "/tmp/io.ray.streaming.runtime.streamingqueue.testWordCount.txt";
     deleteResultFile(resultFile);
 
@@ -178,7 +154,7 @@ public class StreamingQueueTest extends BaseUnitTest implements Serializable {
               serializeResultToFile(resultFile, wordCount);
             });
 
-    streamingContext.execute("testSQWordCount");
+    streamingContext.execute(jobName);
 
     Map<String, Integer> checkWordCount =
         (Map<String, Integer>) deserializeResultFromFile(resultFile);

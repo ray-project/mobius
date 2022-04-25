@@ -8,7 +8,6 @@ import io.ray.streaming.api.stream.StreamSink;
 import io.ray.streaming.jobgraph.JobGraph;
 import io.ray.streaming.jobgraph.JobGraphBuilder;
 import io.ray.streaming.jobgraph.JobVertex;
-import io.ray.streaming.runtime.BaseUnitTest;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.config.master.ResourceConfig;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ExecutionGraphTest extends BaseUnitTest {
+public class ExecutionGraphTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExecutionGraphTest.class);
 

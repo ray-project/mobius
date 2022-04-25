@@ -1,5 +1,17 @@
 #!/bin/bash
 script_dir=$(cd "$(dirname "${BASH_SOURCE:-$0}")" || exit; pwd)
+TMP_LOG_OUTPUT="$script_dir"/tmp/logs
+
+mkdir -p "$TMP_LOG_OUTPUT"
+
+function suppress_output()
+{
+  "$script_dir"/../scripts/suppress_output "$@"
+}
+
+function zip_and_upload_log() {
+    bash "$script_dir"/../scripts/ossutils.sh zip_log_and_upload "$1" "$2" "$3"
+}
 
 function create_py_env()
 {
@@ -44,6 +56,7 @@ function compile()
 
 function test_streaming_cpp() 
 {
+    echo "Start streaming cpp test."
     pushd "$script_dir" || exit
 
     #bazel test //:all --test_filter=basic
@@ -57,9 +70,12 @@ function test_streaming_cpp()
 
 function test_streaming_java() 
 {
+    echo "Start streaming java test."
     pushd "$script_dir" || exit
 
     bazel build libstreaming_java.so
+    pushd "$script_dir"/java || exit
+    bash test.sh
     exit $?
 
     popd || exit
@@ -67,10 +83,15 @@ function test_streaming_java()
 
 function test_streaming_python() 
 {
+    echo "Start streaming python test."
     pushd "$script_dir" || exit
+    mkdir -p "$TMP_LOG_OUTPUT"/python-test
+    TIME=$(date '+%s')
+    ZIP_FILE="python-test-log.zip"
+
     # Avoid macos build in python2
     if [[ $OSTYPE == "darwin" ]]; then
-        pushd $script_dir/python
+        pushd "$script_dir"/python || exit
         python3 setup.py install --verbose
         popd
     else
@@ -78,16 +99,16 @@ function test_streaming_python()
     fi
     #python3 -m pytest $script_dir/python/raystreaming/tests/simple --capture=no
     bazel build java:streaming_java_pkg
-    python3 -m pytest $script_dir/python/raystreaming/tests/ --capture=no
+    python3 -m pytest "$script_dir"/python/raystreaming/tests/ > "$TMP_LOG_OUTPUT"/python-test/python-test.log 2>&1
+    zip_and_upload_log "$TMP_LOG_OUTPUT"/python-test/ "${script_dir}/${ZIP_FILE}" "/${GITHUB_SHA}/${TIME}/${ZIP_FILE}"
     exit $?
 
     popd || exit
 }
 
-
-
 function streaming_package() 
 {
+    echo "Start streaming package."
     pushd "$script_dir" || exit
 
     bazel build streaming_pkg
@@ -103,7 +124,7 @@ function run_case()
       test_categories="streaming_package streaming_cpp streaming_java streaming_python"
     fi
 
-    cd $script_dir
+    cd "$script_dir" || exit
 
     if [[ "$test_categories" == *package* ]]; then
       echo "Running package."

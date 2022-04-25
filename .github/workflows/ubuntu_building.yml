@@ -6,21 +6,35 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  OSS_HOST: oss-us-west-1.aliyuncs.com
+  OSS_BUCKET: ray-mobius-us
+  OSS_ID: ${{ secrets.OSS_ID }}
+  OSS_KEY: ${{ secrets.OSS_KEY }}
+
 jobs:
   streaming-ubuntu-pipeline:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
-    container: docker.io/library/ubuntu:latest
+    runs-on: ubuntu-20.04
+    container: docker.io/library/ubuntu:20.04
 
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install basics
+      run: |
+           apt-get update
+           apt-get install -yq software-properties-common
+           add-apt-repository -y ppa:deadsnakes/ppa
+           apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip git pip
+
     - name: Install bazel
-      run:  |
-            apt-get update
-            apt-get install -yq wget gcc g++ openjdk-8-jdk python3.8 zlib1g-dev zip
-            apt-get install -yq pip
-            sh scripts/install-bazel.sh
+      run: |
+           sh -c "bash scripts/install-bazel.sh"
+
+    - name: Install OSS
+      run: |
+           sh -c "bash scripts/ossutils.sh install"
 
     - name: Install ray wheel
       run: |
@@ -29,6 +43,7 @@ jobs:
            . py3/bin/activate
            pip install pytest
            sh -c "bash scripts/install-ray.sh"
+        
     - name: Streaming python test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 

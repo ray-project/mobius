@@ -1,25 +1,11 @@
 package io.ray.streaming.runtime.master;
 
-import io.ray.api.Ray;
-import io.ray.streaming.runtime.BaseUnitTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import java.util.HashMap;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class JobMasterTest extends BaseUnitTest {
-
-  @BeforeMethod
-  public void init() {
-    // ray init
-    Ray.init();
-  }
-
-  @AfterMethod
-  public void tearDown() {
-    Ray.shutdown();
-  }
+public class JobMasterTest extends RayEnvBaseTest {
 
   @Test
   public void testCreation() {
@@ -30,5 +16,7 @@ public class JobMasterTest extends BaseUnitTest {
     Assert.assertNull(jobMaster.getResourceManager());
     Assert.assertNull(jobMaster.getJobMasterActor());
     Assert.assertFalse(jobMaster.init(false));
+
+    jobMaster.destroy();
   }
 }

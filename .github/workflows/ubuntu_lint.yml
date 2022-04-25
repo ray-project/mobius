@@ -9,8 +9,8 @@ on:
 jobs:
   Ubuntu-Lint:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
-    container: docker.io/library/ubuntu:latest
+    runs-on: ubuntu-20.04
+    container: docker.io/library/ubuntu:20.04
 
     steps:
      # More detail see https://github.com/actions/checkout/issues/335.
@@ -25,6 +25,8 @@ jobs:
     - name: Init Env
       run:  |
             apt-get update && DEBIAN_FRONTEND="noninteractive" TZ="America/New_York" apt-get install -y tzdata
+            apt-get install -yq software-properties-common
+            add-apt-repository -y ppa:deadsnakes/ppa
             apt-get install -yq openjdk-8-jdk wget gcc g++ python3.8 zlib1g-dev zip
             apt-get install -yq python3-pip maven
             pip install --upgrade click==8.0.2

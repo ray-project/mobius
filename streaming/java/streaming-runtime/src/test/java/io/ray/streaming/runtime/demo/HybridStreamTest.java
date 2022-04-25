@@ -1,14 +1,11 @@
 package io.ray.streaming.runtime.demo;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import io.ray.api.Ray;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FilterFunction;
 import io.ray.streaming.api.function.impl.MapFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.util.EnvUtil;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,9 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class HybridStreamTest {
+public class HybridStreamTest extends RayEnvBaseTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(HybridStreamTest.class);
+
+  public HybridStreamTest() {
+    super(true);
+  }
 
   public static class Mapper1 implements MapFunction<Object, Object> {
 
@@ -44,8 +45,6 @@ public class HybridStreamTest {
 
   @Test(timeOut = 60000)
   public void testHybridDataStream() throws Exception {
-    Ray.shutdown();
-    Preconditions.checkArgument(EnvUtil.executeCommand(ImmutableList.of("ray", "stop"), 5));
     String sinkFileName = "/tmp/testHybridDataStream.txt";
     Files.deleteIfExists(Paths.get(sinkFileName));
 

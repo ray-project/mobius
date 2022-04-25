@@ -177,6 +177,27 @@ public class JobSchedulerImpl implements JobScheduler {
     return context;
   }
 
+  private void preActionBeforeDestroying() {
+    // TODO
+  }
+
+  /**
+   * Destroy job(all instances).
+   *
+   * @return destroying action result
+   */
+  public boolean destroyJob() {
+    LOG.info("Destroy all workers.");
+    preActionBeforeDestroying();
+
+    // remove all actors
+    boolean workerDestroyResult =
+        workerLifecycleController.destroyWorkers(
+            graphManager.getExecutionGraph().getAllExecutionVertices());
+
+    return workerDestroyResult;
+  }
+
   /**
    * Destroy JobWorkers according to the vertex infos.
    *

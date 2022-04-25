@@ -1,14 +1,13 @@
 package io.ray.streaming.runtime.demo;
 
 import com.google.common.collect.ImmutableMap;
-import io.ray.api.Ray;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.function.impl.SourceFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
-import io.ray.streaming.runtime.BaseUnitTest;
+import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.util.Config;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-public class WordCountTest extends BaseUnitTest implements Serializable {
+public class WordCountTest extends RayEnvBaseTest implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(WordCountTest.class);
 
@@ -30,8 +29,6 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
 
   @Test(timeOut = 60000)
   public void testWordCount() {
-    Ray.shutdown();
-
     StreamingContext streamingContext = StreamingContext.buildContext();
     Map<String, String> config = new HashMap<>();
     config.put(Config.CHANNEL_TYPE, "MEMORY_CHANNEL");
@@ -56,7 +53,7 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
                     new WordAndCount(oldValue.word, oldValue.count + newValue.count))
         .sink((SinkFunction<WordAndCount>) result -> wordCount.put(result.word, result.count));
 
-    streamingContext.execute("testWordCount");
+    streamingContext.execute(jobName);
 
     ImmutableMap<String, Integer> expected = ImmutableMap.of("eagle", 3, "hello", 1);
     while (!wordCount.equals(expected)) {
@@ -71,8 +68,6 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
 
   @Test(timeOut = 60000)
   public void testUserDefinedSourceWordCount() {
-    Ray.shutdown();
-
     StreamingContext streamingContext = StreamingContext.buildContext();
     Map<String, String> config = new HashMap<>();
     config.put(Config.CHANNEL_TYPE, "MEMORY_CHANNEL");
@@ -96,14 +91,14 @@ public class WordCountTest extends BaseUnitTest implements Serializable {
             (SinkFunction<WordAndCount>)
                 result -> userDefinedWordCount.put(result.word, result.count));
 
-    streamingContext.execute("testUserDefinedSourceWordCount");
+    streamingContext.execute(jobName);
 
     while (true) {
       int totalWords = userDefinedWordCount.values().stream().mapToInt(Integer::intValue).sum();
       if (totalWords >= totalNum) {
         LOG.info("Total word size : {}.", totalWords);
         for (Map.Entry<String, Integer> entry : userDefinedWordCount.entrySet()) {
-          LOG.info("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
+          LOG.debug("Word key : {}, count : {}.", entry.getKey(), entry.getValue());
         }
         break;
       }

@@ -28,6 +28,7 @@ import io.ray.streaming.runtime.master.scheduler.JobSchedulerImpl;
 import io.ray.streaming.runtime.util.CheckpointStateUtil;
 import io.ray.streaming.runtime.util.ResourceUtil;
 import io.ray.streaming.runtime.util.Serializer;
+import io.ray.streaming.runtime.util.TestHelper;
 import io.ray.streaming.runtime.worker.JobWorker;
 import java.util.Map;
 import java.util.Optional;
@@ -73,6 +74,9 @@ public class JobMaster {
     }
 
     LOG.info("Finished creating job master.");
+    if (TestHelper.isUT()) {
+      TestHelper.setUTJobMasterByJobName(runtimeContext.getJobName(), this);
+    }
   }
 
   public static String getJobMasterRuntimeContextKey(StreamingMasterConfig conf) {
@@ -241,6 +245,29 @@ public class JobMaster {
       LOG.error("Parse job worker rollback has exception.", e);
     }
     return RemoteCall.BoolResult.newBuilder().setBoolRes(ret).build().toByteArray();
+  }
+
+  public Boolean destroy() {
+    LOG.info("Start to destroy job master for job: {}.", runtimeContext.getJobName());
+    long startTs = System.currentTimeMillis();
+
+    if (scheduler != null) {
+      scheduler.destroyJob();
+    }
+
+    if (checkpointCoordinator != null) {
+      checkpointCoordinator.stop();
+    }
+
+    if (failoverCoordinator != null) {
+      failoverCoordinator.stop();
+    }
+
+    LOG.info(
+        "Destroying job master for job: {} succeeded within: {} ms.",
+        getConf().commonConfig.jobName(),
+        System.currentTimeMillis() - startTs);
+    return true;
   }
 
   private ExecutionVertex getExecutionVertex(ActorId id) {
