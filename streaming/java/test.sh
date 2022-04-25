@@ -8,6 +8,11 @@ set -x
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
 OUTPUT_DIR="/tmp/ray_streaming_java_test_output"
 
+function suppress_output()
+{
+  "$script_dir"/../../scripts/suppress_output "$@"
+}
+
 function zip_and_upload_log() {
     TIME=$(date '+%s')
     ZIP_FILE="java-test-log.zip"
@@ -26,7 +31,7 @@ echo "Build ray streaming"
 bazel build @com_github_ray_streaming//java:all
 
 echo "Running streaming tests."
-java -cp "$ROOT_DIR"/../bazel-bin/java/all_streaming_tests_deploy.jar\
+suppress_output java -cp "$ROOT_DIR"/../bazel-bin/java/all_streaming_tests_deploy.jar\
  org.testng.TestNG -d /tmp/ray_streaming_java_test_output "$ROOT_DIR"/testng.xml ||
 exit_code=$?
 if [ -z ${exit_code+x} ]; then
