@@ -50,8 +50,8 @@ zip_log_and_upload() {
   echo "Zip log directory: ${1} into file: ${2}."
   zip -q -r "${2}" "${1}"
 
-  echo "Upload file: ${2} to OSS: /ci/logs${3}/${2}."
-  upload "${2} /ci/logs${3}/${2}"
+  echo "Upload file: ${2} to OSS: /ci/logs${3}."
+  upload "${2} /ci/logs${3}"
 }
 
 publish_python () {
