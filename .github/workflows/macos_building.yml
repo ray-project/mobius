@@ -14,7 +14,7 @@ env:
 
 jobs:
   streaming-mac-pipeline:
-    timeout-minutes: 60
+    timeout-minutes: 90
     runs-on: macos-11
 
     steps:
