@@ -10,7 +10,7 @@ OUTPUT_DIR="/tmp/ray_streaming_java_test_output"
 
 function suppress_output()
 {
-  "$script_dir"/../../scripts/suppress_output "$@"
+  "$ROOT_DIR"/../../scripts/suppress_output "$@"
 }
 
 function zip_and_upload_log() {
