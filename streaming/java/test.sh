@@ -22,9 +22,9 @@ function zip_and_upload_log() {
 pushd "$ROOT_DIR"
 echo "Check java code format."
 # check google java style
-mvn -T16 spotless:check
+mvn -T16 -q spotless:check
 # check naming and others
-mvn -T16 checkstyle:check
+mvn -T16 -q checkstyle:check
 popd
 
 echo "Build ray streaming"
@@ -68,4 +68,4 @@ fi
 
 echo "Maven install ray streaming。"
 pushd "$ROOT_DIR"
-mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN clean install -DskipTests -Dcheckstyle.skip
+mvn -q -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN clean install -DskipTests -Dcheckstyle.skip
