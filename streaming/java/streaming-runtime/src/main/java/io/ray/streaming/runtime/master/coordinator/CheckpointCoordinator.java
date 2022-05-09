@@ -5,6 +5,7 @@ import io.ray.api.BaseActorHandle;
 import io.ray.api.ObjectRef;
 import io.ray.api.id.ActorId;
 import io.ray.runtime.exception.RayException;
+import io.ray.streaming.runtime.config.StreamingMasterConfig;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.master.coordinator.command.BaseWorkerCmd;
 import io.ray.streaming.runtime.master.coordinator.command.WorkerCommitReport;
@@ -33,10 +34,11 @@ public class CheckpointCoordinator extends BaseCoordinator {
 
   public CheckpointCoordinator(JobMaster jobMaster) {
     super(jobMaster);
+    StreamingMasterConfig masterConfig = runtimeContext.getConf().getMasterConfig();
 
     // get checkpoint interval from conf
-    this.cpIntervalSecs = runtimeContext.getConf().masterConfig.checkpointConfig.cpIntervalSecs();
-    this.cpTimeoutSecs = runtimeContext.getConf().masterConfig.checkpointConfig.cpTimeoutSecs();
+    this.cpIntervalSecs = masterConfig.checkpointConfig.cpIntervalSecs();
+    this.cpTimeoutSecs = masterConfig.checkpointConfig.cpTimeoutSecs();
 
     // Trigger next checkpoint in interval by reset last checkpoint timestamp.
     runtimeContext.lastCpTimestamp = System.currentTimeMillis();

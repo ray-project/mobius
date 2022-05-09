@@ -3,6 +3,7 @@ package io.ray.streaming.runtime.master.context;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Sets;
 import io.ray.streaming.jobgraph.JobGraph;
+import io.ray.streaming.runtime.command.EndOfDataReport;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.master.coordinator.command.BaseWorkerCmd;
@@ -26,9 +27,14 @@ public class JobMasterRuntimeContext implements Serializable {
   public volatile long lastCheckpointId = 0;
   public volatile long lastCpTimestamp = 0;
   public volatile BlockingQueue<BaseWorkerCmd> cpCmds = new LinkedBlockingQueue<>();
+
   /*--------------Failover----------------*/
   public volatile BlockingQueue<BaseWorkerCmd> foCmds = new ArrayBlockingQueue<>(8192);
   public volatile Set<BaseWorkerCmd> unfinishedFoCmds = Sets.newConcurrentHashSet();
+
+  /*--------------Lifecycle----------------*/
+  public volatile BlockingQueue<EndOfDataReport> lifeCycleCmds = new ArrayBlockingQueue<>(8192);
+
   private StreamingConfig conf;
   private JobGraph jobGraph;
   private volatile ExecutionGraph executionGraph;
@@ -38,7 +44,7 @@ public class JobMasterRuntimeContext implements Serializable {
   }
 
   public String getJobName() {
-    return conf.masterConfig.commonConfig.jobName();
+    return conf.getMasterConfig().commonConfig.jobName();
   }
 
   public StreamingConfig getConf() {

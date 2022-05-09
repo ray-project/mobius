@@ -58,6 +58,7 @@
     <module>streaming-api</module>
     <module>streaming-runtime</module>
     <module>streaming-state</module>
+    <module>streaming-common</module>
   </modules>
 
   <properties>

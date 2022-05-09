@@ -47,7 +47,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
   public ResourceManagerImpl(JobMasterRuntimeContext runtimeContext) {
     this.runtimeContext = runtimeContext;
-    StreamingMasterConfig masterConfig = runtimeContext.getConf().masterConfig;
+    StreamingMasterConfig masterConfig = runtimeContext.getConf().getMasterConfig();
 
     this.resourceConfig = masterConfig.resourceConfig;
     this.resources = new Resources();

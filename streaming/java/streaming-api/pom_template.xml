@@ -29,6 +29,11 @@
     </dependency>
     <dependency>
       <groupId>io.ray</groupId>
+      <artifactId>streaming-common</artifactId>
+      <version>${streaming.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.ray</groupId>
       <artifactId>streaming-state</artifactId>
       <version>${streaming.version}</version>
     </dependency>

@@ -33,12 +33,32 @@ public class WorkerLifecycleController {
     return asyncBatchExecute(this::createWorker, executionVertices);
   }
 
-  /**
-   * Create JobWorker actor according to the execution vertex.
-   *
-   * @param executionVertex target execution vertex
-   * @return creation result
-   */
+  @Override
+  public boolean createWorkers(ExecutionGraph executionGraph) {
+    LOG.info("Use placement group: {} to create workers({}).",
+            executionGraph.getExecutionGroups() == null ? "empty" : executionGraph.getExecutionGroups(),
+            executionGraph.getAllNewbornVertices().size());
+    executionGraph.buildPlacementGroupToAllVertices();
+    List<ExecutionVertex> executionVertices = executionGraph.getAllNewbornVertices();
+
+    // Set worker config
+    executionVertices.forEach(executionVertex -> {
+      Map<String, String> conf = setUpWorkerConfig(jobConf.getWorkerConfigTemplate(), executionVertex);
+      // TODO: for debug(tianyi)
+      LOG.info("Worker {} conf is {}.", executionVertex.getExecutionVertexName(), conf);
+    });
+
+    LOG.info("Begin creating workers, size: {}.", executionVertices.size());
+    long now = System.currentTimeMillis();
+
+    boolean result = RemoteCallUtils.asyncBatchExecute(this::createWorker, executionVertices);
+
+    long cost = System.currentTimeMillis() - now;
+    LOG.info("Finish workers' creation request. Cost {} ms.", cost);
+
+    return result;
+  }
+
   private boolean createWorker(ExecutionVertex executionVertex) {
     LOG.info(
         "Start to create worker actor for vertex: {} with resource: {}, workeConfig: {}.",

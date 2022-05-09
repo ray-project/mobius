@@ -61,7 +61,7 @@ public class JobMaster {
     LOG.info("Creating job master with conf: {}.", confMap);
 
     StreamingConfig streamingConfig = new StreamingConfig(confMap);
-    this.conf = streamingConfig.masterConfig;
+    this.conf = streamingConfig.getMasterConfig();
     this.contextBackend = ContextBackendFactory.getContextBackend(this.conf);
 
     // init runtime context

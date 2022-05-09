@@ -22,7 +22,7 @@ public class JobRuntimeContext implements Serializable {
   }
 
   public String getJobName() {
-    return conf.masterConfig.commonConfig.jobName();
+    return conf.getMasterConfig().commonConfig.jobName();
   }
 
   public StreamingConfig getConf() {

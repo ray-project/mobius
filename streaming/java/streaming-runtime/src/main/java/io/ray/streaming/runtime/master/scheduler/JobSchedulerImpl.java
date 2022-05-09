@@ -7,10 +7,15 @@ import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.core.resource.Container;
 import io.ray.streaming.runtime.master.JobMaster;
+import io.ray.streaming.runtime.master.event.EventMessage;
 import io.ray.streaming.runtime.master.graphmanager.GraphManager;
+import io.ray.streaming.runtime.master.joblifecycle.JobStatus;
 import io.ray.streaming.runtime.master.resourcemanager.ResourceManager;
 import io.ray.streaming.runtime.master.resourcemanager.ViewBuilder;
 import io.ray.streaming.runtime.master.scheduler.controller.WorkerLifecycleController;
+import io.ray.streaming.runtime.master.scheduler.strategy.PlacementGroupAssignStrategy;
+import io.ray.streaming.runtime.master.scheduler.strategy.PlacementGroupAssignStrategyFactory;
+import io.ray.streaming.runtime.master.scheduler.strategy.PlacementGroupAssignStrategyType;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.HashMap;
 import java.util.List;
@@ -22,38 +27,149 @@ import org.slf4j.LoggerFactory;
 public class JobSchedulerImpl implements JobScheduler {
 
   private static final Logger LOG = LoggerFactory.getLogger(JobSchedulerImpl.class);
-  private final JobMaster jobMaster;
-  private final ResourceManager resourceManager;
-  private final GraphManager graphManager;
-  private final WorkerLifecycleController workerLifecycleController;
-  private StreamingConfig jobConfig;
+  protected final JobMaster jobMaster;
+  protected final ResourceManager resourceManager;
+  protected final GraphManager graphManager;
+  protected final PlacementGroupAssignStrategy placementGroupAssignStrategy;
+  protected final WorkerLifecycleController workerLifecycleController;
+  protected StreamingConfig jobConfig;
 
   public JobSchedulerImpl(JobMaster jobMaster) {
     this.jobMaster = jobMaster;
     this.graphManager = jobMaster.getGraphManager();
     this.resourceManager = jobMaster.getResourceManager();
+    this.placementGroupAssignStrategy = initPlacementGroupAssignStrategy();
     this.workerLifecycleController = new WorkerLifecycleController();
     this.jobConfig = jobMaster.getRuntimeContext().getConf();
 
     LOG.info("Scheduler initiated.");
   }
 
+  private PlacementGroupAssignStrategy initPlacementGroupAssignStrategy() {
+    PlacementGroupAssignStrategyType placementGroupAssignStrategyType =
+            PlacementGroupAssignStrategyType.valueOf(
+                    jobConfig.getMasterConfig().schedulerConfig.placementGroupAssignStrategy().toUpperCase());
+
+    PlacementGroupAssignStrategy placementGroupAssignStrategy = PlacementGroupAssignStrategyFactory
+            .getStrategy(placementGroupAssignStrategyType);
+
+    LOG.info("Placement group assign strategy initialized: {}.", placementGroupAssignStrategy.getName());
+    return placementGroupAssignStrategy;
+  }
+
   @Override
-  public boolean scheduleJob(ExecutionGraph executionGraph) {
-    LOG.info("Begin scheduling. Job: {}.", executionGraph.getJobName());
+  public ScheduleResult prepareJobSubmission() {
+    ExecutionGraph executionGraph = graphManager.getExecutionGraph();
+    LOG.info("Start to schedule job: {}.", executionGraph.getJobName());
 
-    // Allocate resource then create workers
-    // Actor creation is in this step
-    prepareResourceAndCreateWorker(executionGraph);
+    // check and update resources
+    if (!checkAndUpdateResources(executionGraph)) {
+      return ScheduleResult.fail(EventMessage.RESOURCE_CHECK_AND_UPDATE_FAIL.getDesc());
+    }
 
-    // now actor info is available in execution graph
-    // preprocess some handy mappings in execution graph
-    executionGraph.generateActorMappings();
+    // assign workers
+    try {
+      placementGroupAssignStrategy.assignForScheduling(executionGraph);
+    } catch (Exception e) {
+      LOG.error("Error when assigning workers.", e);
+      return ScheduleResult.fail(EventMessage.ASSIGN_WORKER_FAIL.getDesc());
+    }
 
-    // init worker context and start to run
-    initAndStart(executionGraph);
+    // create workers
+    boolean result = workerLifecycleController.createWorkers(executionGraph);
+    if (!result) {
+      return ScheduleResult.fail(EventMessage.START_WORKER_FAIL.getDesc());
+    }
 
-    return true;
+    return ScheduleResult.success();
+  }
+
+  @Override
+  public ScheduleResult doJobSubmission() {
+    ExecutionGraph executionGraph;
+    String jobName = null;
+
+    try {
+      executionGraph = graphManager.getExecutionGraph();
+      jobName = executionGraph.getJobName();
+
+      run(executionGraph);
+    } catch (Exception e) {
+      LOG.error("Failed to schedule job {} by {}.", jobName, e.getMessage(), e);
+      return ScheduleResult.fail(new ScheduleException(e));
+    }
+
+    jobMaster.resetStatus(JobStatus.RUNNING, System.currentTimeMillis());
+
+    graphManager.updateOriginalAndClearChanged();
+    jobMaster.saveContext(JobMasterContextSaveType.ALL);
+
+    LOG.info("Scheduling job {} succeeded.", jobName);
+
+    return ScheduleResult.success();
+  }
+
+  @Override
+  public boolean destroyJob(JobStatus jobStatus) {
+    LOG.info("Destroy all workers.");
+    preActionBeforeDestroying();
+
+    // remove all actors
+    boolean workerDestroyResult;
+    if (jobStatus == JobStatus.FINISHED_AND_CLEAN) {
+      workerDestroyResult =
+              workerLifecycleController.destroyWorkers(
+                      graphManager.getExecutionGraph().getAllExecutionVertices());
+    } else {
+      workerDestroyResult =
+              workerLifecycleController.destroyWorkersDirectly(
+                      graphManager.getExecutionGraph().getAllExecutionVertices());
+    }
+
+    // remove all placement group
+    graphManager.removeAllPlacementGroup();
+
+    jobMaster.resetStatus(jobStatus, System.currentTimeMillis());
+
+    // deal with resubmit
+    if (jobStatus == JobStatus.RESUBMITTING) {
+      LOG.info("Save context before resubmission.");
+      jobMaster.saveContext(JobMasterContextSaveType.EXCLUDE_GRAPH_CONTEXT);
+
+      schedulerMetricGroup.getResubmitNum().inc();
+    }
+
+    // unregister group listener
+    jobMaster.unRegisterGroupListener();
+
+    return workerDestroyResult;
+  }
+
+  /**
+   * Run the job after all actors has been allocated
+   *
+   * @param executionGraph the scheduled execution graph
+   */
+  protected void run(ExecutionGraph executionGraph) throws RuntimeException {
+    try {
+      Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = buildWorkersContext(executionGraph);
+
+      // Register worker context
+      if (!workerLifecycleController.initWorkers(
+              vertexToContextMap, jobConf.getMasterConfig().schedulerConfig)) {
+        throw new RuntimeException(EventMessage.INIT_WORKER_FAIL.getDesc());
+      }
+
+      // Register master context
+      if (!initMaster()) {
+        throw new RuntimeException(EventMessage.INIT_MASTER_FAIL.getDesc());
+      }
+
+      // Start all workers to process data
+      startWorkersOnJobSubmission();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -122,7 +238,7 @@ public class JobSchedulerImpl implements JobScheduler {
    */
   protected boolean initWorkers(Map<ExecutionVertex, JobWorkerContext> vertexToContextMap) {
     boolean succeed;
-    int timeoutMs = jobConfig.masterConfig.schedulerConfig.workerInitiationWaitTimeoutMs();
+    int timeoutMs = jobConfig.getMasterConfig().schedulerConfig.workerInitiationWaitTimeoutMs();
     succeed = workerLifecycleController.initWorkers(vertexToContextMap, timeoutMs);
     if (!succeed) {
       LOG.error("Failed to initiate workers in {} milliseconds", timeoutMs);
@@ -138,7 +254,7 @@ public class JobSchedulerImpl implements JobScheduler {
           workerLifecycleController.startWorkers(
               executionGraph,
               checkpointId,
-              jobConfig.masterConfig.schedulerConfig.workerStartingWaitTimeoutMs());
+              jobConfig.getMasterConfig().schedulerConfig.workerStartingWaitTimeoutMs());
     } catch (Exception e) {
       LOG.error("Failed to start workers.", e);
       return false;
@@ -217,4 +333,134 @@ public class JobSchedulerImpl implements JobScheduler {
   private void initMaster() {
     jobMaster.init(false);
   }
+
+  public boolean checkAndUpdateResources(ExecutionGraph executionGraph) {
+    // check resource
+    if (!checkResource(executionGraph.getAllExecutionJobVertices())) {
+      LOG.error("Failed to check resource.");
+      return false;
+    }
+
+    // update basic resource(cpu+mem)
+    updateResource(executionGraph.getAllExecutionJobVertices());
+
+    updateResourceForSpecificVertices();
+
+    return true;
+  }
+
+  /**
+   * Update resource for specific execution vertices.
+   * In job scheduler class, nothing can be done in this function but
+   * there will be changes in its subclass of scheduler.
+   */
+  protected void updateResourceForSpecificVertices() {
+    // NOTE(lingxuan.zlx): it updates resource for dynamic py sink and must be after
+    // update all execution job vertices.
+  }
+
+  /**
+   * Set resources(global resource + jvm) for vertex
+   */
+  protected void updateResource(List<ExecutionJobVertex> executionJobVertices) {
+    ResourceConfig resourceConfig = jobConf.getMasterConfig().resourceConfig;
+
+    // get global default resource required
+    boolean isStrictLimit = resourceConfig.isWorkerResourceStrictLimit();
+    double defaultCpuRequired = ResourceUtil.formatCpuValue(resourceConfig.workerCpuRequired());
+    double defaultMemRequired = resourceConfig.workerMemMbRequired();
+    double defaultGpuRequired = resourceConfig.workerGpuRequired();
+
+    // get default proposed resource
+    Map<String, Map<String, Double>> proposedOperatorResources =
+            ResourceUtil.resolveOperatorResourcesFromJobConfig(resourceConfig.operatorProposedResource());
+
+    // get global resource definition from job config
+    Map<String, Map<String, Double>> operatorResourcesFromJobConfig =
+            ResourceUtil.resolveOperatorResourcesFromJobConfig(resourceConfig.operatorCustomResource());
+
+    executionJobVertices.forEach(executionJobVertex -> {
+      Map<String, Double> resources = new HashMap<>(4);
+      String operatorId = String.valueOf(executionJobVertex.getExecutionJobVertexId());
+      String operatorName = executionJobVertex.getExecutionJobVertexName();
+
+      // --------------------------------
+      // set default required resource
+      // --------------------------------
+      if (isStrictLimit) {
+        resources.put(ResourceKey.CPU.name(), defaultCpuRequired);
+        resources.put(ResourceKey.GPU.name(), defaultGpuRequired);
+        resources.put(ResourceKey.MEM.name(), defaultMemRequired);
+      }
+
+      // ----------------------------------------------------
+      // override resource by default proposed op resource
+      // ----------------------------------------------------
+      if (!proposedOperatorResources.isEmpty() && resourceConfig.enableProposedResource()) {
+        for (Map.Entry<String, Map<String, Double>> proposed : proposedOperatorResources
+                .entrySet()) {
+          String opNameKey = proposed.getKey();
+          if (operatorName.contains(opNameKey)) {
+            Map<String, Double> resource = proposedOperatorResources.get(opNameKey);
+            ResourceUtil.formatResource(resource);
+            LOG.info("Override resource by default proposed for operator: {}, resource: {}.",
+                    operatorName, resource);
+            resources.putAll(resource);
+            break;
+          }
+        }
+      }
+
+      // ----------------------------------------------------
+      // override resource by op custom resource from job config
+      // ----------------------------------------------------
+      if (!operatorResourcesFromJobConfig.isEmpty()) {
+        Map<String, Double> resource = null;
+        if (operatorResourcesFromJobConfig.containsKey(operatorName)) {
+          resource = operatorResourcesFromJobConfig.get(operatorName);
+        } else if (operatorResourcesFromJobConfig.containsKey(operatorId)) {
+          resource = operatorResourcesFromJobConfig.get(operatorId);
+        }
+
+        if (resource != null) {
+          ResourceUtil.formatResource(resource);
+          LOG.info("Override resource from job config for operator: {}, resource: {}.",
+                  operatorName, resource);
+          resources.putAll(resource);
+        }
+      }
+
+      // ----------------------------------------------------
+      // override resource by op custom resource from op config
+      // ----------------------------------------------------
+      Map<String, Double> operatorResourcesFromOpConfig =
+              executionJobVertex.getJobVertex().getResources();
+      if (!operatorResourcesFromOpConfig.isEmpty()) {
+        ResourceUtil.formatResource(operatorResourcesFromOpConfig);
+        LOG.info("Override resource from op config for operator: {}, resource: {}.",
+                operatorName, operatorResourcesFromOpConfig);
+        resources.putAll(operatorResourcesFromOpConfig);
+      }
+
+      // --------------------------------
+      // override mem if jvm opts is set
+      // --------------------------------
+      Double memoryMbFromJvmOpts = ResourceUtil.calculateMemoryMbFromJvmOptsStr(
+              executionJobVertex.getOpConfig().getOrDefault(JvmConfig.JVM_OPTS, ""),
+              operatorName);
+
+      // override mem resource with jvm result
+      Double currentMemoryMb = resources.get(ResourceKey.MEM.name());
+      if (memoryMbFromJvmOpts > 0 && memoryMbFromJvmOpts > currentMemoryMb) {
+        LOG.info("Override memory mb with: {} for operator: {} by jvm options.",
+                memoryMbFromJvmOpts, operatorName);
+        resources.put(ResourceKey.MEM.name(), memoryMbFromJvmOpts);
+      }
+
+      // update resource for all it's vertices
+      LOG.info("Operator resources are: {}.", resources);
+      executionJobVertex.updateResources(resources);
+    });
+  }
+
 }
