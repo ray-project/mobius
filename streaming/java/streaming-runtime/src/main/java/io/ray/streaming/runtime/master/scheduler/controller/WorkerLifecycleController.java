@@ -92,7 +92,7 @@ public class WorkerLifecycleController {
       return false;
     }
 
-    executionVertex.setWorkerActor(actor);
+    executionVertex.setActor(actor);
 
     LOG.info(
         "Worker actor created, actor: {}, vertex: {}.",
@@ -120,7 +120,7 @@ public class WorkerLifecycleController {
             (entry -> {
               ExecutionVertex vertex = entry.getKey();
               rayObjects.put(
-                  RemoteCallWorker.initWorker(vertex.getWorkerActor(), entry.getValue()),
+                  RemoteCallWorker.initWorker(vertex.getActor(), entry.getValue()),
                   vertex.getWorkerActorId());
             }));
 
@@ -181,7 +181,7 @@ public class WorkerLifecycleController {
   }
 
   private boolean destroyWorker(ExecutionVertex executionVertex) {
-    BaseActorHandle rayActor = executionVertex.getWorkerActor();
+    BaseActorHandle rayActor = executionVertex.getActor();
     LOG.info(
         "Begin destroying worker[vertex={}, actor={}].",
         executionVertex.getExecutionVertexName(),

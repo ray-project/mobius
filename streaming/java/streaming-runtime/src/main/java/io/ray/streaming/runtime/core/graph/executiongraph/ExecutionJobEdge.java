@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.jobgraph.JobEdge;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /** An edge that connects two execution job vertices. */
 public class ExecutionJobEdge implements Serializable {
@@ -19,6 +21,13 @@ public class ExecutionJobEdge implements Serializable {
 
   /** An unique id for execution job edge. */
   private final String executionJobEdgeIndex;
+
+  /** An unique id for current execution job vertices' upstream and downstream. */
+  private List<ExecutionJobEdge> inputs = new ArrayList<>();
+  private List<ExecutionJobEdge> outputs = new ArrayList<>();
+
+  /** All execution edges of current execution job edge. */
+  private List<ExecutionEdge> executionEdges;
 
   public ExecutionJobEdge(
       ExecutionJobVertex sourceExecutionJobVertex,
@@ -36,16 +45,20 @@ public class ExecutionJobEdge implements Serializable {
         + targetExecutionJobVertex.getExecutionJobVertexId();
   }
 
-  public ExecutionJobVertex getSourceExecutionJobVertex() {
+  public ExecutionJobVertex getSource() {
     return sourceExecutionJobVertex;
   }
 
-  public ExecutionJobVertex getTargetExecutionJobVertex() {
+  public ExecutionJobVertex getTarget() {
     return targetExecutionJobVertex;
   }
 
   public Partition getPartition() {
     return partition;
+  }
+
+  public List<ExecutionEdge> getExecutionEdges() {
+    return executionEdges;
   }
 
   @Override

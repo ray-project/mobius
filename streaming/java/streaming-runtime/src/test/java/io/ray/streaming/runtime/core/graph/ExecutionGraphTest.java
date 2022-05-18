@@ -65,7 +65,7 @@ public class ExecutionGraphTest {
     int startIndex = 0;
     ExecutionJobVertex upStream = executionJobVertices.get(startIndex);
     ExecutionJobVertex downStream = executionJobVertices.get(startIndex + 1);
-    Assert.assertEquals(upStream.getOutputEdges().get(0).getTargetExecutionJobVertex(), downStream);
+    Assert.assertEquals(upStream.getOutputEdges().get(0).getTarget(), downStream);
 
     List<ExecutionVertex> upStreamVertices = upStream.getExecutionVertices();
     List<ExecutionVertex> downStreamVertices = downStream.getExecutionVertices();
@@ -77,7 +77,7 @@ public class ExecutionGraphTest {
               .forEach(
                   upStreamOutPutEdge -> {
                     Assert.assertTrue(
-                        downStreamVertices.contains(upStreamOutPutEdge.getTargetExecutionVertex()));
+                        downStreamVertices.contains(upStreamOutPutEdge.getTarget()));
                   });
         });
   }

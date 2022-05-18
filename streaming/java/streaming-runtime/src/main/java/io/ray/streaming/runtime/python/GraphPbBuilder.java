@@ -70,9 +70,9 @@ public class GraphPbBuilder {
     executionVertexBuilder.setOperator(
         ByteString.copyFrom(serializeOperator(executionVertex.getStreamOperator())));
     executionVertexBuilder.setChained(isPythonChainedOperator(executionVertex.getStreamOperator()));
-    if (executionVertex.getWorkerActor() != null) {
+    if (executionVertex.getActor() != null) {
       executionVertexBuilder.setWorkerActor(
-          ByteString.copyFrom(((NativeActorHandle) (executionVertex.getWorkerActor())).toBytes()));
+          ByteString.copyFrom(((NativeActorHandle) (executionVertex.getActor())).toBytes()));
     }
     executionVertexBuilder.setContainerId(executionVertex.getContainerId().toString());
     executionVertexBuilder.setBuildTime(executionVertex.getBuildTime());

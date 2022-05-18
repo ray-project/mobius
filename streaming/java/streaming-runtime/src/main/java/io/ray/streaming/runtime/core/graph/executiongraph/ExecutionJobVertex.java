@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.aeonbits.owner.ConfigFactory;
 
 /**
@@ -40,14 +41,18 @@ public class ExecutionJobVertex implements Serializable {
 
   /** Parallelism of current execution job vertex(operator). */
   private int parallelism;
+  /** Max parallelism limit of current execution job vertex(operator). */
+  private int maxParallelism;
 
   /** Sub execution vertices of current execution job vertex(operator). */
   private List<ExecutionVertex> executionVertices;
 
   /** Input and output edges of current execution job vertex. */
   private List<ExecutionJobEdge> inputEdges = new ArrayList<>();
-
   private List<ExecutionJobEdge> outputEdges = new ArrayList<>();
+
+  /** The status of the vertex considering any scaling process. */
+  private ExecutionJobVertexState executionJobVertexState = ExecutionJobVertexState.NORMAL;
 
   public ExecutionJobVertex(
       JobVertex jobVertex,
@@ -91,8 +96,8 @@ public class ExecutionJobVertex implements Serializable {
         .forEach(
             vertex -> {
               Preconditions.checkArgument(
-                  vertex.getWorkerActor() != null, "Empty execution vertex worker actor.");
-              executionVertexWorkersMap.put(vertex.getExecutionVertexId(), vertex.getWorkerActor());
+                  vertex.getActor() != null, "Empty execution vertex worker actor.");
+              executionVertexWorkersMap.put(vertex.getExecutionVertexId(), vertex.getActor());
             });
 
     return executionVertexWorkersMap;
@@ -131,16 +136,20 @@ public class ExecutionJobVertex implements Serializable {
     return outputEdges;
   }
 
-  public void setOutputEdges(List<ExecutionJobEdge> outputEdges) {
-    this.outputEdges = outputEdges;
-  }
-
   public List<ExecutionJobEdge> getInputEdges() {
     return inputEdges;
   }
 
-  public void setInputEdges(List<ExecutionJobEdge> inputEdges) {
-    this.inputEdges = inputEdges;
+  public void connectInputs(List<ExecutionJobEdge> inputEdges) {
+    if (inputEdges != null) {
+      this.inputEdges.addAll(inputEdges);
+    }
+  }
+
+  public void connectOutputs(List<ExecutionJobEdge> outputEdges) {
+    if (outputEdges != null) {
+      this.outputEdges.addAll(outputEdges);
+    }
   }
 
   public StreamOperator getStreamOperator() {
@@ -173,6 +182,32 @@ public class ExecutionJobVertex implements Serializable {
 
   public boolean isSinkVertex() {
     return getVertexType() == VertexType.SINK;
+  }
+
+  public List<ExecutionVertex> getNewbornVertices() {
+    return executionVertices.stream()
+            .filter(v -> v.getState() == ExecutionVertexState.TO_ADD)
+            .collect(Collectors.toList());
+  }
+
+  public List<ExecutionVertex> getMoribundVertices() {
+    return executionVertices.stream()
+            .filter(v -> v.getState() == ExecutionVertexState.TO_DEL)
+            .collect(Collectors.toList());
+  }
+
+  public boolean isChangedOrAffected() {
+    return !executionJobVertexState.equals(ExecutionJobVertexState.NORMAL);
+  }
+
+  public boolean isChanged() {
+    return executionVertices.stream().anyMatch(ExecutionVertex::isToChange);
+  }
+
+  public List<BaseActorHandle> getAllActors() {
+    return executionVertices.stream()
+            .map(ExecutionVertex::getActor)
+            .collect(Collectors.toList());
   }
 
   @Override

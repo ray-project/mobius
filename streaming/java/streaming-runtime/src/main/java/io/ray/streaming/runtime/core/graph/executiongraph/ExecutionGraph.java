@@ -9,7 +9,9 @@ import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
 import io.ray.sreaming.common.tuple.Tuple2;
 import io.ray.streaming.common.enums.OperatorType;
-import io.ray.streaming.common.serializer.Serializer;
+import io.ray.streaming.runtime.core.graph.JobInformation;
+import io.ray.streaming.runtime.master.scheduler.ExecutionGroup;
+import io.ray.streaming.runtime.util.Serializer;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -72,40 +74,28 @@ public class ExecutionGraph implements Serializable, Cloneable {
             "execution job vertices are empty");
     executionJobVertices.values().forEach(executionJobVertex -> {
       executionJobVertex.connectInputs(
-              getInputEdgesByJobVertexId(executionJobVertex.getJobVertex().getVertexId()));
+              getInputEdgesByExecutionJobVertexId(executionJobVertex.getExecutionJobVertexId()));
       executionJobVertex.connectOutputs(
-              getOutputEdgesByJobVertexId(executionJobVertex.getJobVertex().getVertexId()));
+              getOutputEdgesByJobVertexId(executionJobVertex.getExecutionJobVertexId()));
     });
   }
 
-  public List<ExecutionJobEdge> getInputEdgesByJobVertexId(int jobVertexId) {
+  public List<ExecutionJobEdge> getInputEdgesByExecutionJobVertexId(int executionJobVertexId) {
     return executionJobEdges.stream()
             .filter(executionJobEdge -> executionJobEdge
-                    .getTarget().getJobVertex().getVertexId() == jobVertexId)
+                    .getTarget().getExecutionJobVertexId() == executionJobVertexId)
             .collect(Collectors.toList());
   }
 
   public List<ExecutionJobEdge> getOutputEdgesByJobVertexId(int jobVertexId) {
     return executionJobEdges.stream()
             .filter(executionJobEdge -> executionJobEdge
-                    .getSource().getJobVertex().getVertexId() == jobVertexId)
+                    .getSource().getExecutionJobVertexId() == jobVertexId)
             .collect(Collectors.toList());
   }
 
   public void setJobInformation(JobInformation jobInformation) {
     this.jobInformation = jobInformation;
-  }
-
-  public void setMaxParallelism(int maxParallelism) {
-    LOG.info("Update max parallelism to: {}.", maxParallelism);
-
-    this.maxParallelism = maxParallelism;
-
-    Preconditions.checkArgument(executionJobVertices != null && !executionJobVertices.isEmpty(),
-            "Execution job vertices is empty when setting max parallelism.");
-    executionJobVertices.values().forEach(executionJobVertex -> {
-      executionJobVertex.setMaxParallelism(maxParallelism);
-    });
   }
 
   public void setExecutionJobVertices(Map<Integer, ExecutionJobVertex> executionJobVertices) {
@@ -190,9 +180,9 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
 
   private List<ExecutionVertex> getExecutionVertices() {
-    return executionJobVertices.values().stream().flatMap(executionJobVertex -> {
-      return executionJobVertex.getExeVertices().stream();
-    }).collect(Collectors.toList());
+    return executionJobVertices.values().stream()
+            .flatMap(executionJobVertex -> executionJobVertex.getExecutionVertices().stream())
+            .collect(Collectors.toList());
   }
 
   @Override
@@ -294,14 +284,14 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public List<BaseActorHandle> getActorsByVertexName(String vertexName) {
     return executionJobVertices.values().stream()
-            .filter(executionJobVertex -> vertexName.equals(executionJobVertex.getJobVertex().getName()) )
-            .map(ExecutionJobVertex::getExeActors)
+            .filter(executionJobVertex -> vertexName.equals(executionJobVertex.getExecutionJobVertexName()) )
+            .map(ExecutionJobVertex::getAllActors)
             .flatMap(Collection::stream).collect(Collectors.toList());
   }
 
   public List<ExecutionVertex> getAllExecutionVertices() {
     return getAllExecutionJobVertices().stream()
-            .map(ExecutionJobVertex::getExeVertices)
+            .map(ExecutionJobVertex::getExecutionVertices)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
   }
