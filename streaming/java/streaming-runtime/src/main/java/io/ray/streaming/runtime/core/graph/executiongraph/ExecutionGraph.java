@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
-import io.ray.sreaming.common.tuple.Tuple2;
+import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.common.enums.OperatorType;
 import io.ray.streaming.runtime.core.graph.JobInformation;
 import io.ray.streaming.runtime.master.scheduler.ExecutionGroup;

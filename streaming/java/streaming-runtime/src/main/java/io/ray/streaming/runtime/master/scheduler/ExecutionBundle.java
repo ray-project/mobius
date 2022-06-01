@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import io.ray.api.placementgroup.Bundle;
 import io.ray.api.placementgroup.PlacementGroup;
+import io.ray.runtime.generated.Common.Bundle;
 import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.common.enums.ResourceKey;
 import java.io.Serializable;

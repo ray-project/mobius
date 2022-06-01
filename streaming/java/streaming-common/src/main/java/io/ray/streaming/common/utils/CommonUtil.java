@@ -1,6 +1,6 @@
-package io.ray.sreaming.common.utils;
+package io.ray.streaming.common.utils;
 
-import io.ray.sreaming.common.config.Config;
+import io.ray.streaming.common.config.Config;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class CommonUtil {
 
   public static int min(int... nums) {
     int minNum = nums[0];
-    for(int i = 1; i < nums.length; i++) {
+    for (int i = 1; i < nums.length; i++) {
       minNum = Math.min(minNum, nums[i]);
     }
     return minNum;

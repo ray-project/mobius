@@ -1,4 +1,4 @@
-package io.ray.sreaming.common.config;
+package io.ray.streaming.common.config;
 
 import org.aeonbits.owner.Accessible;
 

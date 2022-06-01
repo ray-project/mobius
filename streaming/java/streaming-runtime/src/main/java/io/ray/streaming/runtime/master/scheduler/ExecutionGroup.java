@@ -1,7 +1,5 @@
 package io.ray.streaming.runtime.master.scheduler;
 
-import com.alipay.streaming.runtime.config.master.SchedulerConfig;
-import com.alipay.streaming.runtime.utils.LoggerFactory;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -9,6 +7,8 @@ import io.ray.api.PlacementGroups;
 import io.ray.api.options.PlacementGroupCreationOptions;
 import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.api.placementgroup.PlacementStrategy;
+import io.ray.streaming.runtime.config.master.SchedulerConfig;
+import io.ray.streaming.runtime.util.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

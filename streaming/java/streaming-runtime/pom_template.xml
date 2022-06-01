@@ -34,6 +34,7 @@
   </profiles>
 
   <dependencies>
+    {generated_bzl_deps}
     <dependency>
       <groupId>io.ray</groupId>
       <artifactId>ray-api</artifactId>
@@ -51,7 +52,11 @@
       <artifactId>streaming-api</artifactId>
       <version>${streaming.version}</version>
     </dependency>
-    {generated_bzl_deps}
+    <dependency>
+      <groupId>io.ray</groupId>
+      <artifactId>streaming-common</artifactId>
+      <version>${streaming.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

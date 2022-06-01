@@ -2,8 +2,12 @@ package io.ray.streaming.runtime.master.scheduler;
 
 import com.google.common.base.Preconditions;
 import io.ray.api.ActorHandle;
+import io.ray.streaming.common.config.JvmConfig;
+import io.ray.streaming.common.config.ResourceConfig;
+import io.ray.streaming.common.enums.ResourceKey;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
+import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobVertex;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.core.resource.Container;
 import io.ray.streaming.runtime.master.JobMaster;
@@ -16,6 +20,7 @@ import io.ray.streaming.runtime.master.scheduler.controller.WorkerLifecycleContr
 import io.ray.streaming.runtime.master.scheduler.strategy.PlacementGroupAssignStrategy;
 import io.ray.streaming.runtime.master.scheduler.strategy.PlacementGroupAssignStrategyFactory;
 import io.ray.streaming.runtime.master.scheduler.strategy.PlacementGroupAssignStrategyType;
+import io.ray.streaming.runtime.util.ResourceUtil;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.HashMap;
 import java.util.List;

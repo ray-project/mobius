@@ -1,4 +1,4 @@
-package io.ray.sreaming.common.tuple;
+package io.ray.streaming.common.tuple;
 
 public class Tuple1<T0> extends Tuple {
 

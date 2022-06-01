@@ -1,5 +1,7 @@
 package io.ray.streaming.runtime.util;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.management.OperatingSystemMXBean;
 import io.ray.streaming.runtime.core.resource.Container;
 import io.ray.streaming.runtime.core.resource.ContainerId;
@@ -10,7 +12,9 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -198,5 +202,39 @@ public class ResourceUtil {
     return containers.stream()
         .filter(container -> container.getId().equals(containerID))
         .findFirst();
+  }
+
+  /**
+   * Format cpu value for ray's limitation.
+   * limitation:
+   * if 0 < cpu <= 1, value can be decimal
+   * if cpu > 1, value must be integer
+   *
+   * @param cpuValue the target value
+   * @return formatted value
+   */
+  public static double formatCpuValue(double cpuValue) {
+    if (cpuValue > 1) {
+      return Math.round(cpuValue);
+    } else if (cpuValue > 0) {
+      return cpuValue;
+    }
+    return 1D;
+  }
+
+  /**
+   * Transfer operator resources into map.
+   * @param customOpResourceConfig resource config in job config
+   * @return map result
+   */
+  public static Map<String, Map<String, Double>> resolveOperatorResourcesFromJobConfig(
+      String customOpResourceConfig) {
+    try {
+      return new Gson().fromJson(
+          customOpResourceConfig, new TypeToken<Map<String, Map<String, Double>>>() {}.getType());
+    } catch (Exception e) {
+      LOG.error("Failed to resolve operator resource from job config: {}.", customOpResourceConfig);
+    }
+    return Collections.emptyMap();
   }
 }

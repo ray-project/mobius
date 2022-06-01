@@ -1,6 +1,6 @@
 package io.ray.streaming.runtime.master.scheduler;
 
-import io.ray.sreaming.common.utils.CommonUtil;
+import io.ray.streaming.common.utils.CommonUtil;
 
 /**
  * To unify return info for scheduling event like 'job-submission'.

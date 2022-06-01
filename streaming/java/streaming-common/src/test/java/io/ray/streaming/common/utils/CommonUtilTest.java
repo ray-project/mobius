@@ -1,7 +1,6 @@
 package io.ray.streaming.common.utils;
 
 import com.google.common.base.MoreObjects;
-import io.ray.sreaming.common.utils.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
 import org.testng.Assert;
