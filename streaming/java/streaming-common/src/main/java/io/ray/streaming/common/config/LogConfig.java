@@ -1,8 +1,8 @@
 package io.ray.streaming.common.config;
 
-import io.ray.streaming.common.config.converter.LogDirConverter;
-
 import static org.aeonbits.owner.Config.DisableableFeature.PARAMETER_FORMATTING;
+
+import io.ray.streaming.common.config.converter.LogDirConverter;
 
 public interface LogConfig extends Config {
 

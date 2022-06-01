@@ -1,8 +1,11 @@
 package io.ray.streaming.runtime.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sun.management.OperatingSystemMXBean;
+import io.ray.streaming.common.enums.ResourceKey;
 import io.ray.streaming.runtime.core.resource.Container;
 import io.ray.streaming.runtime.core.resource.ContainerId;
 import java.io.BufferedInputStream;
@@ -16,7 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +30,10 @@ import org.slf4j.LoggerFactory;
 public class ResourceUtil {
 
   public static final Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
+
+  // limit by ray, the mem size must be a positive multiple of 50
+  public static final int MEMORY_UNIT_SIZE = 50;
+  public static final int MEMORY_MB_MIN_VALUE = 128;
 
   /**
    * Refer to:
@@ -205,6 +215,113 @@ public class ResourceUtil {
   }
 
   /**
+   * Transfer the memory properly to fit the memory value used for ray internal(divisible by 50).
+   *
+   * Notice:
+   * 1) if the input memory value < 128, it will be used as gb unit
+   * 2) if the input memory value >= 128, it will be used as mb unit
+   *
+   * @param memoryValue the memory value
+   * @return the properly value
+   */
+  public static long getMemoryMbFromMemoryValue(Double memoryValue) {
+    if (isMemoryMbValue(memoryValue.longValue())) {
+      // for mb value
+      if (memoryValue.longValue() % MEMORY_UNIT_SIZE == 0) {
+        return memoryValue.longValue();
+      }
+      return Double.valueOf(
+          (memoryValue.longValue() + (MEMORY_UNIT_SIZE - 1)) / MEMORY_UNIT_SIZE * MEMORY_UNIT_SIZE).longValue();
+    } else {
+      // for gb value
+      return Double.valueOf(
+          (memoryValue.longValue() * 1024 + (MEMORY_UNIT_SIZE - 1)) / MEMORY_UNIT_SIZE * MEMORY_UNIT_SIZE).longValue();
+    }
+  }
+
+  /**
+   * Judge whether the value is valid to describe memory in mb.
+   * e.g. if user use gb-value, the value should be like 2,4
+   *
+   * @param value memory value
+   * @return is a valid to describe memory in mb
+   */
+  public static boolean isMemoryMbValue(long value) {
+    return value >= MEMORY_MB_MIN_VALUE;
+  }
+
+  /**
+   * Extract "-Xmx" param from jvm options and convert it into memory mb value.
+   *
+   * @param jvmOptions jvm options in string format
+   * @param operatorName operator's name (ExecutionJobVertex name)
+   * @return memory in mb
+   */
+  public static double calculateMemoryMbFromJvmOptsStr(String jvmOptions, String operatorName) {
+    // jvm opts empty check
+    if (StringUtils.isEmpty(jvmOptions)) {
+      LOG.info("Empty jvm options for operator: {}. Skip memory override.", operatorName);
+      return 0D;
+    }
+
+    // jvm opts json string check
+    JSONObject vertexJvmOptsJson;
+    try {
+      vertexJvmOptsJson = JSON.parseObject(jvmOptions);
+      for (String configOperatorName : vertexJvmOptsJson.keySet()) {
+        if (operatorName.startsWith(configOperatorName)) {
+          operatorName = configOperatorName;
+          break;
+        }
+      }
+
+      jvmOptions = (String) vertexJvmOptsJson.get(operatorName);
+      if (StringUtils.isEmpty(jvmOptions)) {
+        return 0D;
+      }
+
+    } catch (Exception e) {
+      if (jvmOptions.trim().contains("{") || jvmOptions.trim().contains("}")) {
+        LOG.error("Jvm options [{}] contain '{ or }' but not in json format, set empty directly.",
+            jvmOptions);
+        return 0D;
+      } else {
+        LOG.info("Jvm options [{}] not in json format, use directly.", jvmOptions);
+      }
+    }
+
+    String patternStr = "-Xmx[1-9]{1}[0-9]*[m,g]";
+    Pattern pattern = Pattern.compile(patternStr);
+    Matcher matcher = pattern.matcher(jvmOptions);
+    if (!matcher.find()) {
+      return 0D;
+    }
+
+    String jvmMem = matcher.group();
+    return convertJvmXmxMem(jvmMem);
+  }
+
+  public static double convertJvmXmxMem(String jvmMem) {
+    return convertJvmXmxMemWithOverhead(jvmMem, 0);
+  }
+
+  public static double convertJvmXmxMemWithOverhead(String jvmMem, int memOverhead) {
+    double resourceMemWithGb;
+    if (jvmMem.endsWith("m")) {
+      int jvmMemWithMb = Integer.parseInt(
+          jvmMem.substring(jvmMem.lastIndexOf("x") + 1, jvmMem.lastIndexOf("m"))) + memOverhead;
+      return jvmMemWithMb;
+    } else if (jvmMem.endsWith("g")) {
+      resourceMemWithGb = Double.parseDouble(
+          jvmMem.substring(jvmMem.lastIndexOf("x") + 1,
+              jvmMem.lastIndexOf("g"))) + (memOverhead == 0 ? 0 : 1);
+      return resourceMemWithGb * 1024;
+    } else {
+      throw new IllegalArgumentException("Unsupported unit for -Xmx");
+    }
+  }
+
+  /**
    * Format cpu value for ray's limitation.
    * limitation:
    * if 0 < cpu <= 1, value can be decimal
@@ -220,6 +337,20 @@ public class ResourceUtil {
       return cpuValue;
     }
     return 1D;
+  }
+
+  /**
+   * Format resource map for ray's limitation.
+   *
+   * @param resource target resource
+   * @return formatted resource
+   */
+  public static Map<String, Double> formatResource(Map<String, Double> resource) {
+    // format cpu
+    if (resource.containsKey(ResourceKey.CPU.name())) {
+      resource.put(ResourceKey.CPU.name(), formatCpuValue(resource.get(ResourceKey.CPU.name())));
+    }
+    return resource;
   }
 
   /**

@@ -1,4 +1,4 @@
-package io.ray.streaming.runtime.command;
+package io.ray.streaming.runtime.core.command;
 
 import io.ray.api.id.ActorId;
 import java.io.Serializable;

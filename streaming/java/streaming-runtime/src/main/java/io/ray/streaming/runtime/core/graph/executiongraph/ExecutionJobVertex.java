@@ -136,6 +136,13 @@ public class ExecutionJobVertex implements Serializable {
     return outputEdges;
   }
 
+  public Map<String, String> getOpConfig() {
+    if (jobVertex.getOperator() == null || jobVertex.getOperator().getOpConfig() == null) {
+      return new HashMap<>();
+    }
+    return jobVertex.getOperator().getOpConfig();
+  }
+
   public List<ExecutionJobEdge> getInputEdges() {
     return inputEdges;
   }

@@ -57,6 +57,12 @@
       <artifactId>streaming-common</artifactId>
       <version>${streaming.version}</version>
     </dependency>
+    <!-- jars for test begin -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.50</version>
+    </dependency>
   </dependencies>
 
   <build>

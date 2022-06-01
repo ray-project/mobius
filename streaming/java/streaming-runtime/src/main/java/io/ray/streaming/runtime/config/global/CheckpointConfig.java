@@ -8,6 +8,7 @@ public interface CheckpointConfig extends Config, Mutable {
 
   String CP_INTERVAL_SECS = "streaming.checkpoint.interval.secs";
   String CP_TIMEOUT_SECS = "streaming.checkpoint.timeout.secs";
+  int TRIGGER_CHECKPOINT_TIMEOUT = 5000;
 
   String CP_PREFIX_KEY_MASTER = "streaming.checkpoint.prefix-key.job-master.context";
   String CP_PREFIX_KEY_WORKER = "streaming.checkpoint.prefix-key.job-worker.context";

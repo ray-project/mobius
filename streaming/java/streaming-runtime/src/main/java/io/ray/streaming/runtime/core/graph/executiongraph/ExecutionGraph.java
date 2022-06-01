@@ -7,10 +7,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
-import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.common.enums.OperatorType;
+import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.runtime.core.graph.JobInformation;
+import io.ray.streaming.runtime.master.scheduler.ActorRoleType;
 import io.ray.streaming.runtime.master.scheduler.ExecutionGroup;
+import io.ray.streaming.runtime.util.GraphBuilder;
 import io.ray.streaming.runtime.util.Serializer;
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -284,7 +286,8 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public List<BaseActorHandle> getActorsByVertexName(String vertexName) {
     return executionJobVertices.values().stream()
-            .filter(executionJobVertex -> vertexName.equals(executionJobVertex.getExecutionJobVertexName()) )
+            .filter(executionJobVertex ->
+                vertexName.equals(executionJobVertex.getExecutionJobVertexName()))
             .map(ExecutionJobVertex::getAllActors)
             .flatMap(Collection::stream).collect(Collectors.toList());
   }
@@ -313,7 +316,8 @@ public class ExecutionGraph implements Serializable, Cloneable {
             .collect(Collectors.toList());
   }
 
-  public List<BaseActorHandle> getActorsFromJobVertices(List<ExecutionJobVertex> executionJobVertices) {
+  public List<BaseActorHandle> getActorsFromJobVertices(
+      List<ExecutionJobVertex> executionJobVertices) {
     return executionJobVertices.stream()
             .map(ExecutionJobVertex::getExeVertices)
             .flatMap(Collection::stream)
@@ -355,7 +359,8 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public ExecutionJobVertex getExecutionJobVertexByName(String execJobVertexName) {
     return executionJobVertices.values().stream()
-            .filter(executionJobVertex -> execJobVertexName.equals(executionJobVertex.getExecutionJobVertexName()))
+            .filter(executionJobVertex ->
+                execJobVertexName.equals(executionJobVertex.getExecutionJobVertexName()))
             .findFirst().orElse(null);
   }
 
@@ -415,8 +420,8 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public Map<ActorId, WorkerCaller> getSourceWorkerCallersMap() {
     final Map<ActorId, WorkerCaller> workerCallersMap = new HashMap<>();
-    getSourceWorkerCallers().forEach(
-            workerCaller -> workerCallersMap.put(workerCaller.getActorHandle().getId(), workerCaller));
+    getSourceWorkerCallers().forEach(workerCaller ->
+        workerCallersMap.put(workerCaller.getActorHandle().getId(), workerCaller));
     return Collections.unmodifiableMap(workerCallersMap);
   }
 

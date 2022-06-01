@@ -7,6 +7,8 @@ import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.runtime.generated.Common.Bundle;
 import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.common.enums.ResourceKey;
+import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
+import io.ray.streaming.runtime.util.ResourceUtil;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
