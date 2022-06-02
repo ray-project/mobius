@@ -1,6 +1,7 @@
 package io.ray.streaming.runtime.core.graph.executiongraph;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
 import io.ray.streaming.api.Language;
@@ -9,6 +10,7 @@ import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.runtime.config.master.ResourceConfig;
 import io.ray.streaming.runtime.core.resource.ContainerId;
 import io.ray.streaming.runtime.core.resource.ResourceType;
+import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,7 +55,16 @@ public class ExecutionVertex implements Serializable {
   private String pid;
 
   /** Worker actor handle. */
-  private BaseActorHandle workerActor;
+  private BaseActorHandle workerActor; // deprecated
+
+  /**
+   * For remote call of different type workers, like:
+   * `JavaWorker`
+   * `DynamicPyWorker`
+   * `PythonWorker` i.e. python tide worker
+   *  Here we use workerCaller to replace workerActor to make remote call more convenient.
+   */
+  private WorkerCaller workerCaller;
 
   /** Op config + job config. */
   private Map<String, String> workerConfig;
@@ -160,8 +171,21 @@ public class ExecutionVertex implements Serializable {
     return isToAdd() || isToDelete();
   }
 
+  public boolean isEmptyWorkerCaller() {
+    return workerCaller == null;
+  }
+
   public BaseActorHandle getActor() {
     return workerActor;
+  }
+
+  public WorkerCaller getWorkerCaller() {
+    Preconditions.checkNotNull(workerCaller, getActorFullName() + "'s worker caller is empty.");
+    return workerCaller;
+  }
+
+  public String getActorFullName() {
+    return getExecutionVertexName() + "|" + executionVertexId;
   }
 
   public void setActor(BaseActorHandle workerActor) {
@@ -184,13 +208,13 @@ public class ExecutionVertex implements Serializable {
     this.outputEdges = outputEdges;
   }
 
-  public List<ExecutionVertex> getInputVertices() {
+  public List<ExecutionVertex> getInputExecutionVertices() {
     return inputEdges.stream()
         .map(ExecutionEdge::getSource)
         .collect(Collectors.toList());
   }
 
-  public List<ExecutionVertex> getOutputVertices() {
+  public List<ExecutionVertex> getOutputExecutionVertices() {
     return outputEdges.stream()
         .map(ExecutionEdge::getTarget)
         .collect(Collectors.toList());

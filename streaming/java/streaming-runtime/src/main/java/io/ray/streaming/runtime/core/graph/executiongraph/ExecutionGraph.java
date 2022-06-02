@@ -12,6 +12,7 @@ import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.runtime.core.graph.JobInformation;
 import io.ray.streaming.runtime.master.scheduler.ActorRoleType;
 import io.ray.streaming.runtime.master.scheduler.ExecutionGroup;
+import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.util.GraphBuilder;
 import io.ray.streaming.runtime.util.Serializer;
 import java.io.Serializable;
@@ -309,7 +310,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public List<WorkerCaller> getWorkerCallersFromJobVertices(
           List<ExecutionJobVertex> executionJobVertices) {
     return executionJobVertices.stream()
-            .map(ExecutionJobVertex::getExeVertices)
+            .map(ExecutionJobVertex::getExecutionVertices)
             .flatMap(Collection::stream)
             .filter(executionVertex -> !executionVertex.isEmptyWorkerCaller())
             .map(ExecutionVertex::getWorkerCaller)
@@ -319,7 +320,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public List<BaseActorHandle> getActorsFromJobVertices(
       List<ExecutionJobVertex> executionJobVertices) {
     return executionJobVertices.stream()
-            .map(ExecutionJobVertex::getExeVertices)
+            .map(ExecutionJobVertex::getExecutionVertices)
             .flatMap(Collection::stream)
             .map(ExecutionVertex::getActor)
             .collect(Collectors.toList());
@@ -331,7 +332,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public ExecutionVertex getExecutionVertexById(int execVertexId) {
     return executionJobVertices.values().stream()
-            .map(ExecutionJobVertex::getExeVertices)
+            .map(ExecutionJobVertex::getExecutionVertices)
             .flatMap(Collection::stream)
             .filter(executionVertex -> execVertexId == executionVertex.getExecutionVertexId())
             .findFirst().orElse(null);
@@ -345,7 +346,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public ExecutionVertex getExecutionVertexByName(String execVertexName) {
     return executionJobVertices.values().stream()
-            .map(ExecutionJobVertex::getExeVertices)
+            .map(ExecutionJobVertex::getExecutionVertices)
             .flatMap(Collection::stream)
             .filter(executionVertex -> execVertexName.equals(executionVertex.getExecutionVertexName()))
             .findFirst().orElse(null);

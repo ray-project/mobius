@@ -31,13 +31,13 @@ public class GraphPbBuilder {
     builder.setCurrentExecutionVertex(buildVertex(executionVertex));
 
     // build upstream vertices
-    List<ExecutionVertex> upstreamVertices = executionVertex.getInputVertices();
+    List<ExecutionVertex> upstreamVertices = executionVertex.getInputExecutionVertices();
     List<RemoteCall.ExecutionVertexContext.ExecutionVertex> upstreamVertexPbs =
         upstreamVertices.stream().map(this::buildVertex).collect(Collectors.toList());
     builder.addAllUpstreamExecutionVertices(upstreamVertexPbs);
 
     // build downstream vertices
-    List<ExecutionVertex> downstreamVertices = executionVertex.getOutputVertices();
+    List<ExecutionVertex> downstreamVertices = executionVertex.getOutputExecutionVertices();
     List<RemoteCall.ExecutionVertexContext.ExecutionVertex> downstreamVertexPbs =
         downstreamVertices.stream().map(this::buildVertex).collect(Collectors.toList());
     builder.addAllDownstreamExecutionVertices(downstreamVertexPbs);

@@ -28,6 +28,8 @@ public class ExecutionJobVertex implements Serializable {
   /** Unique id. Use {@link JobVertex}'s id directly. */
   private final int executionJobVertexId;
 
+  private final JobVertex jobVertex;
+
   /**
    * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g. 1-SourceOperator
    */
@@ -59,6 +61,7 @@ public class ExecutionJobVertex implements Serializable {
       Map<String, String> jobConfig,
       AtomicInteger idGenerator,
       long buildTime) {
+    this.jobVertex = jobVertex;
     this.executionJobVertexId = jobVertex.getVertexId();
     this.executionJobVertexName =
         generateExecutionJobVertexName(
@@ -137,10 +140,10 @@ public class ExecutionJobVertex implements Serializable {
   }
 
   public Map<String, String> getOpConfig() {
-    if (jobVertex.getOperator() == null || jobVertex.getOperator().getOpConfig() == null) {
+    if (jobVertex.getStreamOperator() == null || jobVertex.getStreamOperator().getOpConfig() == null) {
       return new HashMap<>();
     }
-    return jobVertex.getOperator().getOpConfig();
+    return jobVertex.getStreamOperator().getOpConfig();
   }
 
   public List<ExecutionJobEdge> getInputEdges() {
@@ -173,6 +176,10 @@ public class ExecutionJobVertex implements Serializable {
 
   public Map<String, String> getJobConfig() {
     return jobConfig;
+  }
+
+  public JobVertex getJobVertex() {
+    return jobVertex;
   }
 
   public long getBuildTime() {

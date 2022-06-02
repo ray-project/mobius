@@ -1,4 +1,4 @@
-package io.ray.streaming.runtime.context;
+package io.ray.streaming.runtime.core.checkpoint;
 
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.runtime.transfer.channel.OffsetInfo;

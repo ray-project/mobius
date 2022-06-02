@@ -8,6 +8,7 @@ import io.ray.api.Ray;
 import io.ray.api.WaitResult;
 import io.ray.api.function.PyActorMethod;
 import io.ray.api.function.RayFunc3;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;

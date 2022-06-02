@@ -3,6 +3,7 @@ package io.ray.streaming.runtime.master.coordinator;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
 import io.ray.streaming.runtime.core.command.WorkerCommitBarrierReport;
 import io.ray.streaming.runtime.config.StreamingMasterConfig;
 import io.ray.streaming.runtime.config.global.CheckpointConfig;
@@ -188,7 +189,6 @@ public class CheckpointCoordinator extends BaseCoordinator {
         .batchTriggerCheckpoint(targetWorkers, barrier, CheckpointConfig.TRIGGER_CHECKPOINT_TIMEOUT)
         .stream().anyMatch(eachTriggerResult -> !eachTriggerResult)) {
       LOG.error("Trigger checkpoint failed: {}.", runtimeContext.lastCheckpointId);
-      jobMaster.setHAHealthStatus(false);
 
       return;
     }

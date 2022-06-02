@@ -2,6 +2,8 @@ package io.ray.streaming.runtime.rpc.remoteworker;
 
 import io.ray.api.BaseActorHandle;
 import io.ray.api.ObjectRef;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
+import io.ray.streaming.runtime.core.checkpoint.PartialBarrier;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 
