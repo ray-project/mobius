@@ -9,7 +9,9 @@ import io.ray.streaming.api.stream.StreamSource;
 import io.ray.streaming.api.stream.UnionStream;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.python.stream.PythonDataStream;
+import io.ray.streaming.python.stream.PythonJoinStream;
 import io.ray.streaming.python.stream.PythonKeyDataStream;
+import io.ray.streaming.python.stream.PythonMergeStream;
 import io.ray.streaming.python.stream.PythonUnionStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +24,8 @@ import org.slf4j.LoggerFactory;
 public class JobGraphBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(JobGraphBuilder.class);
+
+  private final int isJoinRightEdge = 1;
 
   private JobGraph jobGraph;
 
@@ -73,7 +77,7 @@ public class JobGraphBuilder {
       Stream parentStream = stream.getInputStream();
       int inputVertexId = parentStream.getId();
       JobEdge jobEdge = new JobEdge(inputVertexId, vertexId, parentStream.getPartition());
-      this.jobGraph.addEdge(jobEdge);
+      this.jobGraph.addEdgeIfNotExist(jobEdge);
       processStream(parentStream);
     } else if (stream instanceof StreamSource) {
       jobVertex = new JobVertex(vertexId, parallelism, dynamicDivisionNum, VertexType.source, streamOperator);
