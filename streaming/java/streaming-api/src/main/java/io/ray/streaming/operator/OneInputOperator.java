@@ -1,12 +1,17 @@
 package io.ray.streaming.operator;
 
+import io.ray.streaming.common.enums.OperatorInputType;
 import io.ray.streaming.message.Record;
+import io.ray.streaming.util.TypeInfo;
 
-public interface OneInputOperator<T> extends Operator {
+public interface OneInputOperator<T> extends StreamOperator {
 
   void processElement(Record<T> record) throws Exception;
 
-  default OperatorType getOpType() {
-    return OperatorType.ONE_INPUT;
+  @Override
+  default OperatorInputType getOpType() {
+    return OperatorInputType.ONE_INPUT;
   }
+
+  TypeInfo<T> getInputTypeInfo();
 }

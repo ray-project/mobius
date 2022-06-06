@@ -9,4 +9,15 @@ package io.ray.streaming.api.collector;
 public interface Collector<T> {
 
   void collect(T value);
+
+  // Used by operator chain/tree to filter out collectors
+  default int getId() {
+    return -1;
+  }
+
+  default int getDownStreamOpId() {
+    return -1;
+  }
+
+  void retract(T value);
 }

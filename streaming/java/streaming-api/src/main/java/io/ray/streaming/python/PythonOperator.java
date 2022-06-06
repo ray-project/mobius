@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.api.function.Function;
+import io.ray.streaming.common.enums.OperatorInputType;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.Operator;
 import io.ray.streaming.operator.OperatorType;
 import io.ray.streaming.operator.StreamOperator;
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
 
 /** Represents a {@link StreamOperator} that wraps python {@link PythonFunction}. */
 @SuppressWarnings("unchecked")
-public class PythonOperator extends StreamOperator {
+public class PythonOperator extends AbstractStreamOperator {
 
   private final String moduleName;
   private final String className;
@@ -50,11 +52,6 @@ public class PythonOperator extends StreamOperator {
   }
 
   @Override
-  public void finish() {
-    throwUnsupportedException();
-  }
-
-  @Override
   public void close() {
     throwUnsupportedException();
   }
@@ -71,9 +68,20 @@ public class PythonOperator extends StreamOperator {
   }
 
   @Override
-  public OperatorType getOpType() {
-    String msg = String.format("Methods of %s shouldn't be called.", getClass().getSimpleName());
-    throw new UnsupportedOperationException(msg);
+  public OperatorInputType getOpType() {
+    PythonFunction pythonFunction = getFunction();
+    if (pythonFunction
+        .getFunctionInterface()
+        .equals(PythonFunction.FunctionInterface.SOURCE_FUNCTION)) {
+      return OperatorInputType.SOURCE;
+    } else {
+      return OperatorInputType.ONE_INPUT;
+    }
+  }
+
+  @Override
+  public PythonFunction getFunction() {
+    return (PythonFunction) super.getFunction();
   }
 
   @Override
@@ -118,7 +126,7 @@ public class PythonOperator extends StreamOperator {
     }
 
     @Override
-    public OperatorType getOpType() {
+    public OperatorInputType getOpType() {
       return headOperator.getOpType();
     }
 
@@ -129,9 +137,10 @@ public class PythonOperator extends StreamOperator {
 
     @Override
     public String getName() {
-      return operators.stream()
-          .map(Operator::getName)
-          .collect(Collectors.joining(" -> ", "[", "]"));
+      if (!getClass().getSimpleName().equals(name)) {
+        return "PythonOperator_" + getModuleName() + "." + getClassName();
+      }
+      return name;
     }
 
     @Override
@@ -142,12 +151,6 @@ public class PythonOperator extends StreamOperator {
 
     @Override
     public String getClassName() {
-      throwUnsupportedException();
-      return null; // impossible
-    }
-
-    @Override
-    public Function getFunction() {
       throwUnsupportedException();
       return null; // impossible
     }

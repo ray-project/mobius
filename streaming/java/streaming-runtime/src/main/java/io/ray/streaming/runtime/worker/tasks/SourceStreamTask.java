@@ -1,6 +1,6 @@
 package io.ray.streaming.runtime.worker.tasks;
 
-import io.ray.streaming.operator.SourceOperator;
+import io.ray.streaming.operator.ISourceOperator;
 import io.ray.streaming.runtime.core.processor.Processor;
 import io.ray.streaming.runtime.core.processor.SourceProcessor;
 import io.ray.streaming.runtime.transfer.exception.ChannelInterruptException;
@@ -22,7 +22,7 @@ public class SourceStreamTask extends StreamTask {
   private long lastCheckpointId = 0;
 
   /**
-   * SourceStreamTask for executing a {@link SourceOperator}. It is responsible for running the
+   * SourceStreamTask for executing a {@link ISourceOperator}. It is responsible for running the
    * corresponding source operator.
    */
   public SourceStreamTask(Processor sourceProcessor, JobWorker jobWorker, long lastCheckpointId) {

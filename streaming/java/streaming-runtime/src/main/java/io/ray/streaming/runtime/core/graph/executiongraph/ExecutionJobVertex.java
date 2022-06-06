@@ -31,7 +31,7 @@ public class ExecutionJobVertex implements Serializable {
   private final JobVertex jobVertex;
 
   /**
-   * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g. 1-SourceOperator
+   * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g. 1-ISourceOperator
    */
   private final String executionJobVertexName;
 
@@ -115,7 +115,7 @@ public class ExecutionJobVertex implements Serializable {
   }
 
   /**
-   * e.g. 1-SourceOperator
+   * e.g. 1-ISourceOperator
    *
    * @return operator name with index
    */

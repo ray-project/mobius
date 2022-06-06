@@ -4,9 +4,10 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Record<T> implements Serializable {
-
-  protected transient String stream;
+  protected String stream;
   protected T value;
+  private boolean retract;
+  private long traceTimestamp = Long.MIN_VALUE;
 
   public Record(T value) {
     this.value = value;
@@ -28,25 +29,50 @@ public class Record<T> implements Serializable {
     this.stream = stream;
   }
 
+  public boolean isRetract() {
+    return retract;
+  }
+
+  public void setRetract(boolean retract) {
+    this.retract = retract;
+  }
+
+  public Record<T> copy() {
+    Record<T> record = new Record<>(value);
+    record.setStream(stream);
+    record.setRetract(retract);
+    return record;
+  }
+
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (object == null || getClass() != object.getClass()) {
       return false;
     }
-    Record<?> record = (Record<?>) o;
-    return Objects.equals(stream, record.stream) && Objects.equals(value, record.value);
+    Record<?> record = (Record<?>) object;
+    return retract == record.retract
+        && Objects.equals(stream, record.stream)
+        && Objects.equals(value, record.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(stream, value);
+    return Objects.hash(stream, value, retract);
   }
 
   @Override
   public String toString() {
     return value.toString();
+  }
+
+  public void setTraceTimestamp(long timestamp) {
+    traceTimestamp = timestamp;
+  }
+
+  public long getTraceTimestamp() {
+    return traceTimestamp;
   }
 }

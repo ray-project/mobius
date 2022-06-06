@@ -3,7 +3,7 @@ package io.ray.streaming.api.stream;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.SourceFunction;
 import io.ray.streaming.api.function.internal.CollectionSourceFunction;
-import io.ray.streaming.operator.impl.SourceOperatorImpl;
+import io.ray.streaming.operator.impl.ISourceOperatorImpl;
 import java.util.Collection;
 
 /**
@@ -14,7 +14,7 @@ import java.util.Collection;
 public class DataStreamSource<T> extends DataStream<T> implements StreamSource<T> {
 
   private DataStreamSource(StreamingContext streamingContext, SourceFunction<T> sourceFunction) {
-    super(streamingContext, new SourceOperatorImpl<>(sourceFunction));
+    super(streamingContext, new ISourceOperatorImpl<>(sourceFunction));
   }
 
   public static <T> DataStreamSource<T> fromSource(

@@ -2,7 +2,7 @@ package io.ray.streaming.runtime.core.processor;
 
 import io.ray.streaming.operator.OneInputOperator;
 import io.ray.streaming.operator.OperatorType;
-import io.ray.streaming.operator.SourceOperator;
+import io.ray.streaming.operator.ISourceOperator;
 import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.operator.TwoInputOperator;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class ProcessBuilder {
         streamOperator.getClass().getSimpleName());
     switch (type) {
       case SOURCE:
-        return new SourceProcessor<>((SourceOperator) streamOperator);
+        return new SourceProcessor<>((ISourceOperator) streamOperator);
       case ONE_INPUT:
         return new OneInputProcessor<>((OneInputOperator) streamOperator);
       case TWO_INPUT:

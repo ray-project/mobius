@@ -1,4 +1,5 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:specs.bzl", "maven")
 
 def gen_streaming_java_deps():
     maven_install(
@@ -18,9 +19,18 @@ def gen_streaming_java_deps():
             "org.mockito:mockito-all:1.10.19",
             "org.apache.commons:commons-lang3:3.3.2",
             "org.mockito:mockito-all:1.10.19",
-	        "org.powermock:powermock-module-testng:1.6.6",
-	        "org.powermock:powermock-api-mockito:1.6.6",
+	          "org.powermock:powermock-module-testng:1.6.6",
+	          "org.powermock:powermock-api-mockito:1.6.6",
             "commons-collections:commons-collections:3.2.2",
+            maven.artifact(
+                group = "org.apache.arrow",
+                artifact = "arrow-vector",
+                version = "5.0.0",
+                exclusions = [
+                    "io.netty:netty-buffer",
+                    "io.netty:netty-common",
+                ]
+            ),
         ],
         repositories = [
             "https://repo1.maven.org/maven2/",

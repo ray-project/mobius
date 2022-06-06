@@ -9,7 +9,7 @@ import io.ray.streaming.api.function.impl.MapFunction;
 import io.ray.streaming.api.function.impl.SinkFunction;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.api.partition.impl.BroadcastPartition;
-import io.ray.streaming.operator.StreamOperator;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.impl.FilterOperator;
 import io.ray.streaming.operator.impl.FlatMapOperator;
 import io.ray.streaming.operator.impl.KeyByOperator;
@@ -29,21 +29,23 @@ import java.util.List;
  */
 public class DataStream<T> extends Stream<DataStream<T>, T> {
 
-  public DataStream(StreamingContext streamingContext, StreamOperator streamOperator) {
+  public DataStream(StreamingContext streamingContext, AbstractStreamOperator streamOperator) {
     super(streamingContext, streamOperator);
   }
 
   public DataStream(
-      StreamingContext streamingContext, StreamOperator streamOperator, Partition<T> partition) {
+      StreamingContext streamingContext,
+      AbstractStreamOperator streamOperator,
+      Partition<T> partition) {
     super(streamingContext, streamOperator, partition);
   }
 
-  public <R> DataStream(DataStream<R> input, StreamOperator streamOperator) {
+  public <R> DataStream(DataStream<R> input, AbstractStreamOperator streamOperator) {
     super(input, streamOperator);
   }
 
   public <R> DataStream(
-      DataStream<R> input, StreamOperator streamOperator, Partition<T> partition) {
+      DataStream<R> input, AbstractStreamOperator streamOperator, Partition<T> partition) {
     super(input, streamOperator, partition);
   }
 

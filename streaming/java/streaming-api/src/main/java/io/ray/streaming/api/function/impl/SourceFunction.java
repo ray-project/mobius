@@ -2,6 +2,7 @@ package io.ray.streaming.api.function.impl;
 
 import io.ray.streaming.api.function.Function;
 
+
 /**
  * Interface of Source functions.
  *
@@ -9,11 +10,9 @@ import io.ray.streaming.api.function.Function;
  */
 public interface SourceFunction<T> extends Function {
 
-  void init(int parallelism, int index);
+  void init(int parallel, int index);
 
-  void fetch(SourceContext<T> ctx) throws Exception;
-
-  void close();
+  void fetch(long checkpointId, SourceContext<T> ctx) throws Exception;
 
   interface SourceContext<T> {
 
