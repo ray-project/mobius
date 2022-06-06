@@ -1,12 +1,15 @@
 package io.ray.streaming.common.utils;
 
 import io.ray.streaming.common.config.Config;
+import io.ray.streaming.common.enums.ResourceKey;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,5 +157,61 @@ public class CommonUtil {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  /**
+   * Merge multi configs into 1.
+   *
+   * @param configs multi configs
+   * @return 1 config map
+   */
+  public static Map<String, String> chainConfigs(List<Map<String, String>> configs) {
+    Map<String, String> chainedConfigs = new HashMap<>(4);
+    configs.forEach(
+        config -> {
+          for (Map.Entry<String, String> eachConfig : config.entrySet()) {
+            chainedConfigs.putIfAbsent(eachConfig.getKey(), eachConfig.getValue());
+          }
+        });
+    return chainedConfigs;
+  }
+
+  /**
+   * Merge multi resources. CPU, GPU: agg and max MEM: sum
+   *
+   * @param resources multi resources
+   * @return resource
+   */
+  public static Map<String, Double> chainResources(List<Map<String, Double>> resources) {
+    Map<String, Double> chainedResources = new HashMap<>(4);
+    resources.forEach(
+        resource -> {
+          for (Map.Entry<String, Double> unitResource : resource.entrySet()) {
+            String resourceKey = unitResource.getKey();
+            Double resourceValue = unitResource.getValue();
+
+            if (StringUtils.isEmpty(resourceKey) || resourceValue == null || resourceValue <= 0) {
+              continue;
+            }
+
+            if (!chainedResources.containsKey(resourceKey)) {
+              chainedResources.putIfAbsent(resourceKey, resourceValue);
+            } else {
+              if (ResourceKey.MEM.name().equals(resourceKey)) {
+                // for memory, use the sum value for chained operator
+                // e.g. OpA(256mb) chain OpB(512mb) = ChainedOp(768mb)
+                Double currentValue = chainedResources.get(resourceKey);
+                chainedResources.put(resourceKey, currentValue + resourceValue);
+              } else {
+                // for CPU and GPU, use the max value for each resource type in chained operator
+                // e.g. OpA(1CPU) chain OpB(3CPU) = ChainedOp(3CPU)
+                if (chainedResources.get(resourceKey) <= resourceValue) {
+                  chainedResources.put(resourceKey, resourceValue);
+                }
+              }
+            }
+          }
+        });
+    return chainedResources;
   }
 }

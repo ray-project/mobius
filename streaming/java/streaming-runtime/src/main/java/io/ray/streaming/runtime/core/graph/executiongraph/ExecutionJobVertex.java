@@ -65,8 +65,8 @@ public class ExecutionJobVertex implements Serializable {
     this.executionJobVertexId = jobVertex.getVertexId();
     this.executionJobVertexName =
         generateExecutionJobVertexName(
-            executionJobVertexId, jobVertex.getStreamOperator().getName());
-    this.streamOperator = jobVertex.getStreamOperator();
+            executionJobVertexId, jobVertex.getOperator().getName());
+    this.streamOperator = jobVertex.getOperator();
     this.vertexType = jobVertex.getVertexType();
     this.language = jobVertex.getLanguage();
     this.jobConfig = jobConfig;
@@ -140,10 +140,10 @@ public class ExecutionJobVertex implements Serializable {
   }
 
   public Map<String, String> getOpConfig() {
-    if (jobVertex.getStreamOperator() == null || jobVertex.getStreamOperator().getOpConfig() == null) {
+    if (jobVertex.getOperator() == null || jobVertex.getOperator().getOpConfig() == null) {
       return new HashMap<>();
     }
-    return jobVertex.getStreamOperator().getOpConfig();
+    return jobVertex.getOperator().getOpConfig();
   }
 
   public List<ExecutionJobEdge> getInputEdges() {
@@ -187,15 +187,15 @@ public class ExecutionJobVertex implements Serializable {
   }
 
   public boolean isSourceVertex() {
-    return getVertexType() == VertexType.SOURCE;
+    return getVertexType() == VertexType.source;
   }
 
   public boolean isTransformationVertex() {
-    return getVertexType() == VertexType.TRANSFORMATION;
+    return getVertexType() == VertexType.process;
   }
 
   public boolean isSinkVertex() {
-    return getVertexType() == VertexType.SINK;
+    return getVertexType() == VertexType.sink;
   }
 
   public List<ExecutionVertex> getNewbornVertices() {

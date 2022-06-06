@@ -1,25 +1,32 @@
 package io.ray.streaming.python;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.api.function.Function;
 import io.ray.streaming.common.enums.OperatorInputType;
+import io.ray.streaming.common.utils.CommonUtil;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.Operator;
 import io.ray.streaming.operator.OperatorType;
 import io.ray.streaming.operator.StreamOperator;
+import io.ray.streaming.util.OperatorUtil;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import org.apache.arrow.vector.types.pojo.Schema;
 
-/** Represents a {@link StreamOperator} that wraps python {@link PythonFunction}. */
+/** Represents a {@link AbstractStreamOperator} that wraps python {@link PythonFunction}. */
 @SuppressWarnings("unchecked")
 public class PythonOperator extends AbstractStreamOperator {
+  public static final String OPERATOR_MODULE = "raystreaming.operator";
 
   private final String moduleName;
   private final String className;
+  private Schema inputSchema;
 
   public PythonOperator(String moduleName, String className) {
     super(null);
@@ -29,8 +36,18 @@ public class PythonOperator extends AbstractStreamOperator {
 
   public PythonOperator(PythonFunction function) {
     super(function);
-    this.moduleName = null;
-    this.className = null;
+    if (function != null) {
+      this.moduleName = function.getModuleName();
+      this.className = function.getFunctionName();
+    } else {
+      this.moduleName = null;
+      this.className = null;
+    }
+  }
+
+  @Override
+  public int getId() {
+    return super.getId();
   }
 
   @Override
@@ -47,7 +64,22 @@ public class PythonOperator extends AbstractStreamOperator {
   }
 
   @Override
+  public PythonFunction getFunction() {
+    return (PythonFunction) super.getFunction();
+  }
+
+  @Override
   public void open(List list, RuntimeContext runtimeContext) {
+    throwUnsupportedException();
+  }
+
+  @Override
+  public void saveCheckpoint(long checkpointId) {
+    throwUnsupportedException();
+  }
+
+  @Override
+  public void loadCheckpoint(long checkpointId) {
     throwUnsupportedException();
   }
 
@@ -56,7 +88,7 @@ public class PythonOperator extends AbstractStreamOperator {
     throwUnsupportedException();
   }
 
-  void throwUnsupportedException() {
+  <T> T throwUnsupportedException() {
     StackTraceElement[] trace = Thread.currentThread().getStackTrace();
     Preconditions.checkState(trace.length >= 2);
     StackTraceElement traceElement = trace[2];
@@ -80,20 +112,21 @@ public class PythonOperator extends AbstractStreamOperator {
   }
 
   @Override
-  public PythonFunction getFunction() {
-    return (PythonFunction) super.getFunction();
+  public String getName() {
+    if (!getClass().getSimpleName().equals(name)) {
+      return "PythonOperator_" + getModuleName() + "." + getClassName();
+    }
+    return name;
   }
 
-  @Override
-  public String getName() {
-    StringBuilder builder = new StringBuilder();
-    builder.append(PythonOperator.class.getSimpleName()).append("[");
-    if (function != null) {
-      builder.append(((PythonFunction) function).toSimpleString());
-    } else {
-      builder.append(moduleName).append(".").append(className);
-    }
-    return builder.append("]").toString();
+  // If we need to support two input stream for python, we need to abstract PythonOperator into
+  // SourceOperator/OneInputOperator/TwoInputOperator
+  public Schema getInputSchema() {
+    return inputSchema;
+  }
+
+  public void setInputSchema(Schema inputSchema) {
+    this.inputSchema = inputSchema;
   }
 
   @Override
@@ -105,24 +138,35 @@ public class PythonOperator extends AbstractStreamOperator {
     } else {
       stringJoiner.add("moduleName='" + moduleName + "'").add("className='" + className + "'");
     }
+    stringJoiner.add("name='" + getName() + "'");
     return stringJoiner.toString();
   }
 
   public static class ChainedPythonOperator extends PythonOperator {
-
     private final List<PythonOperator> operators;
     private final PythonOperator headOperator;
-    private final PythonOperator tailOperator;
-    private final List<Map<String, String>> configs;
+    private Set<PythonOperator> tailOperators;
+    private final List<Map<String, String>> opConfigs;
+    private final Map<String, Double> resource;
+    private String chainedOperatorName;
 
     public ChainedPythonOperator(
-        List<PythonOperator> operators, List<Map<String, String>> configs) {
+        List<PythonOperator> operators,
+        List<Map<String, String>> opConfigs,
+        List<Map<String, Double>> resources) {
       super(null);
       Preconditions.checkArgument(!operators.isEmpty());
       this.operators = operators;
-      this.configs = configs;
+      this.opConfigs = opConfigs;
+      this.opConfig = CommonUtil.chainConfigs(opConfigs);
+      this.resource = CommonUtil.chainResources(resources);
       this.headOperator = operators.get(0);
-      this.tailOperator = operators.get(operators.size() - 1);
+      this.tailOperators =
+          OperatorUtil.generateTailOperators(
+                  this.operators.stream().map(x -> (StreamOperator) x).collect(Collectors.toList()))
+              .stream()
+              .map(x -> (PythonOperator) x)
+              .collect(Collectors.toSet());
     }
 
     @Override
@@ -135,24 +179,41 @@ public class PythonOperator extends AbstractStreamOperator {
       return Language.PYTHON;
     }
 
+    public String getChainedOperatorName() {
+      if (this.chainedOperatorName == null) {
+        StringBuilder name = new StringBuilder();
+        OperatorUtil.createName(
+            operators.stream().map(x -> (StreamOperator) x).collect(Collectors.toList()),
+            operators.get(0),
+            name);
+        this.chainedOperatorName = name.toString();
+      }
+      return this.chainedOperatorName;
+    }
+
     @Override
     public String getName() {
-      if (!getClass().getSimpleName().equals(name)) {
-        return "PythonOperator_" + getModuleName() + "." + getClassName();
-      }
-      return name;
+      return operators.get(0).getName();
+    }
+
+    @Override
+    public String toString() {
+      return ImmutableList.of(this.operators).toString();
     }
 
     @Override
     public String getModuleName() {
-      throwUnsupportedException();
-      return null; // impossible
+      return throwUnsupportedException();
     }
 
     @Override
     public String getClassName() {
-      throwUnsupportedException();
-      return null; // impossible
+      return throwUnsupportedException();
+    }
+
+    @Override
+    public PythonFunction getFunction() {
+      return throwUnsupportedException();
     }
 
     public List<PythonOperator> getOperators() {
@@ -163,12 +224,40 @@ public class PythonOperator extends AbstractStreamOperator {
       return headOperator;
     }
 
-    public PythonOperator getTailOperator() {
-      return tailOperator;
+    public Set<PythonOperator> getTailOperators() {
+      return tailOperators;
     }
 
-    public List<Map<String, String>> getConfigs() {
-      return configs;
+    public List<Map<String, String>> getOpConfigs() {
+      return opConfigs;
+    }
+
+    @Override
+    public Schema getInputSchema() {
+      return headOperator.getInputSchema();
+    }
+
+    @Override
+    public boolean hasSchema() {
+      if (tailOperators.size() > 1) {
+        throw new UnsupportedOperationException(
+            "This chainedOperator has at least two tail operators, can't call 'hasSchema'");
+      }
+      return tailOperators.iterator().next().hasSchema();
+    }
+
+    @Override
+    public Schema getSchema() {
+      if (tailOperators.size() > 1) {
+        throw new UnsupportedOperationException(
+            "This chainedOperator has at least two tail operators, can't call 'getSchema'");
+      }
+      return tailOperators.iterator().next().getSchema();
+    }
+
+    @Override
+    public Map<String, Double> getResource() {
+      return this.resource;
     }
   }
 }

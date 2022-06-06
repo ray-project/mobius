@@ -1,6 +1,6 @@
 package io.ray.streaming.api.stream;
 
-import io.ray.streaming.operator.StreamOperator;
+import io.ray.streaming.operator.AbstractStreamOperator;
 
 /**
  * Represents a sink of the Stream.
@@ -9,7 +9,7 @@ import io.ray.streaming.operator.StreamOperator;
  */
 public abstract class StreamSink<T> extends Stream<StreamSink<T>, T> {
 
-  public StreamSink(Stream inputStream, StreamOperator streamOperator) {
+  public StreamSink(Stream inputStream, AbstractStreamOperator streamOperator) {
     super(inputStream, streamOperator);
   }
 }

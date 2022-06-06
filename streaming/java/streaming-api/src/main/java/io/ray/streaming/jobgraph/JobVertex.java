@@ -2,6 +2,7 @@ package io.ray.streaming.jobgraph;
 
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.api.Language;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.StreamOperator;
 import java.io.Serializable;
 import java.util.Map;
@@ -10,24 +11,27 @@ import java.util.Map;
 public class JobVertex implements Serializable {
 
   private int vertexId;
+
+  private final int dynamicDivisionNum;
   private int parallelism;
   private VertexType vertexType;
   private Language language;
-  private StreamOperator streamOperator;
+  private StreamOperator operator;
   private Map<String, String> config;
 
   public JobVertex(
       int vertexId,
       int parallelism,
+      int dynamicDivisionNum,
       VertexType vertexType,
-      StreamOperator streamOperator,
-      Map<String, String> config) {
+      AbstractStreamOperator<?> operator) {
     this.vertexId = vertexId;
     this.parallelism = parallelism;
+    this.dynamicDivisionNum = dynamicDivisionNum;
     this.vertexType = vertexType;
-    this.streamOperator = streamOperator;
-    this.language = streamOperator.getLanguage();
-    this.config = config;
+    this.operator = operator;
+    this.language = operator.getLanguage();
+    operator.setId(vertexId);
   }
 
   public int getVertexId() {
@@ -38,8 +42,16 @@ public class JobVertex implements Serializable {
     return parallelism;
   }
 
-  public StreamOperator getStreamOperator() {
-    return streamOperator;
+  public StreamOperator getOperator() {
+    return operator;
+  }
+
+  public int getDynamicDivisionNum() {
+    return dynamicDivisionNum;
+  }
+
+  public void setOperator(StreamOperator operator) {
+    this.operator = operator;
   }
 
   public VertexType getVertexType() {
@@ -65,7 +77,7 @@ public class JobVertex implements Serializable {
         .add("parallelism", parallelism)
         .add("vertexType", vertexType)
         .add("language", language)
-        .add("streamOperator", streamOperator)
+        .add("streamOperator", operator)
         .add("config", config)
         .toString();
   }

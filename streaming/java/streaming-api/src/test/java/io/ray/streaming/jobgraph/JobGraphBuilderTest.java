@@ -31,8 +31,8 @@ public class JobGraphBuilderTest {
 
     JobVertex sinkVertex = jobVertexList.get(1);
     JobVertex sourceVertex = jobVertexList.get(0);
-    Assert.assertEquals(sinkVertex.getVertexType(), VertexType.SINK);
-    Assert.assertEquals(sourceVertex.getVertexType(), VertexType.SOURCE);
+    Assert.assertEquals(sinkVertex.getVertexType(), VertexType.sink);
+    Assert.assertEquals(sourceVertex.getVertexType(), VertexType.source);
   }
 
   public JobGraph buildDataSyncJobGraph() {
@@ -59,9 +59,9 @@ public class JobGraphBuilderTest {
     JobVertex map = jobVertexList.get(1);
     JobVertex sink = jobVertexList.get(2);
 
-    Assert.assertEquals(source.getVertexType(), VertexType.SOURCE);
-    Assert.assertEquals(map.getVertexType(), VertexType.TRANSFORMATION);
-    Assert.assertEquals(sink.getVertexType(), VertexType.SINK);
+    Assert.assertEquals(source.getVertexType(), VertexType.source);
+    Assert.assertEquals(map.getVertexType(), VertexType.process);
+    Assert.assertEquals(sink.getVertexType(), VertexType.sink);
 
     JobEdge keyBy2Sink = jobEdgeList.get(0);
     JobEdge source2KeyBy = jobEdgeList.get(1);
