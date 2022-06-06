@@ -69,7 +69,7 @@ public abstract class StreamTask implements Runnable {
     this.thread.setDaemon(true);
   }
 
-  public ChannelRecoverInfo recover(boolean isRecover) {
+  public ChannelRecoverInfo recover(boolean isRecover) throws Exception {
 
     if (isRecover) {
       LOG.info("Stream task begin recover.");
@@ -102,7 +102,7 @@ public abstract class StreamTask implements Runnable {
    * Load checkpoint and build upstream and downstream data transmission channels according to
    * {@link ExecutionVertex}.
    */
-  private void prepareTask(boolean isRecreate) {
+  private void prepareTask(boolean isRecreate) throws Exception {
     LOG.info("Preparing stream task, isRecreate={}.", isRecreate);
     ExecutionVertex executionVertex = jobWorker.getExecutionVertex();
 
@@ -139,7 +139,7 @@ public abstract class StreamTask implements Runnable {
     // when use memory state, if actor throw exception, will miss state
     if (bytes != null) {
       operatorCheckpointInfo = Serializer.decode(bytes);
-      processor.loadCheckpoint(operatorCheckpointInfo.processorCheckpoint);
+      processor.loadCheckpoint(operatorCheckpointInfo.checkpointId);
       LOG.info(
           "Stream task recover from checkpoint state, checkpoint bytes len={}, checkpointInfo={}.",
           bytes.length,
@@ -261,7 +261,7 @@ public abstract class StreamTask implements Runnable {
         outputPoints);
 
     this.lastCheckpointId = checkpointId;
-    Serializable processorCheckpoint = processor.saveCheckpoint();
+    Serializable processorCheckpoint = processor.saveCheckpoint(this.lastCheckpointId);
 
     try {
       OperatorCheckpointInfo opCpInfo =

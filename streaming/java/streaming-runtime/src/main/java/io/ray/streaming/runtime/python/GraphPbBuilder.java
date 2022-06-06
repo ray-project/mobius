@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString;
 import io.ray.runtime.actor.NativeActorHandle;
 import io.ray.streaming.api.function.Function;
 import io.ray.streaming.api.partition.Partition;
-import io.ray.streaming.operator.Operator;
+import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonOperator;
 import io.ray.streaming.python.PythonOperator.ChainedPythonOperator;
@@ -96,7 +96,7 @@ public class GraphPbBuilder {
     return executionEdgeBuilder.build();
   }
 
-  private byte[] serializeOperator(Operator operator) {
+  private byte[] serializeOperator(StreamOperator operator) {
     if (operator instanceof PythonOperator) {
       if (isPythonChainedOperator(operator)) {
         return serializePythonChainedOperator((ChainedPythonOperator) operator);
@@ -113,14 +113,14 @@ public class GraphPbBuilder {
     }
   }
 
-  private boolean isPythonChainedOperator(Operator operator) {
+  private boolean isPythonChainedOperator(StreamOperator operator) {
     return operator instanceof ChainedPythonOperator;
   }
 
   private byte[] serializePythonChainedOperator(ChainedPythonOperator operator) {
     List<byte[]> serializedOperators =
         operator.getOperators().stream().map(this::serializeOperator).collect(Collectors.toList());
-    return serializer.serialize(Arrays.asList(serializedOperators, operator.getConfigs()));
+    return serializer.serialize(Arrays.asList(serializedOperators, operator.getOpConfigs()));
   }
 
   private byte[] serializeFunction(Function function) {

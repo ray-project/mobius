@@ -9,8 +9,6 @@ import io.ray.streaming.message.Record;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
 import io.ray.streaming.operator.ISourceOperator;
-import io.ray.streaming.operator.OperatorType;
-import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.util.EndOfDataException;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;

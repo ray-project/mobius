@@ -1,6 +1,7 @@
 package io.ray.streaming.runtime.worker.tasks;
 
 import com.google.common.base.MoreObjects;
+import io.ray.streaming.message.Record;
 import io.ray.streaming.runtime.core.processor.Processor;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.serialization.CrossLangSerializer;
@@ -58,6 +59,7 @@ public abstract class InputStreamTask extends StreamTask {
           byte typeId = dataMessage.body().get();
           dataMessage.body().get(bytes);
           Object obj;
+          Record msg;
           if (typeId == Serializer.JAVA_TYPE_ID) {
             obj = javaSerializer.deserialize(bytes);
           } else {

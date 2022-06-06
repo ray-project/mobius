@@ -139,7 +139,7 @@ public class WordCountTest extends RayEnvBaseTest implements Serializable {
     public void init(int parallelism, int index) {}
 
     @Override
-    public void fetch(SourceContext<String> ctx) throws Exception {
+    public void fetch(long checkpointId, SourceContext<String> ctx) throws Exception {
       if (count < totalNum) {
         ctx.collect(String.valueOf(Math.abs(random.nextInt()) % 1024));
         count++;

@@ -1,6 +1,7 @@
 package io.ray.streaming.operator.chain;
 
 import com.google.common.base.Preconditions;
+import io.ray.runtime.generated.Common;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.context.RuntimeContext;

@@ -43,6 +43,14 @@ public interface Function extends Serializable, UnitedDistributedControllerActor
    */
   default void loadCheckpoint(Serializable checkpointObject) {}
 
+  /**
+   * Delete user-defined checkpoint by checkpoint id.
+   *
+   * @param checkpointId
+   * @throws Exception
+   */
+  default void deleteCheckpoint(long checkpointId) throws Exception {}
+
   /* UDC related start. */
   @Override
   default boolean onPrepare(Common.UnitedDistributedControlMessage controlMessage) {
@@ -64,4 +72,25 @@ public interface Function extends Serializable, UnitedDistributedControllerActor
     return null;
   }
   /* UDC related end. */
+
+  /**
+   * User defined command that need to be executed by the function.
+   *
+   * @param commandMessage the command message
+   */
+  default void forwardCommand(String commandMessage) {}
+
+  /**
+   * User defined latch for rescaling.
+   *
+   * @return is ready
+   */
+  default boolean isReadyRescaling() {
+    return true;
+  }
+
+  /**
+   * Tear-down method for the user function which called after the last call to the user function.
+   */
+  default void close() {}
 }
