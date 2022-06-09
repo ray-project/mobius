@@ -30,7 +30,7 @@ public class ExecutionVertex implements Serializable {
   private final int executionJobVertexId;
 
   private final String executionJobVertexName;
-  private final StreamOperator streamOperator;
+  private final StreamOperator operator;
   private final VertexType vertexType;
   private final Language language;
   private final long buildTime;
@@ -87,7 +87,7 @@ public class ExecutionVertex implements Serializable {
     this.executionVertexId = globalIndex;
     this.executionJobVertexId = executionJobVertex.getExecutionJobVertexId();
     this.executionJobVertexName = executionJobVertex.getExecutionJobVertexName();
-    this.streamOperator = executionJobVertex.getStreamOperator();
+    this.operator = executionJobVertex.getStreamOperator();
     this.vertexType = executionJobVertex.getVertexType();
     this.language = executionJobVertex.getLanguage();
     this.buildTime = executionJobVertex.getBuildTime();
@@ -121,8 +121,8 @@ public class ExecutionVertex implements Serializable {
     return executionJobVertexName;
   }
 
-  public StreamOperator getStreamOperator() {
-    return streamOperator;
+  public StreamOperator getOperator() {
+    return operator;
   }
 
   public VertexType getVertexType() {
@@ -260,6 +260,14 @@ public class ExecutionVertex implements Serializable {
     if (null == this.containerId) {
       this.containerId = containerId;
     }
+  }
+
+  public Map<String, String> getOpConfig() {
+    return operator.getOpConfig();
+  }
+
+  public Map<String, String> getJobConfig() {
+    return jobConfig;
   }
 
   /*---------channel-actor relations---------*/

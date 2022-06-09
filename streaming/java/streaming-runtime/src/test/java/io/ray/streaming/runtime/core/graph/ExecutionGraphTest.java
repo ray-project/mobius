@@ -53,7 +53,7 @@ public class ExecutionGraphTest {
         .getAllExecutionVertices()
         .forEach(
             vertex -> {
-              Assert.assertNotNull(vertex.getStreamOperator());
+              Assert.assertNotNull(vertex.getOperator());
               Assert.assertNotNull(vertex.getExecutionJobVertexName());
               Assert.assertNotNull(vertex.getVertexType());
               Assert.assertNotNull(vertex.getLanguage());

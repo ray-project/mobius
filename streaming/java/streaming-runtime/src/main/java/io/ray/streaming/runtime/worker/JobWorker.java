@@ -196,7 +196,7 @@ public class JobWorker implements Serializable {
   private StreamTask createStreamTask(long checkpointId) {
     StreamTask task;
     StreamProcessor streamProcessor =
-        ProcessBuilder.buildProcessor(executionVertex.getStreamOperator());
+        ProcessBuilder.buildProcessor(executionVertex.getOperator());
     LOG.debug("Stream processor created: {}.", streamProcessor);
 
     if (streamProcessor instanceof SourceProcessor) {

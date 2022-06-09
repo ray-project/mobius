@@ -2,6 +2,7 @@ package io.ray.streaming.runtime.worker.context;
 
 import com.google.common.base.Preconditions;
 import io.ray.streaming.api.context.RuntimeContext;
+import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.state.backend.AbstractKeyStateBackend;
 import io.ray.streaming.state.backend.KeyStateBackend;
@@ -13,28 +14,48 @@ import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
 import io.ray.streaming.state.keystate.state.ListState;
 import io.ray.streaming.state.keystate.state.MapState;
 import io.ray.streaming.state.keystate.state.ValueState;
+import java.util.HashMap;
 import java.util.Map;
 
 /** Use Ray to implement RuntimeContext. */
-public class StreamingRuntimeContext implements RuntimeContext {
-
-  /** Backend for keyed state. This might be empty if we're not on a keyed stream. */
-  protected transient KeyStateBackend keyStateBackend;
-  /** Backend for operator state. This might be empty */
-  protected transient OperatorStateBackend operatorStateBackend;
+public class StreamingRuntimeContext implements InternalRuntimeContext {
 
   private int taskId;
   private int taskIndex;
-  private int parallelism;
-  private Long checkpointId;
-  private Map<String, String> config;
+  private int taskParallelism;
+  private int operatorId;
+  private String operatorName;
+  private Map<String, String> jobConfig;
+  private Map<String, String> opConfig;
 
-  public StreamingRuntimeContext(
-      ExecutionVertex executionVertex, Map<String, String> config, int parallelism) {
+  private Object currentKey;
+
+  private long lastCheckpointId;
+  private MetricGroup metricGroup;
+
+  /**
+   * Ray state.
+   */
+  protected transient StateManager stateManager;
+
+  public StreamRuntimeContext(ExecutionVertex executionVertex, long checkpointId) {
     this.taskId = executionVertex.getExecutionVertexId();
-    this.config = config;
     this.taskIndex = executionVertex.getExecutionVertexIndex();
-    this.parallelism = parallelism;
+    this.taskParallelism = executionVertex.getParallelism();
+    this.operatorId = executionVertex.getExecutionJobVertexId();
+    this.operatorName = executionVertex.getExecutionJobVertexName();
+    this.jobConfig = executionVertex.getJobConfig();
+    this.opConfig = executionVertex.getOpConfig();
+    this.lastCheckpointId = checkpointId;
+
+    this.metricGroup = MetricsUtils.getMetricGroup(getMetricGroupConfig());
+  }
+
+  private Map<String, String> getMetricGroupConfig() {
+    Map<String, String>  metricGroupConfig = new HashMap<>();
+    metricGroupConfig.putAll(jobConfig);
+    metricGroupConfig.putAll(opConfig);
+    return metricGroupConfig;
   }
 
   @Override
@@ -48,72 +69,94 @@ public class StreamingRuntimeContext implements RuntimeContext {
   }
 
   @Override
-  public int getParallelism() {
-    return parallelism;
+  public int getTaskParallelism() {
+    return taskParallelism;
   }
 
   @Override
-  public Map<String, String> getConfig() {
-    return config;
+  public int getOperatorId() {
+    return operatorId;
+  }
+
+  @Override
+  public String getOperatorName() {
+    return operatorName;
   }
 
   @Override
   public Map<String, String> getJobConfig() {
-    return config;
+    return jobConfig;
   }
 
   @Override
-  public Long getCheckpointId() {
-    return checkpointId;
-  }
-
-  @Override
-  public void setCheckpointId(long checkpointId) {
-    if (this.keyStateBackend != null) {
-      this.keyStateBackend.setCheckpointId(checkpointId);
+  public Map<String, String> getOpConfig() {
+    if (opConfig != null) {
+      return opConfig;
     }
-    if (this.operatorStateBackend != null) {
-      this.operatorStateBackend.setCheckpointId(checkpointId);
-    }
-    this.checkpointId = checkpointId;
+    return new HashMap<>();
   }
 
   @Override
-  public void setCurrentKey(Object key) {
-    this.keyStateBackend.setCurrentKey(key);
+  public StateManager getStateManager() {
+    return stateManager;
   }
 
   @Override
-  public KeyStateBackend getKeyStateBackend() {
-    return keyStateBackend;
+  public void setStateManager(StateManager stateManager) {
+    this.stateManager = stateManager;
   }
 
   @Override
-  public void setKeyStateBackend(KeyStateBackend keyStateBackend) {
-    this.keyStateBackend = keyStateBackend;
+  public Object getCurrentKey() {
+    return this.currentKey;
   }
 
   @Override
-  public <T> ValueState<T> getValueState(ValueStateDescriptor<T> stateDescriptor) {
-    stateSanityCheck(stateDescriptor, this.keyStateBackend);
-    return this.keyStateBackend.getValueState(stateDescriptor);
+  public void setCurrentKey(Object currentKey) {
+    this.currentKey = currentKey;
+    stateManager.setCurrentKey(currentKey);
   }
 
   @Override
-  public <T> ListState<T> getListState(ListStateDescriptor<T> stateDescriptor) {
-    stateSanityCheck(stateDescriptor, this.keyStateBackend);
-    return this.keyStateBackend.getListState(stateDescriptor);
+  public <V> ValueState<V> getValueState(ValueStateDescriptor<V> stateDescriptor) {
+    return this.stateManager.getValueState(stateDescriptor);
   }
 
   @Override
-  public <S, T> MapState<S, T> getMapState(MapStateDescriptor<S, T> stateDescriptor) {
-    stateSanityCheck(stateDescriptor, this.keyStateBackend);
-    return this.keyStateBackend.getMapState(stateDescriptor);
+  public <V> ValueState<V> getNonKeyedValueState(ValueStateDescriptor<V> stateDescriptor) {
+    return this.stateManager.getNonKeyedValueState(stateDescriptor);
   }
 
-  protected void stateSanityCheck(
-      AbstractStateDescriptor stateDescriptor, AbstractKeyStateBackend backend) {
-    Preconditions.checkNotNull(stateDescriptor, "The state properties must not be null");
-    Preconditions.checkNotNull(backend, "backend must not be null");
+  @Override
+  public <K, V> KeyValueState<K, V> getKeyValueState(
+      KeyValueStateDescriptor<K, V> stateDescriptor) {
+    return this.stateManager.getKeyValueState(stateDescriptor);
+  }
+
+  @Override
+  public <K, V> KeyValueState<K, V> getNonKeyedKeyValueState(
+      KeyValueStateDescriptor<K, V> stateDescriptor) {
+    return this.stateManager.getNonKeyedKeyValueState(stateDescriptor);
+  }
+
+  @Override
+  public <K, UK, UV> KeyMapState<K, UK, UV> getKeyMapState(
+      KeyMapStateDescriptor<K, UK, UV> stateDescriptor) {
+    return this.stateManager.getKeyMapState(stateDescriptor);
+  }
+
+  @Override
+  public long getCheckpointId() {
+    return lastCheckpointId;
+  }
+
+  @Override
+  public void updateCheckpointId(long checkpointId) {
+    this.lastCheckpointId = checkpointId;
+  }
+
+  @Override
+  public MetricGroup getMetric() {
+    return metricGroup;
   }
 }

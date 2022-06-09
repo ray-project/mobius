@@ -68,8 +68,8 @@ public class GraphPbBuilder {
     executionVertexBuilder.setExecutionVertexIndex(executionVertex.getExecutionVertexIndex());
     executionVertexBuilder.setParallelism(executionVertex.getParallelism());
     executionVertexBuilder.setOperator(
-        ByteString.copyFrom(serializeOperator(executionVertex.getStreamOperator())));
-    executionVertexBuilder.setChained(isPythonChainedOperator(executionVertex.getStreamOperator()));
+        ByteString.copyFrom(serializeOperator(executionVertex.getOperator())));
+    executionVertexBuilder.setChained(isPythonChainedOperator(executionVertex.getOperator()));
     if (executionVertex.getActor() != null) {
       executionVertexBuilder.setWorkerActor(
           ByteString.copyFrom(((NativeActorHandle) (executionVertex.getActor())).toBytes()));
