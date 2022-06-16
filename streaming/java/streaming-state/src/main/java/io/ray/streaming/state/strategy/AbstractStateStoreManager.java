@@ -19,10 +19,9 @@
 package io.ray.streaming.state.strategy;
 
 import io.ray.streaming.state.StateException;
-import io.ray.streaming.state.StateStoreManager;
+import io.ray.streaming.state.store.StateStoreManager;
 import io.ray.streaming.state.StorageRecord;
 import io.ray.streaming.state.serialization.Serializer;
-import io.ray.streaming.state.store.KeyValueStore;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

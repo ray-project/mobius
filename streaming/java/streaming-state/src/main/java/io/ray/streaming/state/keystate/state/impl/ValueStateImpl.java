@@ -18,7 +18,6 @@
 
 package io.ray.streaming.state.keystate.state.impl;
 
-import io.ray.streaming.state.backend.KeyStateBackend;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
 import io.ray.streaming.state.keystate.state.ValueState;
 

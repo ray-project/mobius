@@ -18,8 +18,6 @@
 
 package io.ray.streaming.state.impl;
 
-import io.ray.streaming.state.backend.AbstractStateBackend;
-import io.ray.streaming.state.backend.StateBackendBuilder;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

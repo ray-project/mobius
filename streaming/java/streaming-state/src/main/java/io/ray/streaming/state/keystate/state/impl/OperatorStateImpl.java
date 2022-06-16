@@ -22,9 +22,7 @@ import static io.ray.streaming.state.config.ConfigKey.DELIMITER;
 
 import com.google.common.base.Preconditions;
 import io.ray.streaming.state.PartitionRecord;
-import io.ray.streaming.state.backend.AbstractKeyStateBackend;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

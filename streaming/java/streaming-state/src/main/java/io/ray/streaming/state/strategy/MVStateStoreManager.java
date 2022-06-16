@@ -20,7 +20,6 @@ package io.ray.streaming.state.strategy;
 
 import io.ray.streaming.state.StateException;
 import io.ray.streaming.state.StorageRecord;
-import io.ray.streaming.state.store.KeyValueStore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

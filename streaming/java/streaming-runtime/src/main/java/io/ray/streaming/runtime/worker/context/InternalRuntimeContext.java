@@ -1,7 +1,7 @@
 package io.ray.streaming.runtime.worker.context;
 
-import io.ray.state.manager.StateManager;
 import io.ray.streaming.api.context.RuntimeContext;
+import io.ray.streaming.state.keystate.StateManager;
 
 /**
  * Internal context including some operation.

@@ -18,12 +18,10 @@
 
 package io.ray.streaming.state.backend;
 
-import io.ray.streaming.state.keystate.KeyGroup;
+import io.ray.streaming.state.keystate.state.KeyValueState;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.desc.MapStateDescriptor;
+import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
-import io.ray.streaming.state.keystate.state.MapState;
 import io.ray.streaming.state.keystate.state.ValueState;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -206,99 +204,100 @@ public class KeyStateBackendTest {
 
   public void testGetMapState() {
     keyStateBackend.setCheckpointId(1l);
-    MapStateDescriptor<String, String> mapStateDescriptor =
-        MapStateDescriptor.build("map", String.class, String.class);
-    mapStateDescriptor.setTableName("kepler_hlg_ut");
-    MapState<String, String> mapState = keyStateBackend.getMapState(mapStateDescriptor);
+    KeyValueStateDescriptor<String, String> keyValueStateDescriptor =
+        KeyValueStateDescriptor.build("map", String.class, String.class);
+    keyValueStateDescriptor.setTableName("kepler_hlg_ut");
+    KeyValueState<String, String> keyValueState = keyStateBackend.getMapState(
+        keyValueStateDescriptor);
 
-    mapState.setCurrentKey("1");
-    mapState.put("hello1", "world1");
-    Assert.assertEquals(mapState.get("hello1"), "world1");
+    keyValueState.setCurrentKey("1");
+    keyValueState.put("hello1", "world1");
+    Assert.assertEquals(keyValueState.get("hello1"), "world1");
 
-    mapState.put("hello2", "world2");
-    Assert.assertEquals(mapState.get("hello2"), "world2");
-    Assert.assertEquals(mapState.get("hello1"), "world1");
-    Assert.assertEquals(mapState.get("hello3"), null);
+    keyValueState.put("hello2", "world2");
+    Assert.assertEquals(keyValueState.get("hello2"), "world2");
+    Assert.assertEquals(keyValueState.get("hello1"), "world1");
+    Assert.assertEquals(keyValueState.get("hello3"), null);
 
-    mapState.setCurrentKey("2");
-    // Assert.assertEquals(mapState.iterator(), (new HashMap()));
+    keyValueState.setCurrentKey("2");
+    // Assert.assertEquals(keyValueState.iterator(), (new HashMap()));
 
-    mapState.setCurrentKey("2");
-    mapState.put("eagle", "eagle-1");
-    mapState.setCurrentKey("1");
-    Assert.assertEquals(mapState.get("hello1"), "world1");
-    mapState.setCurrentKey("2");
-    Assert.assertEquals(mapState.get("eagle"), "eagle-1");
-    Assert.assertEquals(mapState.get("xxx"), null);
+    keyValueState.setCurrentKey("2");
+    keyValueState.put("eagle", "eagle-1");
+    keyValueState.setCurrentKey("1");
+    Assert.assertEquals(keyValueState.get("hello1"), "world1");
+    keyValueState.setCurrentKey("2");
+    Assert.assertEquals(keyValueState.get("eagle"), "eagle-1");
+    Assert.assertEquals(keyValueState.get("xxx"), null);
 
     keyStateBackend.rollBack(1);
-    mapState.setCurrentKey("1");
-    Assert.assertEquals(mapState.iterator(), (new HashMap()).entrySet().iterator());
-    mapState.setCurrentKey("2");
-    Assert.assertEquals(mapState.iterator(), (new HashMap()).entrySet().iterator());
+    keyValueState.setCurrentKey("1");
+    Assert.assertEquals(keyValueState.iterator(), (new HashMap()).entrySet().iterator());
+    keyValueState.setCurrentKey("2");
+    Assert.assertEquals(keyValueState.iterator(), (new HashMap()).entrySet().iterator());
 
-    mapState.setCurrentKey("1");
-    mapState.put("eagle", "eagle-1");
-    mapState.put("eagle-2", "eagle-3");
+    keyValueState.setCurrentKey("1");
+    keyValueState.put("eagle", "eagle-1");
+    keyValueState.put("eagle-2", "eagle-3");
     keyStateBackend.finish(1);
 
     keyStateBackend.setCheckpointId(2);
-    mapState.setCurrentKey("2");
-    mapState.put("tim", "tina");
+    keyValueState.setCurrentKey("2");
+    keyValueState.put("tim", "tina");
 
-    mapState.setCurrentKey("2-1");
-    mapState.put("jim", "tick");
+    keyValueState.setCurrentKey("2-1");
+    keyValueState.put("jim", "tick");
     keyStateBackend.finish(2);
 
     keyStateBackend.setCheckpointId(3);
-    mapState.setCurrentKey("3");
-    mapState.put("lucy", "ja");
+    keyValueState.setCurrentKey("3");
+    keyValueState.put("lucy", "ja");
     keyStateBackend.finish(3);
 
     keyStateBackend.setCheckpointId(4);
-    mapState.setCurrentKey("4");
-    mapState.put("eric", "sam");
+    keyValueState.setCurrentKey("4");
+    keyValueState.put("eric", "sam");
     keyStateBackend.finish(4);
 
     keyStateBackend.setCheckpointId(5);
-    mapState.setCurrentKey("4");
-    mapState.put("eric-1", "zxy");
-    Assert.assertEquals(mapState.get("eric-1"), "zxy");
-    Assert.assertEquals(mapState.get("eric"), "sam");
+    keyValueState.setCurrentKey("4");
+    keyValueState.put("eric-1", "zxy");
+    Assert.assertEquals(keyValueState.get("eric-1"), "zxy");
+    Assert.assertEquals(keyValueState.get("eric"), "sam");
 
-    mapState.setCurrentKey("5");
-    mapState.put("jack", "zhang");
+    keyValueState.setCurrentKey("5");
+    keyValueState.put("jack", "zhang");
     keyStateBackend.finish(5);
     keyStateBackend.commit(5);
 
     keyStateBackend.setCheckpointId(6);
-    mapState.setCurrentKey("5");
-    Assert.assertEquals(mapState.get("jack"), "zhang");
-    mapState.put("hlll", "gggg");
+    keyValueState.setCurrentKey("5");
+    Assert.assertEquals(keyValueState.get("jack"), "zhang");
+    keyValueState.put("hlll", "gggg");
 
-    mapState.setCurrentKey("4");
-    Assert.assertEquals(mapState.get("eric-1"), "zxy");
-    Assert.assertEquals(mapState.get("eric"), "sam");
+    keyValueState.setCurrentKey("4");
+    Assert.assertEquals(keyValueState.get("eric-1"), "zxy");
+    Assert.assertEquals(keyValueState.get("eric"), "sam");
 
-    mapState.setCurrentKey(4);
-    mapState.put("if-ttt", "if-ggg");
-    Assert.assertEquals(mapState.get("if-ttt"), "if-ggg");
+    keyValueState.setCurrentKey(4);
+    keyValueState.put("if-ttt", "if-ggg");
+    Assert.assertEquals(keyValueState.get("if-ttt"), "if-ggg");
 
     keyStateBackend.setCheckpointId(7);
-    mapState.setCurrentKey(9);
-    mapState.put("6666", "7777");
+    keyValueState.setCurrentKey(9);
+    keyValueState.put("6666", "7777");
 
     keyStateBackend.rollBack(5);
     keyStateBackend.setCheckpointId(6);
-    mapState.setCurrentKey("4");
-    Assert.assertEquals(mapState.get("eric-1"), "zxy");
-    Assert.assertEquals(mapState.get("eric"), "sam");
-    Assert.assertNull(mapState.get("if-ttt"));
+    keyValueState.setCurrentKey("4");
+    Assert.assertEquals(keyValueState.get("eric-1"), "zxy");
+    Assert.assertEquals(keyValueState.get("eric"), "sam");
+    Assert.assertNull(keyValueState.get("if-ttt"));
 
-    mapState.setCurrentKey("5");
-    Assert.assertNull(mapState.get("hlll"));
-    mapState.setCurrentKey("9");
-    Assert.assertNull(mapState.get("6666"));
+    keyValueState.setCurrentKey("5");
+    Assert.assertNull(keyValueState.get("hlll"));
+    keyValueState.setCurrentKey("9");
+    Assert.assertNull(keyValueState.get("6666"));
   }
 
   @Test

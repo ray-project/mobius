@@ -18,9 +18,7 @@
 
 package io.ray.streaming.state.keystate.state.impl;
 
-import io.ray.streaming.state.backend.AbstractKeyStateBackend;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
 import java.util.ArrayList;
 import java.util.List;
 

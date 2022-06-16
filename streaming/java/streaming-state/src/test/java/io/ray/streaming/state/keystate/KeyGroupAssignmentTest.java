@@ -20,6 +20,7 @@ package io.ray.streaming.state.keystate;
 
 import static org.testng.Assert.assertEquals;
 
+import io.ray.streaming.state.util.KeyGroupAssignment;
 import org.testng.annotations.Test;
 
 public class KeyGroupAssignmentTest {

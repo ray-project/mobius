@@ -1,18 +1,13 @@
 package io.ray.streaming.runtime.worker.context;
 
-import com.google.common.base.Preconditions;
-import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
-import io.ray.streaming.state.backend.AbstractKeyStateBackend;
-import io.ray.streaming.state.backend.KeyStateBackend;
-import io.ray.streaming.state.backend.OperatorStateBackend;
-import io.ray.streaming.state.keystate.desc.AbstractStateDescriptor;
-import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.desc.MapStateDescriptor;
+import io.ray.streaming.state.keystate.StateManager;
+import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
+import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
-import io.ray.streaming.state.keystate.state.MapState;
+import io.ray.streaming.state.keystate.state.KeyMapState;
+import io.ray.streaming.state.keystate.state.KeyValueState;
 import io.ray.streaming.state.keystate.state.ValueState;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +33,7 @@ public class StreamingRuntimeContext implements InternalRuntimeContext {
    */
   protected transient StateManager stateManager;
 
-  public StreamRuntimeContext(ExecutionVertex executionVertex, long checkpointId) {
+  public StreamingRuntimeContext(ExecutionVertex executionVertex, long checkpointId) {
     this.taskId = executionVertex.getExecutionVertexId();
     this.taskIndex = executionVertex.getExecutionVertexIndex();
     this.taskParallelism = executionVertex.getParallelism();
@@ -125,6 +120,12 @@ public class StreamingRuntimeContext implements InternalRuntimeContext {
   @Override
   public <V> ValueState<V> getNonKeyedValueState(ValueStateDescriptor<V> stateDescriptor) {
     return this.stateManager.getNonKeyedValueState(stateDescriptor);
+  }
+
+  @Override
+  public <K, V> KeyValueState<K, V> getNonKeyedMapState(
+      KeyValueStateDescriptor<K, V> stateDescriptor) {
+    return null;
   }
 
   @Override

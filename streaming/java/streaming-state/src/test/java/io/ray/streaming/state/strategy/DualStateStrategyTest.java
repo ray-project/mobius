@@ -19,17 +19,13 @@
 package io.ray.streaming.state.strategy;
 
 import com.google.common.collect.Lists;
-import io.ray.streaming.state.backend.BackendType;
-import io.ray.streaming.state.backend.KeyStateBackend;
-import io.ray.streaming.state.backend.StateBackendBuilder;
+import io.ray.streaming.state.backend.StateBackendType;
 import io.ray.streaming.state.backend.StateStrategy;
 import io.ray.streaming.state.config.ConfigKey;
-import io.ray.streaming.state.keystate.KeyGroup;
+import io.ray.streaming.state.keystate.state.KeyValueState;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.desc.MapStateDescriptor;
+import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
-import io.ray.streaming.state.keystate.state.MapState;
 import io.ray.streaming.state.keystate.state.ValueState;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -308,10 +304,11 @@ public class DualStateStrategyTest {
   }
 
   public void caseKMap() {
-    MapStateDescriptor<Integer, Integer> mapStateDescriptor =
-        MapStateDescriptor.build("MAP-" + currentTime, Integer.class, Integer.class);
-    mapStateDescriptor.setTableName(table);
-    MapState<Integer, Integer> state = this.keyStateBackend.getMapState(mapStateDescriptor);
+    KeyValueStateDescriptor<Integer, Integer> keyValueStateDescriptor =
+        KeyValueStateDescriptor.build("MAP-" + currentTime, Integer.class, Integer.class);
+    keyValueStateDescriptor.setTableName(table);
+    KeyValueState<Integer, Integer> state = this.keyStateBackend.getMapState(
+        keyValueStateDescriptor);
 
     this.keyStateBackend.setCheckpointId(1l);
 
@@ -422,7 +419,7 @@ public class DualStateStrategyTest {
 
   @Test
   public void testMem() {
-    config.put(ConfigKey.STATE_BACKEND_TYPE, BackendType.MEMORY.name());
+    config.put(ConfigKey.STATE_BACKEND_TYPE, StateBackendType.MEMORY.name());
     this.keyStateBackend =
         new KeyStateBackend(10, new KeyGroup(1, 3), StateBackendBuilder.buildStateBackend(config));
     caseKV();

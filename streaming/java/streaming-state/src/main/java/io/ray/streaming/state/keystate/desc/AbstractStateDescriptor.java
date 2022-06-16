@@ -33,7 +33,7 @@ public abstract class AbstractStateDescriptor<S extends State, T> {
     this.type = type;
   }
 
-  public String getName() {
+  public String getStateName() {
     return name;
   }
 
@@ -84,6 +84,9 @@ public abstract class AbstractStateDescriptor<S extends State, T> {
     LIST,
 
     /** map state */
-    MAP
+    MAP,
+
+    /** map state */
+    KEY_MAP
   }
 }

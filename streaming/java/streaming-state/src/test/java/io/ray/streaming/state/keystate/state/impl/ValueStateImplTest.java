@@ -18,9 +18,7 @@
 
 package io.ray.streaming.state.keystate.state.impl;
 
-import io.ray.streaming.state.backend.KeyStateBackend;
-import io.ray.streaming.state.backend.impl.MemoryStateBackend;
-import io.ray.streaming.state.keystate.KeyGroup;
+import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
 import java.util.HashMap;
 import org.testng.Assert;

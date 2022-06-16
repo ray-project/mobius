@@ -18,8 +18,7 @@
 
 package io.ray.streaming.state.keystate.state.impl;
 
-import io.ray.streaming.state.backend.OperatorStateBackend;
-import io.ray.streaming.state.backend.impl.MemoryStateBackend;
+import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
 import java.util.HashMap;
 import java.util.List;

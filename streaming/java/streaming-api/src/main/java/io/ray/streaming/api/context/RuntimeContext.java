@@ -1,7 +1,11 @@
 package io.ray.streaming.api.context;
 
 import io.ray.streaming.common.metric.MetricGroup;
+import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
+import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
+import io.ray.streaming.state.keystate.state.KeyMapState;
+import io.ray.streaming.state.keystate.state.KeyValueState;
 import io.ray.streaming.state.keystate.state.ValueState;
 import java.util.Map;
 
@@ -89,7 +93,7 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> KeyValueState<K, V> getKeyValueState(KeyValueStateDescriptor<K, V> stateDescriptor);
+  <K, V> KeyValueState<K, V> getMapState(KeyValueStateDescriptor<K, V> stateDescriptor);
 
   /**
    * Get state of key-value type(nonKeyed).
@@ -99,7 +103,7 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> KeyValueState<K, V> getNonKeyedKeyValueState(
+  <K, V> KeyValueState<K, V> getNonKeyedMapState(
       KeyValueStateDescriptor<K, V> stateDescriptor);
 
   /**

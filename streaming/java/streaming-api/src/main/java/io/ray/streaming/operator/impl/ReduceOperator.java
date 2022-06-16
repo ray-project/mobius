@@ -8,13 +8,10 @@ import io.ray.streaming.message.Record;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
 import io.ray.streaming.operator.OneInputOperator;
-import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ReduceOperator<K, T> extends AbstractStreamOperator<ReduceFunction<T>>
     implements OneInputOperator<T> {
@@ -36,7 +33,7 @@ public class ReduceOperator<K, T> extends AbstractStreamOperator<ReduceFunction<
   public void open(List<Collector> collectorList, RuntimeContext runtimeContext) {
     super.open(collectorList, runtimeContext);
     this.reduceState =
-        this.runtimeContext.getKeyValueState(
+        this.runtimeContext.getMapState(
             KeyValueStateDescriptor.build(getName() + "-reduce", Object.class, this.valueClass));
   }
 

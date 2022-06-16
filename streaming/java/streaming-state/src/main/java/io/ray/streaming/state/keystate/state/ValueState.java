@@ -19,12 +19,16 @@
 package io.ray.streaming.state.keystate.state;
 
 /** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+public interface ValueState<V> extends HiddenKeyState {
+
+  /**
+   * get the value
+   */
+  V value() throws Exception;
 
   /**
    * update the value
-   *
-   * @param value the new value
    */
-  void update(T value);
+  void update(V value) throws Exception;
 }
+

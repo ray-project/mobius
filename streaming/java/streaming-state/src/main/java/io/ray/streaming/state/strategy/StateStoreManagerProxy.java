@@ -18,11 +18,9 @@
 
 package io.ray.streaming.state.strategy;
 
-import io.ray.streaming.state.StateStoreManager;
-import io.ray.streaming.state.backend.AbstractKeyStateBackend;
+import io.ray.streaming.state.store.StateStoreManager;
 import io.ray.streaming.state.backend.StateStrategy;
 import io.ray.streaming.state.keystate.desc.AbstractStateDescriptor;
-import io.ray.streaming.state.store.KeyValueStore;
 import java.util.Map;
 
 /**

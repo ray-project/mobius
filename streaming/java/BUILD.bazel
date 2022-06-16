@@ -55,7 +55,6 @@ define_java_module(
         "@maven//:org_yaml_snakeyaml",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:org_apache_arrow_arrow_vector",
-        "@ray_streaming_maven//:io_ant_ray_state",
     ],
     visibility = ["//visibility:public"],
     deps = [
@@ -71,7 +70,6 @@ define_java_module(
         "@ray_streaming_maven//:com_google_code_gson_gson",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:org_apache_arrow_arrow_vector",
-        "@ray_streaming_maven//:io_ant_ray_state",
     ],
 )
 
@@ -113,6 +111,7 @@ define_java_module(
     name = "streaming-state",
     define_test_lib = True,
     test_deps = [
+        ":io_ray_ray_streaming-common",
         ":io_ray_ray_streaming-state",
         "@maven//:com_google_guava_guava",
         "@maven//:org_apache_logging_log4j_log4j_api",
@@ -124,9 +123,11 @@ define_java_module(
         "@maven//:org_yaml_snakeyaml",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:org_mockito_mockito_all",
+        "@ray_streaming_maven//:org_aeonbits_owner_owner",
     ],
     visibility = ["//visibility:public"],
     deps = [
+        ":io_ray_ray_streaming-common",
         "@maven//:com_google_guava_guava",
         "@maven//:de_ruedigermoeller_fst",
         "@maven//:org_apache_logging_log4j_log4j_api",
@@ -134,6 +135,7 @@ define_java_module(
         "@maven//:org_apache_logging_log4j_log4j_slf4j_impl",
         "@maven//:org_slf4j_slf4j_api",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
+        "@ray_streaming_maven//:org_aeonbits_owner_owner",
     ],
 )
 

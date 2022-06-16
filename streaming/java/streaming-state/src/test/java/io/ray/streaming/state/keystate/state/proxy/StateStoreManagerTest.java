@@ -18,9 +18,7 @@
 
 package io.ray.streaming.state.keystate.state.proxy;
 
-import io.ray.streaming.state.backend.KeyStateBackend;
-import io.ray.streaming.state.backend.impl.MemoryStateBackend;
-import io.ray.streaming.state.keystate.KeyGroup;
+import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import java.util.HashMap;
 
 public class StateStoreManagerTest {
