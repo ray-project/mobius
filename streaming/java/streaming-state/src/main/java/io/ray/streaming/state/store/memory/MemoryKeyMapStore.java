@@ -21,7 +21,6 @@ package io.ray.streaming.state.store.memory;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.keystate.state.KeyMapState;
-import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,7 +36,6 @@ public class MemoryKeyMapStore<K, UK, UV> extends AbstractMemoryStore implements
   public MemoryKeyMapStore(MemoryStateBackend backend,
       String jobName,
       String stateName,
-      TypeSerializer typeSerializer,
       MetricGroup metricGroup) {
 
     super(jobName, stateName, metricGroup);

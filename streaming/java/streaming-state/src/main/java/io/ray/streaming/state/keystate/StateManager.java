@@ -3,13 +3,11 @@ package io.ray.streaming.state.keystate;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
 import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
-import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
 import io.ray.streaming.state.keystate.state.KeyMapState;
 import io.ray.streaming.state.keystate.state.KeyValueState;
 import io.ray.streaming.state.keystate.state.State;
 import io.ray.streaming.state.keystate.state.ValueState;
-import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,18 +43,7 @@ public class StateManager extends AbstractStateManager implements Serializable {
                       final int taskIndex,
                       final Map<String, String> config,
                       final MetricGroup metricGroup) {
-
-    this(jobName, stateName, taskParallelism, taskIndex, config, null, metricGroup);
-  }
-
-  public StateManager(final String jobName,
-                      final String stateName,
-                      final int taskParallelism,
-                      final int taskIndex,
-                      final Map<String, String> config,
-                      final TypeSerializerConfig serializerConfig,
-                      final MetricGroup metricGroup) {
-    super(jobName, stateName, taskParallelism, taskIndex, config, serializerConfig, metricGroup);
+    super(jobName, stateName, taskParallelism, taskIndex, config, metricGroup);
 
     LOG.info("StateManager init success, jobName: {}, stateName: {}, taskParallelism: {}, " +
             "taskIndex: {}, maxParallelism: {}, state config: {}.",

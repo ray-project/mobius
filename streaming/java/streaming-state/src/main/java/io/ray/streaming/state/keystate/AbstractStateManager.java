@@ -15,7 +15,6 @@ import io.ray.streaming.state.keystate.state.ValueState;
 import io.ray.streaming.state.store.StateStoreFactory;
 import io.ray.streaming.state.store.StoreManager;
 import io.ray.streaming.state.store.StoreStatus;
-import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import io.ray.streaming.state.util.KeyGroup;
 import io.ray.streaming.state.util.KeyGroupAssignment;
 import java.util.Map;
@@ -38,12 +37,10 @@ public abstract class AbstractStateManager {
   protected final int maxShard;
   protected final Map<String, String> config;
   protected final StateConfig stateConfig;
-  private final TypeSerializerConfig serializerConfig;
   private final MetricGroup metricGroup;
   protected KeyGroup keyGroup;
   protected StoreManager stateStoreManager;
 
-  private boolean useAccessor;
   //for value state
   private Object currentKey;
 
@@ -52,7 +49,6 @@ public abstract class AbstractStateManager {
       final int taskParallelism,
       final int taskIndex,
       final Map<String, String> config,
-      final TypeSerializerConfig serializerConfig,
       final MetricGroup metricGroup) {
 
     LOG.info("Begin creating RayState.");
@@ -77,8 +73,6 @@ public abstract class AbstractStateManager {
         taskIndex);
 
     this.metricGroup = metricGroup;
-
-    this.serializerConfig = serializerConfig;
   }
 
   public Object getCurrentKey() {
@@ -141,8 +135,7 @@ public abstract class AbstractStateManager {
       synchronized (lock) {
         if (stateStoreManager == null) {
           stateStoreManager = StateStoreFactory.build(stateConfig.stateBackendType(),
-              jobName, operatorName, taskIndex, keyGroup, config, metricGroup,
-              serializerConfig);
+              jobName, operatorName, taskIndex, keyGroup, config, metricGroup);
         }
       }
     }

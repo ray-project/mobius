@@ -3,7 +3,6 @@ package io.ray.streaming.state.store;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.backend.StateBackendType;
 import io.ray.streaming.state.store.memory.MemoryStoreManager;
-import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import io.ray.streaming.state.util.KeyGroup;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -19,8 +18,7 @@ public class StateStoreFactory {
                                    final int taskIndex,
                                    final KeyGroup keyGroupRange,
                                    final Map<String, String> config,
-                                   final MetricGroup metricGroup,
-                                   final TypeSerializerConfig serializerConfig) {
+                                   final MetricGroup metricGroup) {
 
     LOG.info("Begin create {} store manager", backendType.name());
     switch (backendType) {

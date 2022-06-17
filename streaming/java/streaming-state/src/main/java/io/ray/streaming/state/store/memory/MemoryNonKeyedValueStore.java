@@ -2,7 +2,6 @@ package io.ray.streaming.state.store.memory;
 
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.backend.memory.MemoryStateBackend;
-import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,10 +12,9 @@ public class MemoryNonKeyedValueStore<V> extends MemoryValueStore<V> {
   public MemoryNonKeyedValueStore(MemoryStateBackend backend,
                                    String jobName,
                                    String stateName,
-                                   TypeSerializer typeSerializer,
                                    MetricGroup metricGroup,
                                    int stateKey) {
-    super(backend, jobName, stateName, typeSerializer, metricGroup);
+    super(backend, jobName, stateName, metricGroup);
   }
 
   @Override

@@ -3,7 +3,6 @@ package io.ray.streaming.state.store.memory;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.keystate.state.ValueState;
-import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ public class MemoryValueStore<V> extends AbstractMemoryStore implements ValueSta
   public MemoryValueStore(MemoryStateBackend backend,
                           String jobName,
                           String stateName,
-                          TypeSerializer typeSerializer,
                           MetricGroup metricGroup) {
     super(jobName, stateName, metricGroup);
 

@@ -54,7 +54,6 @@ public class MemoryStoreManager implements StoreManager, NonKeyedAble {
     MemoryKeyValueStore<K, V> keyValueStore = new MemoryKeyValueStore<>(memoryStateBackend,
         jobName,
         stateName,
-        null,
         metricGroup);
 
     storeList.add(keyValueStore);
@@ -68,7 +67,6 @@ public class MemoryStoreManager implements StoreManager, NonKeyedAble {
     MemoryNonKeyedKeyValueStore<K, V> nonKeyedKeyValueStore = new MemoryNonKeyedKeyValueStore<>(memoryStateBackend,
             jobName,
             stateName,
-            null,
             metricGroup,
             getUniqueStateKey());
 
@@ -83,7 +81,6 @@ public class MemoryStoreManager implements StoreManager, NonKeyedAble {
     MemoryKeyMapStore<K, UK, UV> keyMapState = new MemoryKeyMapStore<>(memoryStateBackend,
         jobName,
         stateName,
-        null,
         metricGroup);
 
     storeList.add(keyMapState);
@@ -96,7 +93,6 @@ public class MemoryStoreManager implements StoreManager, NonKeyedAble {
     MemoryValueStore<V> valueStore = new MemoryValueStore<>(memoryStateBackend,
         jobName,
         stateName,
-        null,
         metricGroup);
 
     storeList.add(valueStore);
@@ -109,7 +105,6 @@ public class MemoryStoreManager implements StoreManager, NonKeyedAble {
     MemoryNonKeyedValueStore<V> valueStore = new MemoryNonKeyedValueStore<>(memoryStateBackend,
             jobName,
             stateName,
-            null,
             metricGroup,
             getUniqueStateKey());
 
