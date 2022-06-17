@@ -62,4 +62,15 @@ public class RayUtils {
     }
     return nodeInfos;
   }
+
+  public static boolean isInClusterMode() {
+    if (Ray.isInitialized() && null != Ray.internal() && !Ray.getRuntimeContext().isSingleProcess()) {
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean externalTsdbEnabled() {
+    return null != System.getenv("ENABLE_TSDB_STATS");
+  }
 }

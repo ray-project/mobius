@@ -2,6 +2,7 @@ package io.ray.streaming.runtime.worker.context;
 
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
+import io.ray.streaming.runtime.util.MetricsUtils;
 import io.ray.streaming.state.keystate.StateManager;
 import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
 import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
