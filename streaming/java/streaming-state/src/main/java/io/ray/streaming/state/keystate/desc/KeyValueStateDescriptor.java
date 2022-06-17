@@ -22,7 +22,8 @@ import io.ray.streaming.state.keystate.state.KeyValueState;
 import java.util.Map;
 
 /** KeyValueStateDescriptor. */
-public class KeyValueStateDescriptor<K, V> extends AbstractStateDescriptor<KeyValueState<K, V>, Map<K, V>> {
+public class KeyValueStateDescriptor<K, V> extends
+    AbstractStateDescriptor<KeyValueState<K, V>, Map<K, V>> {
 
   public KeyValueStateDescriptor(String name, Class<K> keyType, Class<V> valueType) {
     super(name, null);

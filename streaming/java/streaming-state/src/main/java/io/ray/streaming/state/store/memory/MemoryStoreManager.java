@@ -1,6 +1,8 @@
 package io.ray.streaming.state.store.memory;
 
 import io.ray.streaming.common.metric.MetricGroup;
+import io.ray.streaming.state.RollbackSnapshotResult;
+import io.ray.streaming.state.SnapshotResult;
 import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
 import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
@@ -12,8 +14,6 @@ import io.ray.streaming.state.keystate.state.NonKeyedAble;
 import io.ray.streaming.state.keystate.state.ValueState;
 import io.ray.streaming.state.store.Store;
 import io.ray.streaming.state.store.StoreManager;
-import io.ray.streaming.state.RollbackSnapshotResult;
-import io.ray.streaming.state.SnapshotResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,9 @@ public class MemoryStoreManager implements StoreManager, NonKeyedAble {
   @Override
   public <K, V> KeyValueState<K, V> buildNonKeyedKeyValueStore(
           KeyValueStateDescriptor<K, V> descriptor) {
-    MemoryNonKeyedKeyValueStore<K, V> nonKeyedKeyValueStore = new MemoryNonKeyedKeyValueStore<>(memoryStateBackend,
+    MemoryNonKeyedKeyValueStore<K, V> nonKeyedKeyValueStore =
+        new MemoryNonKeyedKeyValueStore<>(
+            memoryStateBackend,
             jobName,
             stateName,
             metricGroup,

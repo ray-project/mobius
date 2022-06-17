@@ -49,8 +49,8 @@ public class KeyGroup implements Serializable {
 
   /**
    * Serialize KeyGroup to String
-   * @param keyGroup
-   * @return
+   * @param keyGroup keyGroup
+   * @return serialize result, the format is as below
    */
   public static String serialize(KeyGroup keyGroup) {
     return String.join("_",
@@ -61,8 +61,8 @@ public class KeyGroup implements Serializable {
 
   /**
    * Deserialize String to KeyGroup
-   * @param serializeStr
-   * @return
+   * @param serializeStr the input string that needs to be deserialized
+   * @return the deserialized result in KeyGroup format
    */
   public static KeyGroup deserialize(String serializeStr) {
     String[] args = serializeStr.split("_");

@@ -51,7 +51,8 @@ public class StateManager extends AbstractStateManager implements Serializable {
   }
 
   @Override
-  public <K, V> KeyValueState<K, V> getKeyValueState(KeyValueStateDescriptor<K, V> stateDescriptor) {
+  public <K, V> KeyValueState<K, V> getKeyValueState(
+      KeyValueStateDescriptor<K, V> stateDescriptor) {
     LOG.info("Get key value state, descriptor: {}, state map: {}.", stateDescriptor, stateMap);
     if (stateMap.containsKey(stateDescriptor.getStateName())) {
       return (KeyValueState<K, V>) stateMap.get(stateDescriptor.getStateName());

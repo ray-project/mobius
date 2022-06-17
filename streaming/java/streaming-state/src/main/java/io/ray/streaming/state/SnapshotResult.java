@@ -8,7 +8,7 @@ public class SnapshotResult {
 
   public boolean result;
 
-  public SnapshotResult() {};
+  public SnapshotResult() {} ;
 
   public SnapshotResult(long snapshotId, boolean result) {
     this.snapshotId = snapshotId;

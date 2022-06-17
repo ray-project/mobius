@@ -17,8 +17,11 @@ public class AbstractMemoryStore implements Store {
   public AbstractMemoryStore(String jobName, String stateName, MetricGroup metricGroup) {
     this.metricGroup = metricGroup;
     Map<String, String> metricTags = ImmutableMap.of("stateName", stateName);
-    this.writeMeter = metricGroup.getMeter(MetricConstant.STATE_WRITE_COUNT_METRIC_NAME, metricTags);
-    this.readMeter = metricGroup.getMeter(MetricConstant.STATE_READ_COUNT_METRIC_NAME, metricTags);
-    this.deleteMeter = metricGroup.getMeter(MetricConstant.STATE_DELETE_COUNT_METRIC_NAME, metricTags);
+    this.writeMeter =
+        metricGroup.getMeter(MetricConstant.STATE_WRITE_COUNT_METRIC_NAME, metricTags);
+    this.readMeter =
+        metricGroup.getMeter(MetricConstant.STATE_READ_COUNT_METRIC_NAME, metricTags);
+    this.deleteMeter =
+        metricGroup.getMeter(MetricConstant.STATE_DELETE_COUNT_METRIC_NAME, metricTags);
   }
 }

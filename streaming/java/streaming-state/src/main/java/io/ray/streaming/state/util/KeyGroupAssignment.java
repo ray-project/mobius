@@ -91,9 +91,9 @@ public final class KeyGroupAssignment {
   }
 
   /**
-   * Converts a byte array to a unsigned short value (KeyGroupId)
+   * Converts a byte array to an unsigned short value (KeyGroupId)
    * @param bytes the byte array
-   * @return
+   * @return KeyGroupId
    */
   public static int bytesToKeyGroup(byte[] bytes) {
     return bytesToKeyGroup(bytes, 0);
@@ -103,7 +103,7 @@ public final class KeyGroupAssignment {
     int n = 0;
     n ^= bytes[offset] & 0xFF;
     n <<= 8;
-    n ^= bytes[offset+1] & 0xFF;
+    n ^= bytes[offset + 1] & 0xFF;
     return n;
   }
 }

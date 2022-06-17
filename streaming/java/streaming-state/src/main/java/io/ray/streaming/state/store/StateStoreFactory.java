@@ -23,7 +23,7 @@ public class StateStoreFactory {
     LOG.info("Begin create {} store manager", backendType.name());
     switch (backendType) {
       case MEMORY:
-        return new MemoryStoreManager(jobName, stateName,config, metricGroup);
+        return new MemoryStoreManager(jobName, stateName, config, metricGroup);
       default:
         throw new UnsupportedOperationException("Current support backend type: [MEMORY]. "
             + "Not found" + backendType + "type.");
