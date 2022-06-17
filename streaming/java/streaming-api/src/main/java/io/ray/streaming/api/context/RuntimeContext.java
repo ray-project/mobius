@@ -93,7 +93,7 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> KeyValueState<K, V> getMapState(KeyValueStateDescriptor<K, V> stateDescriptor);
+  <K, V> KeyValueState<K, V> getKeyValueState(KeyValueStateDescriptor<K, V> stateDescriptor);
 
   /**
    * Get state of key-value type(nonKeyed).
@@ -103,7 +103,7 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> KeyValueState<K, V> getNonKeyedMapState(
+  <K, V> KeyValueState<K, V> getNonKeyedKeyValueState(
       KeyValueStateDescriptor<K, V> stateDescriptor);
 
   /**

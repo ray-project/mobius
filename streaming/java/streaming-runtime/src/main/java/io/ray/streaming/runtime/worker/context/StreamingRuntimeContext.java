@@ -123,12 +123,6 @@ public class StreamingRuntimeContext implements InternalRuntimeContext {
   }
 
   @Override
-  public <K, V> KeyValueState<K, V> getNonKeyedMapState(
-      KeyValueStateDescriptor<K, V> stateDescriptor) {
-    return null;
-  }
-
-  @Override
   public <K, V> KeyValueState<K, V> getKeyValueState(
       KeyValueStateDescriptor<K, V> stateDescriptor) {
     return this.stateManager.getKeyValueState(stateDescriptor);

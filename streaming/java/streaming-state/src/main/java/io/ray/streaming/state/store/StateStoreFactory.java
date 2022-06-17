@@ -2,7 +2,6 @@ package io.ray.streaming.state.store;
 
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.backend.StateBackendType;
-import io.ray.streaming.state.memory.MemoryManager;
 import io.ray.streaming.state.store.memory.MemoryStoreManager;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import io.ray.streaming.state.util.KeyGroup;
@@ -20,7 +19,6 @@ public class StateStoreFactory {
                                    final int taskIndex,
                                    final KeyGroup keyGroupRange,
                                    final Map<String, String> config,
-                                   final MemoryManager memoryManager,
                                    final MetricGroup metricGroup,
                                    final TypeSerializerConfig serializerConfig) {
 

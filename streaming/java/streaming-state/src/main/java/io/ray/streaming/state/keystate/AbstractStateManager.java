@@ -12,7 +12,6 @@ import io.ray.streaming.state.keystate.state.KeyMapState;
 import io.ray.streaming.state.keystate.state.KeyValueState;
 import io.ray.streaming.state.keystate.state.State;
 import io.ray.streaming.state.keystate.state.ValueState;
-import io.ray.streaming.state.memory.MemoryManager;
 import io.ray.streaming.state.store.StateStoreFactory;
 import io.ray.streaming.state.store.StoreManager;
 import io.ray.streaming.state.store.StoreStatus;
@@ -39,13 +38,11 @@ public abstract class AbstractStateManager {
   protected final int maxShard;
   protected final Map<String, String> config;
   protected final StateConfig stateConfig;
-  private final MemoryManager memoryManager;
   private final TypeSerializerConfig serializerConfig;
   private final MetricGroup metricGroup;
   protected KeyGroup keyGroup;
   protected StoreManager stateStoreManager;
-  //TODO
-  private Accessor accessor;
+
   private boolean useAccessor;
   //for value state
   private Object currentKey;
@@ -81,8 +78,6 @@ public abstract class AbstractStateManager {
 
     this.metricGroup = metricGroup;
 
-    this.memoryManager = new MemoryManager(config);
-
     this.serializerConfig = serializerConfig;
   }
 
@@ -104,17 +99,13 @@ public abstract class AbstractStateManager {
    */
   public CompletableFuture<SnapshotResult> snapshot(long snapshotId) {
     LOG.info("Begin doing snapshot, snapshot id:{}.", snapshotId);
-    if (useAccessor) {
-      return accessor.snapshot(snapshotId);
+    if (stateStoreManager != null) {
+      return stateStoreManager.snapshot(snapshotId);
     } else {
-      if (stateStoreManager != null) {
-        return stateStoreManager.snapshot(snapshotId);
-      } else {
-        return CompletableFuture.supplyAsync(() -> {
-          LOG.warn("StateManager has not been initialized.");
-          return new SnapshotResult(snapshotId, true);
-        });
-      }
+      return CompletableFuture.supplyAsync(() -> {
+        LOG.warn("StateManager has not been initialized.");
+        return new SnapshotResult(snapshotId, true);
+      });
     }
   }
 
@@ -125,17 +116,13 @@ public abstract class AbstractStateManager {
    */
   public CompletableFuture<RollbackSnapshotResult> rollbackSnapshot(long snapshotId) {
     LOG.info("Begin doing rollback snapshot, snapshot id: {}.", snapshotId);
-    if (useAccessor) {
-      return accessor.rollback(snapshotId);
+    if (stateStoreManager != null) {
+      return stateStoreManager.rollbackSnapshot(snapshotId);
     } else {
-      if (stateStoreManager != null) {
-        return stateStoreManager.rollbackSnapshot(snapshotId);
-      } else {
-        return CompletableFuture.supplyAsync(() -> {
-          LOG.warn("StateManager has not been initialized.");
-          return new RollbackSnapshotResult(snapshotId, true);
-        });
-      }
+      return CompletableFuture.supplyAsync(() -> {
+        LOG.warn("StateManager has not been initialized.");
+        return new RollbackSnapshotResult(snapshotId, true);
+      });
     }
   }
 
@@ -144,12 +131,8 @@ public abstract class AbstractStateManager {
    */
   public void close() {
     LOG.info("State close.");
-    if (useAccessor) {
-      accessor.close();
-    } else {
-      if (stateStoreManager != null) {
-        stateStoreManager.close();
-      }
+    if (stateStoreManager != null) {
+      stateStoreManager.close();
     }
   }
 
@@ -158,7 +141,7 @@ public abstract class AbstractStateManager {
       synchronized (lock) {
         if (stateStoreManager == null) {
           stateStoreManager = StateStoreFactory.build(stateConfig.stateBackendType(),
-              jobName, operatorName, taskIndex, keyGroup, config, memoryManager, metricGroup,
+              jobName, operatorName, taskIndex, keyGroup, config, metricGroup,
               serializerConfig);
         }
       }
