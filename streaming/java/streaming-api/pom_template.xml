@@ -37,6 +37,10 @@
       <artifactId>streaming-state</artifactId>
       <version>${streaming.version}</version>
     </dependency>
+    <dependency>
+      <groupId>de.ruedigermoeller</groupId>
+      <artifactId>fst</artifactId>
+    </dependency>
     {generated_bzl_deps}
   </dependencies>
 </project>

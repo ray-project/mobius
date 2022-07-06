@@ -1,15 +1,12 @@
 package io.ray.streaming.operator.chain;
 
 import com.google.common.base.Preconditions;
-import io.ray.runtime.generated.Common;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.api.function.Function;
 import io.ray.streaming.common.enums.OperatorInputType;
-import io.ray.streaming.common.generated.Common;
 import io.ray.streaming.common.utils.CommonUtil;
-import io.ray.streaming.common.utils.UDCUtils;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.OneInputOperator;
 import io.ray.streaming.operator.StreamOperator;
@@ -36,10 +33,6 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
   private final List<Map<String, String>> opConfigs;
   private final Map<String, Double> resources;
   private String chainedOperatorName;
-
-  /* United Distributed Controller related fields. */
-  private Common.UnitedDistributedControlMessage preparedControlMsg;
-  private Common.UnitedDistributedControlMessage upStreamControlMessage;
 
   public ChainedOperator(
       List<StreamOperator> operators,
@@ -140,97 +133,6 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
   @Override
   public void close() {
     operators.forEach(StreamOperator::close);
-  }
-
-  /* UDC related start. */
-  private boolean prepareOnNonBlocking(Common.UnitedDistributedControlMessage controlMessage) {
-    // For-each the all operators directly.
-    for (int i = 0; i < getOperators().size(); i++) {
-      boolean prepareResult = getOperators().get(i).onPrepare(controlMessage);
-      if (!prepareResult) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean prepareOnBlocking(Common.UnitedDistributedControlMessage controlMessage) {
-    this.upStreamControlMessage = controlMessage;
-    Preconditions.checkState(
-        this.tailOperators.size() == 1,
-        "United Distributed Controller can't run well when a chained operator has multiple tail op.");
-    LOG.info(
-        "Chained op: {} receive a blocking msg, invoke head op's prepare phase firstly.",
-        this.getName());
-    return this.headOperator.onPrepare(controlMessage);
-  }
-
-  @Override
-  public boolean onPrepare(Common.UnitedDistributedControlMessage controlMessage) {
-    this.preparedControlMsg = controlMessage;
-    return controlMessage.getBlockingType()
-            == Common.UnitedDistributedControlMessage.BlockingType.NON_BLOCKING
-        ? prepareOnNonBlocking(controlMessage)
-        : prepareOnBlocking(controlMessage);
-  }
-
-  private Common.UnitedDistributedControlMessage commitOnNonBlocking() {
-    // For-each the al operators directly.
-    for (int i = 0; i < getOperators().size(); i++) {
-      Common.UnitedDistributedControlMessage commitResult = getOperators().get(i).onCommit();
-      if (commitResult != null && !commitResult.getCommitResult()) {
-        LOG.info(
-            "The operator: {} returned false when executing commit phase.",
-            getOperators().get(i).getName());
-        return commitResult;
-      }
-    }
-    LOG.info(
-        "The internal operators of current operator: {} were all executed commit phase.",
-        this.getName());
-    return UDCUtils.generateSimpleBooleanMsg(true);
-  }
-
-  private Common.UnitedDistributedControlMessage commitOnBlocking() {
-    // All control msg that come from all upstream operator have been received.
-    return getDownStreamOpControlMsg(this.headOperator);
-  }
-
-  /* Get the new control msg generated from down stream operators.  */
-  private Common.UnitedDistributedControlMessage getDownStreamOpControlMsg(
-      StreamOperator currentOperator) {
-
-    LOG.info("Chained op invoke the commit phase of op: {}", currentOperator.getName());
-    Common.UnitedDistributedControlMessage newControlMsg = currentOperator.onCommit();
-    if (newControlMsg == null) {
-      LOG.warn(
-          "Op: {} was not generate new control msg, will use the old.", currentOperator.getName());
-      newControlMsg = this.upStreamControlMessage;
-    }
-    if (currentOperator.getId() == this.tailOperators.iterator().next().getId()) {
-      LOG.info("Occurred the tail op of the current chained op, terminated.");
-      return newControlMsg;
-    }
-
-    Preconditions.checkState(
-        currentOperator.getNextOperators().size() == 1,
-        "United Distributed Controller can't run well when a chained operator has multiple tail op.");
-
-    StreamOperator nextOperator = currentOperator.getNextOperators().get(0);
-    LOG.info("Chained op invoke the prepare phase of op: {}", nextOperator.getName());
-    nextOperator.onPrepare(newControlMsg);
-
-    this.upStreamControlMessage = newControlMsg;
-
-    return getDownStreamOpControlMsg(nextOperator);
-  }
-
-  @Override
-  public Common.UnitedDistributedControlMessage onCommit() {
-    return this.preparedControlMsg.getBlockingType()
-            == Common.UnitedDistributedControlMessage.BlockingType.NON_BLOCKING
-        ? commitOnNonBlocking()
-        : commitOnBlocking();
   }
 
   @Override

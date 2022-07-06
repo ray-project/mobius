@@ -9,6 +9,7 @@ import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
 import io.ray.streaming.python.PythonPartition;
+import io.ray.streaming.util.TypeInference;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;
 import java.io.Serializable;

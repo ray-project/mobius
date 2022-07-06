@@ -2,8 +2,6 @@ package io.ray.streaming.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
-import io.ray.fury.types.TypeInference;
-import io.ray.fury.util.Tuple2;
 import io.ray.runtime.util.LambdaUtils;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.common.tuple.Tuple2;

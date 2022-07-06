@@ -1,8 +1,6 @@
 package io.ray.streaming.operator;
 
 import com.google.common.base.Preconditions;
-import io.ray.fury.types.TypeInference;
-import io.ray.fury.util.Tuple2;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.context.RuntimeContext;
@@ -11,6 +9,7 @@ import io.ray.streaming.api.function.RichFunction;
 import io.ray.streaming.api.function.internal.Functions;
 import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.message.KeyRecord;
+import io.ray.streaming.util.TypeInference;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;
 import java.util.ArrayList;

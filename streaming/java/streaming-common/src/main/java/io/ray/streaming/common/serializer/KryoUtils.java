@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.objenesis.strategy.StdInstantiatorStrategy;
@@ -123,14 +124,14 @@ public class KryoUtils {
   static class KryoNativeRayActorSerializer extends Serializer<NativeActorHandle> {
     @Override
     public void write(Kryo kryo, Output output, NativeActorHandle object) {
-      byte[] binary = io.ray.runtime.util.Serializer.encode(object);
-      kryo.writeObject(output, binary);
+      Pair<byte[], Boolean> binary = io.ray.runtime.serializer.Serializer.encode(object);
+      kryo.writeObject(output, binary.getLeft());
     }
 
     @Override
     public NativeActorHandle read(Kryo kryo, Input input, Class<NativeActorHandle> type) {
       byte[] binary = kryo.readObject(input, byte[].class);
-      return io.ray.runtime.util.Serializer.decode(binary);
+      return io.ray.runtime.serializer.Serializer.decode(binary, NativeActorHandle.class);
     }
   }
 
