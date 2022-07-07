@@ -18,13 +18,22 @@
 
 package io.ray.streaming.state.keystate.state;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+import java.util.List;
+
+/** ListState interface. */
+public interface ListState<T> extends UnaryState<List<T>> {
 
   /**
-   * update the value
+   * add the value to list
    *
    * @param value the new value
    */
-  void update(T value);
+  void add(T value);
+
+  /**
+   * update list state
+   *
+   * @param list the new value
+   */
+  void update(List<T> list);
 }

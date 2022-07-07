@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state;
+package io.ray.streaming.state.keystate.state.proxy;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+import io.ray.streaming.state.backend.KeyStateBackend;
+import io.ray.streaming.state.backend.memory.MemoryStateBackend;
+import io.ray.streaming.state.keystate.KeyGroup;
+import java.util.HashMap;
 
-  /**
-   * update the value
-   *
-   * @param value the new value
-   */
-  void update(T value);
+public class StateStoreManagerTest {
+
+  protected KeyStateBackend keyStateBackend =
+      new KeyStateBackend(
+          1, new KeyGroup(1, 1), new MemoryStateBackend(new HashMap<>()));
 }

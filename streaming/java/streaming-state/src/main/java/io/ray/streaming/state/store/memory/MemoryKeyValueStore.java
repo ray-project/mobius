@@ -18,91 +18,45 @@
 
 package io.ray.streaming.state.store.memory;
 
-import io.ray.streaming.common.metric.MetricGroup;
-import io.ray.streaming.state.backend.memory.MemoryStateBackend;
-import io.ray.streaming.state.keystate.state.KeyValueState;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.google.common.collect.Maps;
+import io.ray.streaming.state.store.KeyValueStore;
+import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 
-/**
- * Implementation of {@link KeyValueState} type state in Memory backend.
- *
- * @param <K> Key data type
- * @param <V> Value data type
- */
-public class MemoryKeyValueStore<K, V> extends AbstractMemoryStore implements KeyValueState<K, V> {
+/** Memory Key Value Store. */
+public class MemoryKeyValueStore<K, V> implements KeyValueStore<K, V> {
 
-  protected MemoryStateBackend backend;
-  protected Map<K, V> storeBackend = new HashMap<>();
+  private Map<K, V> memoryStore;
 
-  public MemoryKeyValueStore(MemoryStateBackend backend,
-      String jobName,
-      String stateName,
-      MetricGroup metricGroup) {
-
-    super(jobName, stateName, metricGroup);
-    this.backend = backend;
+  public MemoryKeyValueStore() {
+    this.memoryStore = Maps.newConcurrentMap();
   }
 
   @Override
-  public V get(K key) throws Exception {
-    readMeter.update(1);
-
-    return storeBackend.get(key);
+  public void put(K key, V value) throws IOException {
+    this.memoryStore.put(key, value);
   }
 
   @Override
-  public void put(K key, V value) throws Exception {
-    writeMeter.update(1);
-
-    storeBackend.put(key, value);
+  public V get(K key) throws IOException {
+    return this.memoryStore.get(key);
   }
 
   @Override
-  public void putAll(Map<K, V> map) throws Exception {
-    if (map == null) {
-      return;
+  public void remove(K key) throws IOException {
+    this.memoryStore.remove(key);
+  }
+
+  @Override
+  public void flush() throws IOException {}
+
+  @Override
+  public void clearCache() {}
+
+  @Override
+  public void close() throws IOException {
+    if (memoryStore != null) {
+      memoryStore.clear();
     }
-    writeMeter.update(map.size());
-
-    storeBackend.putAll(map);
-  }
-
-  @Override
-  public void remove(K key) throws Exception {
-    deleteMeter.update(1);
-    storeBackend.remove(key);
-  }
-
-  @Override
-  public boolean contains(K key) throws Exception {
-    return storeBackend.containsKey(key);
-  }
-
-  @Override
-  public Iterable<Entry<K, V>> entries() throws Exception {
-    return storeBackend.entrySet();
-  }
-
-  @Override
-  public Iterable<K> keys() throws Exception {
-    return storeBackend.keySet();
-  }
-
-  @Override
-  public Iterable<V> values() throws Exception {
-    return storeBackend.values();
-  }
-
-  @Override
-  public Iterator<Entry<K, V>> iterator() throws Exception {
-    return entries().iterator();
-  }
-
-  @Override
-  public void clear() {
-    storeBackend.clear();
   }
 }

@@ -16,15 +16,20 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state;
+package io.ray.streaming.state.keystate.desc;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-  /**
-   * update the value
-   *
-   * @param value the new value
-   */
-  void update(T value);
+public class MapStateDescriptorTest {
+
+  @Test
+  public void test() {
+    MapStateDescriptor<String, Integer> descriptor =
+        MapStateDescriptor.build("msdTest", String.class, Integer.class);
+
+    descriptor.setTableName("table");
+    Assert.assertEquals(descriptor.getTableName(), "table");
+    Assert.assertEquals(descriptor.getName(), "msdTest");
+  }
 }

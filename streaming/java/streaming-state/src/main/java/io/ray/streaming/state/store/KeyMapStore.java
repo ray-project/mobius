@@ -16,15 +16,17 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state;
+package io.ray.streaming.state.store;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+import java.io.IOException;
+import java.util.Map;
 
-  /**
-   * update the value
-   *
-   * @param value the new value
-   */
-  void update(T value);
+/** Key Map Store interface. */
+public interface KeyMapStore<K, S, T> extends KeyValueStore<K, Map<S, T>> {
+
+  /** put sub key value into the store incrementally. */
+  void put(K key, S subKey, T value) throws IOException;
+
+  /** get subValue from store. */
+  T get(K key, S subKey) throws IOException;
 }

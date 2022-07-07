@@ -16,52 +16,33 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state.impl;
+package io.ray.streaming.state.keystate.state.proxy;
 
 import io.ray.streaming.state.backend.AbstractKeyStateBackend;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
 import io.ray.streaming.state.keystate.state.ListState;
-import java.util.ArrayList;
+import io.ray.streaming.state.keystate.state.impl.ListStateImpl;
+import io.ray.streaming.state.keystate.state.impl.OperatorStateImpl;
+import io.ray.streaming.state.strategy.StateStoreManagerProxy;
 import java.util.List;
 
-/** ListState implementation. */
-public class ListStateImpl<V> implements ListState<V> {
+/** This class defines ListState Wrapper, connecting state and backend. */
+public class ListStateStoreManagerProxy<T> extends StateStoreManagerProxy<List<T>>
+    implements KeyValueState<String, List<T>> {
 
-  private final StateHelper<List<V>> helper;
+  private final ListState<T> listState;
 
-  public ListStateImpl(ListStateDescriptor<V> descriptor, AbstractKeyStateBackend backend) {
-    this.helper = new StateHelper<>(backend, descriptor);
-  }
-
-  @Override
-  public List<V> get() {
-    List<V> list = helper.get();
-    if (list == null) {
-      list = new ArrayList<>();
+  public ListStateStoreManagerProxy(
+      AbstractKeyStateBackend keyStateBackend, ListStateDescriptor<T> stateDescriptor) {
+    super(keyStateBackend, stateDescriptor);
+    if (stateDescriptor.isOperatorList()) {
+      this.listState = new OperatorStateImpl<>(stateDescriptor, keyStateBackend);
+    } else {
+      this.listState = new ListStateImpl<>(stateDescriptor, keyStateBackend);
     }
-    return list;
   }
 
-  @Override
-  public void add(V value) {
-    List<V> list = helper.get();
-    if (list == null) {
-      list = new ArrayList<>();
-    }
-    list.add(value);
-    helper.put(list);
-  }
-
-  @Override
-  public void update(List<V> list) {
-    if (list == null) {
-      list = new ArrayList<>();
-    }
-    helper.put(list);
-  }
-
-  @Override
-  public void setCurrentKey(Object currentKey) {
-    helper.setCurrentKey(currentKey);
+  public ListState<T> getListState() {
+    return this.listState;
   }
 }

@@ -19,6 +19,7 @@
 package io.ray.streaming.state.keystate.state.impl;
 
 import com.google.common.base.Preconditions;
+import io.ray.streaming.state.backend.AbstractKeyStateBackend;
 import io.ray.streaming.state.keystate.desc.AbstractStateDescriptor;
 
 /** State Helper Class. */

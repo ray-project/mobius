@@ -18,39 +18,35 @@
 
 package io.ray.streaming.state.backend.memory;
 
-import io.ray.streaming.state.backend.StateBackend;
-import java.util.concurrent.CompletableFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.ray.streaming.state.backend.AbstractStateBackend;
+import io.ray.streaming.state.serialization.KeyMapStoreSerializer;
+import io.ray.streaming.state.store.KeyMapStore;
+import io.ray.streaming.state.store.KeyValueStore;
+import io.ray.streaming.state.store.memory.MemoryKeyMapStore;
+import io.ray.streaming.state.store.memory.MemoryKeyValueStore;
+import java.util.Map;
 
 /** MemoryStateBackend. Supporting memory store. */
-public class MemoryStateBackend implements StateBackend {
-  private static final Logger LOG = LoggerFactory.getLogger(MemoryStateBackend.class);
+public class MemoryStateBackend extends AbstractStateBackend {
 
-  @Override
-  public void init() {
-    LOG.info("Finish init memory state backend.");
+  public MemoryStateBackend(Map<String, String> config) {
+    super(config);
   }
 
   @Override
-  public CompletableFuture<Boolean> snapshot(long snapshotId) {
-    return CompletableFuture.supplyAsync(() -> {
-      LOG.info("Memory store backend not support checkpoint.");
-      return false;
-    });
+  public <K, V> KeyValueStore<K, V> getKeyValueStore(String tableName) {
+    return new MemoryKeyValueStore<>();
   }
 
   @Override
-  public void rollbackSnapshot(long snapshotId) {
-    LOG.info("Memory store backend not support restore.");
+  public <K, S, T> KeyMapStore<K, S, T> getKeyMapStore(String tableName) {
+    return new MemoryKeyMapStore<>();
   }
 
   @Override
-  public boolean deleteSnapshot(long snapshotId) {
-    return true;
-  }
-
-  @Override
-  public void close() {
+  public <K, S, T> KeyMapStore<K, S, T> getKeyMapStore(
+      String tableName, KeyMapStoreSerializer keyMapStoreSerializer) {
+    return new MemoryKeyMapStore<>();
   }
 }

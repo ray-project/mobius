@@ -9,7 +9,7 @@ import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
 import io.ray.streaming.operator.OneInputOperator;
 import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.KeyValueState;
+import io.ray.streaming.state.keystate.state.proxy.KeyValueState;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;
 import java.lang.reflect.Type;

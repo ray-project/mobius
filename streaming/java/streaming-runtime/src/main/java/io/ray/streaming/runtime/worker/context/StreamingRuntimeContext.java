@@ -8,7 +8,7 @@ import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
 import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
 import io.ray.streaming.state.keystate.state.KeyMapState;
-import io.ray.streaming.state.keystate.state.KeyValueState;
+import io.ray.streaming.state.keystate.state.proxy.KeyValueState;
 import io.ray.streaming.state.keystate.state.ValueState;
 import java.util.HashMap;
 import java.util.Map;

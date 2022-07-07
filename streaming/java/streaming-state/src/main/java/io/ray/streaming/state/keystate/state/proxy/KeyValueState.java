@@ -16,15 +16,14 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state;
+package io.ray.streaming.state.keystate.state.proxy;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+/** Key Value State interface. */
+public interface KeyValueState<K, V> {
 
-  /**
-   * update the value
-   *
-   * @param value the new value
-   */
-  void update(T value);
+  /** get value from state */
+  V get(K key);
+
+  /** put key and value into state */
+  void put(K k, V v);
 }

@@ -16,15 +16,29 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state;
+package io.ray.streaming.state.store;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+import java.io.IOException;
+import java.io.Serializable;
 
-  /**
-   * update the value
-   *
-   * @param value the new value
-   */
-  void update(T value);
+/** Key Value Store interface. */
+public interface KeyValueStore<K, V> extends Serializable {
+
+  /** put key value into store. */
+  void put(K key, V value) throws IOException;
+
+  /** get value from store. */
+  V get(K key) throws IOException;
+
+  /** remove key in the store. */
+  void remove(K key) throws IOException;
+
+  /** flush to disk. */
+  void flush() throws IOException;
+
+  /** clear all cache. */
+  void clearCache();
+
+  /** close the store. */
+  void close() throws IOException;
 }

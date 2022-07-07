@@ -19,31 +19,65 @@
 package io.ray.streaming.state.keystate.state.impl;
 
 import io.ray.streaming.state.backend.KeyStateBackend;
-import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.ValueState;
+import io.ray.streaming.state.keystate.desc.MapStateDescriptor;
+import io.ray.streaming.state.keystate.state.MapState;
+import java.util.HashMap;
+import java.util.Map;
 
-/** ValueState implementation. */
-public class ValueStateImpl<T> implements ValueState<T> {
+/** MapState implementation. */
+public class MapStateImpl<K, V> implements MapState<K, V> {
 
-  private final StateHelper<T> helper;
+  private final StateHelper<Map<K, V>> helper;
 
-  public ValueStateImpl(ValueStateDescriptor<T> descriptor, KeyStateBackend backend) {
+  public MapStateImpl(MapStateDescriptor<K, V> descriptor, KeyStateBackend backend) {
     this.helper = new StateHelper<>(backend, descriptor);
   }
 
   @Override
-  public void update(T value) {
-    helper.put(value);
+  public Map<K, V> get() {
+    Map<K, V> map = helper.get();
+    if (map == null) {
+      map = new HashMap<>();
+    }
+    return map;
   }
 
   @Override
-  public T get() {
-    T value = helper.get();
-    if (null == value) {
-      return ((ValueStateDescriptor<T>) helper.getDescriptor()).getDefaultValue();
-    } else {
-      return value;
+  public V get(K key) {
+    Map<K, V> map = get();
+    return map.get(key);
+  }
+
+  @Override
+  public void put(K key, V value) {
+    Map<K, V> map = get();
+
+    map.put(key, value);
+    helper.put(map);
+  }
+
+  @Override
+  public void update(Map<K, V> map) {
+    if (map == null) {
+      map = new HashMap<>();
     }
+    helper.put(map);
+  }
+
+  @Override
+  public void putAll(Map<K, V> newMap) {
+    Map<K, V> map = get();
+
+    map.putAll(newMap);
+    helper.put(map);
+  }
+
+  @Override
+  public void remove(K key) {
+    Map<K, V> map = get();
+
+    map.remove(key);
+    helper.put(map);
   }
 
   /** set current key of the state */

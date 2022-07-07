@@ -18,15 +18,20 @@
 
 package io.ray.streaming.state.impl;
 
+import io.ray.streaming.state.backend.AbstractStateBackend;
+import io.ray.streaming.state.backend.StateBackendBuilder;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class MemoryKeyValueStoreTest {
 
+  private static final Logger LOG = LoggerFactory.getLogger(MemoryKeyValueStoreTest.class);
   private AbstractStateBackend stateBackend;
   private io.ray.streaming.state.store.KeyValueStore<String, String> KeyValueStore;
 
@@ -46,7 +51,7 @@ public class MemoryKeyValueStoreTest {
       Assert.assertEquals(KeyValueStore.get("hello"), "world1");
       Assert.assertNull(KeyValueStore.get("hello1"));
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("error", e);
     }
   }
 }

@@ -18,9 +18,12 @@
 
 package io.ray.streaming.state.store.memory;
 
+import com.google.common.collect.Maps;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.keystate.state.KeyMapState;
+import io.ray.streaming.state.store.KeyMapStore;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,134 +31,59 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class MemoryKeyMapStore<K, UK, UV> extends AbstractMemoryStore implements
-    KeyMapState<K, UK, UV> {
+/** Memory Key Map Store. */
+public class MemoryKeyMapStore<K, S, T> implements KeyMapStore<K, S, T> {
 
-  private Map<K, Map<UK, UV>> storeBackend = new ConcurrentHashMap<>();
+  private Map<K, Map<S, T>> memoryStore;
 
-  public MemoryKeyMapStore(MemoryStateBackend backend,
-      String jobName,
-      String stateName,
-      MetricGroup metricGroup) {
-
-    super(jobName, stateName, metricGroup);
+  public MemoryKeyMapStore() {
+    this.memoryStore = Maps.newConcurrentMap();
   }
 
   @Override
-  public UV get(K key, UK subKey) throws Exception {
-    readMeter.update(1);
-
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      return storeBackend.get(key).get(subKey);
-    }
-    return null;
+  public void put(K key, Map<S, T> value) throws IOException {
+    this.memoryStore.put(key, value);
   }
 
   @Override
-  public Map<UK, UV> multiGet(K key) throws Exception {
-    readMeter.update(1);
-
-    return storeBackend.get(key);
-  }
-
-  @Override
-  public void put(K key, UK subKey, UV subValue) throws Exception {
-    if (key == null || subKey == null) {
-      return;
-    }
-    writeMeter.update(1);
-
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      storeBackend.get(key).put(subKey, subValue);
+  public void put(K key, S subKey, T value) throws IOException {
+    if (memoryStore.containsKey(key)) {
+      memoryStore.get(key).put(subKey, value);
     } else {
-      Map<UK, UV> subMap = new HashMap<>();
-      subMap.put(subKey, subValue);
-      storeBackend.put(key, subMap);
+      Map<S, T> map = new HashMap<>();
+      map.put(subKey, value);
+      memoryStore.put(key, map);
     }
   }
 
   @Override
-  public void multiPut(K key, Map<UK, UV> value) throws Exception {
-    if (value == null) {
-      return;
-    }
-    writeMeter.update(value.size());
-
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      storeBackend.get(key).putAll(value);
-    } else {
-      Map<UK, UV> subMap = new HashMap<>(value.size());
-      for (Map.Entry<UK, UV> map : value.entrySet()) {
-        subMap.put(map.getKey(), map.getValue());
-      }
-      storeBackend.put(key, subMap);
-    }
+  public Map<S, T> get(K key) throws IOException {
+    return this.memoryStore.get(key);
   }
 
   @Override
-  public void remove(K key, UK subKey) throws Exception {
-    deleteMeter.update(1);
-
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      storeBackend.get(key).remove(subKey);
-
-      if (storeBackend.get(key).size() == 0) {
-        storeBackend.remove(key);
-      }
-    }
-  }
-
-  @Override
-  public void removeAll(K key) throws Exception {
-    storeBackend.remove(key);
-  }
-
-  @Override
-  public boolean contains(K key, UK subKey) throws Exception {
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      return storeBackend.get(key).containsKey(subKey);
-    }
-    return false;
-  }
-
-  @Override
-  public boolean isEmpty(K key) throws Exception {
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      return storeBackend.get(key).size() == 0;
-    }
-    return true;
-  }
-
-  @Override
-  public Iterator<Entry<UK, UV>> iterator(K key) throws Exception {
-    Iterable<Entry<UK, UV>> entries = entries(key);
-    if (entries != null) {
-      return entries.iterator();
+  public T get(K key, S subKey) throws IOException {
+    if (memoryStore.containsKey(key)) {
+      return memoryStore.get(key).get(subKey);
     }
     return null;
   }
 
   @Override
-  public Iterable<UK> keys(K key) throws Exception {
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      return storeBackend.get(key).keySet();
-    }
-    return null;
+  public void remove(K key) throws IOException {
+    this.memoryStore.remove(key);
   }
 
   @Override
-  public Iterable<UV> values(K key) throws Exception {
-    if (storeBackend.containsKey(key) && storeBackend.get(key) != null) {
-      return storeBackend.get(key).values();
-    }
-    return null;
-  }
+  public void flush() throws IOException {}
 
   @Override
-  public Iterable<Entry<UK, UV>> entries(K key) throws Exception {
-    if (storeBackend.containsKey(key)) {
-      return storeBackend.get(key).entrySet();
+  public void clearCache() {}
+
+  @Override
+  public void close() throws IOException {
+    if (memoryStore != null) {
+      memoryStore.clear();
     }
-    return null;
   }
 }

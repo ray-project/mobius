@@ -19,15 +19,21 @@
 package io.ray.streaming.state.impl;
 
 import com.google.common.collect.Maps;
+import io.ray.streaming.state.backend.AbstractStateBackend;
+import io.ray.streaming.state.backend.StateBackendBuilder;
+import io.ray.streaming.state.store.KeyMapStore;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class MemoryKeyMapStoreTest {
 
+  private static final Logger LOG = LoggerFactory.getLogger(MemoryKeyMapStoreTest.class);
   private AbstractStateBackend stateBackend;
   private KeyMapStore<String, String, String> IKeyMapStore;
 
@@ -56,7 +62,7 @@ public class MemoryKeyMapStoreTest {
       Assert.assertEquals(IKeyMapStore.get("hello"), map2);
 
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("error", e);
     }
   }
 }

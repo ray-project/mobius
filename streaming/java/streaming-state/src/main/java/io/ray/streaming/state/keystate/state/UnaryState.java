@@ -18,13 +18,13 @@
 
 package io.ray.streaming.state.keystate.state;
 
-/** ValueState interface. */
-public interface ValueState<T> extends UnaryState<T> {
+/** one value per state. */
+public interface UnaryState<O> extends State {
 
   /**
-   * update the value
+   * get the value in state
    *
-   * @param value the new value
+   * @return the value in state
    */
-  void update(T value);
+  O get();
 }

@@ -18,11 +18,12 @@
 
 package io.ray.streaming.state.keystate.state.impl;
 
-import static io.ray.streaming.state.config.ConfigKey.DELIMITER;
-
 import com.google.common.base.Preconditions;
 import io.ray.streaming.state.PartitionRecord;
+import io.ray.streaming.state.backend.AbstractKeyStateBackend;
+import io.ray.streaming.state.config.ConfigKey;
 import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
+import io.ray.streaming.state.keystate.state.ListState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,8 +92,10 @@ public class OperatorStateImpl<V> implements ListState<V> {
   }
 
   private String getKey(String descName, int index) {
-    String[] stringList = descName.split(DELIMITER);
-    return String.format("%s%s%s%s%d", stringList[0], DELIMITER, stringList[1], DELIMITER, index);
+    String[] stringList = descName.split(ConfigKey.DELIMITER);
+    return String.format(
+        "%s%s%s%s%d",
+        stringList[0], ConfigKey.DELIMITER, stringList[1], ConfigKey.DELIMITER, index);
   }
 
   protected String getStateKey() {

@@ -33,7 +33,7 @@ public abstract class AbstractStateDescriptor<S extends State, T> {
     this.type = type;
   }
 
-  public String getStateName() {
+  public String getName() {
     return name;
   }
 
@@ -75,7 +75,6 @@ public abstract class AbstractStateDescriptor<S extends State, T> {
         + '}';
   }
 
-  /** State type enum, including VALUE/LIST and MAP. */
   public enum StateType {
     /** value state */
     VALUE,
@@ -84,9 +83,6 @@ public abstract class AbstractStateDescriptor<S extends State, T> {
     LIST,
 
     /** map state */
-    MAP,
-
-    /** map state */
-    KEY_MAP
+    MAP
   }
 }

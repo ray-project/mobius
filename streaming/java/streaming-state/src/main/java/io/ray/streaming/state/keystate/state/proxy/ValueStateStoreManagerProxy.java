@@ -16,39 +16,27 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.keystate.state.impl;
+package io.ray.streaming.state.keystate.state.proxy;
 
 import io.ray.streaming.state.backend.KeyStateBackend;
 import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
 import io.ray.streaming.state.keystate.state.ValueState;
+import io.ray.streaming.state.keystate.state.impl.ValueStateImpl;
+import io.ray.streaming.state.strategy.StateStoreManagerProxy;
 
-/** ValueState implementation. */
-public class ValueStateImpl<T> implements ValueState<T> {
+/** This class defines ValueState Wrapper, connecting state and backend. */
+public class ValueStateStoreManagerProxy<T> extends StateStoreManagerProxy<T>
+    implements KeyValueState<String, T> {
 
-  private final StateHelper<T> helper;
+  private final ValueStateImpl<T> valueState;
 
-  public ValueStateImpl(ValueStateDescriptor<T> descriptor, KeyStateBackend backend) {
-    this.helper = new StateHelper<>(backend, descriptor);
+  public ValueStateStoreManagerProxy(
+      KeyStateBackend keyStateBackend, ValueStateDescriptor<T> stateDescriptor) {
+    super(keyStateBackend, stateDescriptor);
+    this.valueState = new ValueStateImpl<>(stateDescriptor, keyStateBackend);
   }
 
-  @Override
-  public void update(T value) {
-    helper.put(value);
-  }
-
-  @Override
-  public T get() {
-    T value = helper.get();
-    if (null == value) {
-      return ((ValueStateDescriptor<T>) helper.getDescriptor()).getDefaultValue();
-    } else {
-      return value;
-    }
-  }
-
-  /** set current key of the state */
-  @Override
-  public void setCurrentKey(Object currentKey) {
-    helper.setCurrentKey(currentKey);
+  public ValueState<T> getValueState() {
+    return this.valueState;
   }
 }
