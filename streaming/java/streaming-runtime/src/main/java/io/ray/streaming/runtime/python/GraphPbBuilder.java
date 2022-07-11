@@ -78,7 +78,7 @@ public class GraphPbBuilder {
     executionVertexBuilder.setBuildTime(executionVertex.getBuildTime());
     executionVertexBuilder.setLanguage(
         Streaming.Language.valueOf(executionVertex.getLanguage().name()));
-    executionVertexBuilder.putAllConfig(executionVertex.getWorkerConfig());
+    executionVertexBuilder.putAllConfig(executionVertex.getJobConfig());
     executionVertexBuilder.putAllResource(executionVertex.getResource());
 
     return executionVertexBuilder.build();

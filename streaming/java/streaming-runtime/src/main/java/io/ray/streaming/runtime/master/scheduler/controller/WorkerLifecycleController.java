@@ -12,6 +12,7 @@ import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.python.GraphPbBuilder;
 import io.ray.streaming.runtime.rpc.RemoteCallWorker;
+import io.ray.streaming.runtime.util.RemoteCallUtils;
 import io.ray.streaming.runtime.worker.JobWorker;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class WorkerLifecycleController {
         "Start to create worker actor for vertex: {} with resource: {}, workeConfig: {}.",
         executionVertex.getExecutionVertexName(),
         executionVertex.getResource(),
-        executionVertex.getWorkerConfig());
+        executionVertex.getJobConfig());
 
     Language language = executionVertex.getLanguage();
 

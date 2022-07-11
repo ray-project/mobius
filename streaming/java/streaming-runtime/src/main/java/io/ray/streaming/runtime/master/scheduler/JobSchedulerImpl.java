@@ -65,7 +65,7 @@ public class JobSchedulerImpl implements JobScheduler {
   @Override
   public ScheduleResult prepareJobSubmission() {
     ExecutionGraph executionGraph = graphManager.getExecutionGraph();
-    LOG.info("Start to schedule job: {}.", executionGraph.getJobName());
+    LOG.info("Start to schedule job: {}.", executionGraph.getJobInformation().getJobName());
 
     // check and update resources
     if (!checkAndUpdateResources(executionGraph)) {
@@ -96,7 +96,7 @@ public class JobSchedulerImpl implements JobScheduler {
 
     try {
       executionGraph = graphManager.getExecutionGraph();
-      jobName = executionGraph.getJobName();
+      jobName = executionGraph.getJobInformation().getJobName();
 
       run(executionGraph);
     } catch (Exception e) {
@@ -161,7 +161,7 @@ public class JobSchedulerImpl implements JobScheduler {
 
       // Register worker context
       if (!workerLifecycleController.initWorkers(
-              vertexToContextMap, jobConf.getMasterConfig().schedulerConfig)) {
+              vertexToContextMap, jobConfig.getMasterConfig().schedulerConfig)) {
         throw new RuntimeException(EventMessage.INIT_WORKER_FAIL.getDesc());
       }
 

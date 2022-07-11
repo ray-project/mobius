@@ -73,7 +73,7 @@ public class JobWorker implements Serializable {
 
     // TODO: the following 3 lines is duplicated with that in init(), try to optimise it later.
     this.executionVertex = executionVertex;
-    this.workerConfig = new StreamingWorkerConfig(executionVertex.getWorkerConfig());
+    this.workerConfig = new StreamingWorkerConfig(executionVertex.getJobConfig());
     this.contextBackend = ContextBackendFactory.getContextBackend(this.workerConfig);
 
     LOG.info(
@@ -125,7 +125,7 @@ public class JobWorker implements Serializable {
 
     this.workerContext = workerContext;
     this.executionVertex = workerContext.getExecutionVertex();
-    this.workerConfig = new StreamingWorkerConfig(executionVertex.getWorkerConfig());
+    this.workerConfig = new StreamingWorkerConfig(executionVertex.getJobConfig());
     // init state backend
     this.contextBackend = ContextBackendFactory.getContextBackend(this.workerConfig);
 
@@ -255,7 +255,7 @@ public class JobWorker implements Serializable {
     isRecreate.set(true);
     boolean requestRet =
         RemoteCallMaster.requestJobWorkerRollback(
-            workerContext.getMaster(),
+            workerContext.getMasterActor(),
             new WorkerRollbackRequest(
                 workerContext.getWorkerActorId(),
                 exceptionMsg,

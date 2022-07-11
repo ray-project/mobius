@@ -13,7 +13,6 @@ import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.worker.JobWorker;
-import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

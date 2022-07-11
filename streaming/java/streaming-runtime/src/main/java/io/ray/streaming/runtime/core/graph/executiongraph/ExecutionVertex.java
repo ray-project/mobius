@@ -12,6 +12,7 @@ import io.ray.streaming.runtime.core.resource.ContainerId;
 import io.ray.streaming.runtime.core.resource.ResourceType;
 import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
+import io.ray.streaming.runtime.worker.JobWorkerType;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class ExecutionVertex implements Serializable {
    */
   private int executionVertexIndex;
 
+  private ExecutionJobVertexState jobVertexState = ExecutionJobVertexState.NORMAL;
   private ExecutionVertexState state = ExecutionVertexState.TO_ADD;
 
   /** The id of the container which this vertex's worker actor belongs to. */
@@ -66,8 +68,8 @@ public class ExecutionVertex implements Serializable {
    */
   private WorkerCaller workerCaller;
 
-  /** Op config + job config. */
-  private Map<String, String> workerConfig;
+  /** job config. */
+  private Map<String, String> jobConfig;
 
   private List<ExecutionEdge> inputEdges = new ArrayList<>();
   private List<ExecutionEdge> outputEdges = new ArrayList<>();
@@ -94,11 +96,7 @@ public class ExecutionVertex implements Serializable {
     this.parallelism = executionJobVertex.getParallelism();
     this.executionVertexIndex = index;
     this.resource = generateResources(resourceConfig);
-    this.workerConfig = genWorkerConfig(executionJobVertex.getJobConfig());
-  }
-
-  private Map<String, String> genWorkerConfig(Map<String, String> jobConfig) {
-    return new HashMap<>(jobConfig);
+    this.jobConfig = new HashMap<>(executionJobVertex.getJobConfig());
   }
 
   public int getExecutionVertexId() {
@@ -135,6 +133,10 @@ public class ExecutionVertex implements Serializable {
 
   public int getParallelism() {
     return parallelism;
+  }
+
+  public void setParallelism(int parallelism) {
+    this.parallelism = parallelism;
   }
 
   public int getExecutionVertexIndex() {
@@ -232,10 +234,6 @@ public class ExecutionVertex implements Serializable {
     return resource;
   }
 
-  public Map<String, String> getWorkerConfig() {
-    return workerConfig;
-  }
-
   public long getBuildTime() {
     return buildTime;
   }
@@ -306,6 +304,18 @@ public class ExecutionVertex implements Serializable {
     return exeVertexChannelMap.get(peerVertex.getExecutionVertexId());
   }
 
+  /**
+   * Gets the job worker type according to the language and process.
+   * @return JobWorkerType
+   */
+  public JobWorkerType getJobWorkerType() {
+    if (language == Language.JAVA) {
+      return JobWorkerType.JAVA_WORKER;
+    } else {
+      return JobWorkerType.PYTHON_WORKER;
+    }
+  }
+
   private void generateActorChannelInfo() {
     inputChannelIdList = new ArrayList<>();
     inputActorList = new ArrayList<>();
@@ -347,6 +357,18 @@ public class ExecutionVertex implements Serializable {
       resourceMap.put(ResourceType.MEM.name(), resourceConfig.taskMemResource());
     }
     return resourceMap;
+  }
+
+  public boolean isChangedOrAffected() {
+    return !jobVertexState.equals(ExecutionJobVertexState.NORMAL);
+  }
+
+  public void markAsChanged() {
+    jobVertexState = ExecutionJobVertexState.CHANGED;
+  }
+
+  public void markAsNormal() {
+    jobVertexState = ExecutionJobVertexState.NORMAL;
   }
 
   @Override
