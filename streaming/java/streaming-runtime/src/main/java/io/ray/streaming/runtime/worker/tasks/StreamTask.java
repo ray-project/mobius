@@ -155,7 +155,7 @@ public abstract class StreamTask implements Runnable {
       writer =
           new DataWriter(
               executionVertex.getOutputChannelIdList(),
-              executionVertex.getOutputActorList(),
+              executionVertex.getChannelIdOutputActorMap(),
               operatorCheckpointInfo.outputPoints,
               jobWorker.getWorkerConfig());
     }
@@ -169,7 +169,7 @@ public abstract class StreamTask implements Runnable {
       reader =
           new DataReader(
               executionVertex.getInputChannelIdList(),
-              executionVertex.getInputActorList(),
+              executionVertex.getChannelIdInputActorMap(),
               operatorCheckpointInfo.inputPoints,
               jobWorker.getWorkerConfig());
     }
@@ -197,7 +197,7 @@ public abstract class StreamTask implements Runnable {
         opGroupedActor.put(opName, new ArrayList<>());
       }
       opGroupedChannelId.get(opName).add(executionVertex.getOutputChannelIdList().get(i));
-      opGroupedActor.get(opName).add(executionVertex.getOutputActorList().get(i));
+      opGroupedActor.get(opName).add(executionVertex.getChannelIdOutputActorMap().get(i));
       opPartitionMap.put(opName, edge.getPartition());
     }
     opPartitionMap

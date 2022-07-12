@@ -4,6 +4,7 @@ import io.ray.api.ActorHandle;
 import io.ray.api.ObjectRef;
 import io.ray.api.Ray;
 import io.ray.streaming.client.JobClient;
+import io.ray.streaming.common.serializer.KryoUtils;
 import io.ray.streaming.jobgraph.JobGraph;
 import io.ray.streaming.runtime.config.global.CommonConfig;
 import io.ray.streaming.runtime.master.JobMaster;
@@ -40,7 +41,7 @@ public class JobClientImpl implements JobClient {
 
     try {
       ObjectRef<Boolean> submitResult =
-          jobMasterActor.task(JobMaster::submitJob, jobMasterActor, jobGraph).remote();
+          jobMasterActor.task(JobMaster::submitJob, jobMasterActor, KryoUtils.writeToByteArray(jobGraph)).remote();
 
       if (submitResult.get()) {
         LOG.info("Finish submitting job: {}.", jobGraph.getJobName());

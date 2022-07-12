@@ -8,6 +8,7 @@ import io.ray.runtime.generated.Common.Bundle;
 import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.common.enums.ResourceKey;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
+import io.ray.streaming.runtime.core.resource.ResourceState;
 import io.ray.streaming.runtime.util.ResourceUtil;
 import java.io.Serializable;
 import java.util.Collections;
@@ -119,22 +120,6 @@ public class ExecutionBundle implements Serializable {
     resources.put(MEM_KEY_FOR_GCS_SCHEDULING, (double) ResourceUtil.getMemoryMbFromMemoryValue(memValue));
 
     return new HashMap<>(resources);
-  }
-
-  protected Bundle initRayBundle(Map<String, String> jobConf) {
-    Map<String, Double> resources = getResources(jobConf);
-    // remove mem key because: 'Resource 'memory' must be specified in bundles if gcs scheduler enabled.'
-    resources.remove(ResourceKey.MEM.name());
-
-    Preconditions.checkNotNull(resources.get(MEM_KEY_FOR_GCS_SCHEDULING),
-        String.format("Resource: %s must be specified when create Ray placement group bundles.",
-            MEM_KEY_FOR_GCS_SCHEDULING));
-    long memoryMbValue = resources.get(MEM_KEY_FOR_GCS_SCHEDULING).longValue();
-    resources.remove(MEM_KEY_FOR_GCS_SCHEDULING);
-
-    this.bundle =  new io.ray.api.placementgroup.Bundle.Builder()
-        .setMemoryMb(memoryMbValue).setResources(resources).build();
-    return this.bundle;
   }
 
   protected void setPlacementGroup(PlacementGroup placementGroup) {

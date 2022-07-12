@@ -1,6 +1,6 @@
 package io.ray.streaming.runtime.config;
 
-import io.ray.streaming.runtime.config.master.ResourceConfig;
+import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.runtime.config.master.SchedulerConfig;
 import java.util.Map;
 import org.aeonbits.owner.ConfigFactory;

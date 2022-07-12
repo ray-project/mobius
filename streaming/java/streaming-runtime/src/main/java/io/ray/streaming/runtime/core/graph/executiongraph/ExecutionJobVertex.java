@@ -4,10 +4,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.streaming.api.Language;
+import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.jobgraph.JobVertex;
 import io.ray.streaming.jobgraph.VertexType;
 import io.ray.streaming.operator.StreamOperator;
-import io.ray.streaming.runtime.config.master.ResourceConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,6 +139,10 @@ public class ExecutionJobVertex implements Serializable {
     return outputEdges;
   }
 
+  public List<ExecutionJobEdge> getInputEdges() {
+    return inputEdges;
+  }
+
   public Map<String, String> getOpConfig() {
     if (jobVertex.getOperator() == null || jobVertex.getOperator().getOpConfig() == null) {
       return new HashMap<>();
@@ -146,8 +150,20 @@ public class ExecutionJobVertex implements Serializable {
     return jobVertex.getOperator().getOpConfig();
   }
 
-  public List<ExecutionJobEdge> getInputEdges() {
-    return inputEdges;
+  public List<ExecutionJobVertex> getOutputExecJobVertices() {
+    List<ExecutionJobVertex> executionJobVertices = new ArrayList<>();
+    for (ExecutionJobEdge executionJobEdge : outputEdges) {
+      executionJobVertices.add(executionJobEdge.getTarget());
+    }
+    return executionJobVertices;
+  }
+
+  public List<ExecutionJobVertex> getInputExecJobVertices() {
+    List<ExecutionJobVertex> executionJobVertices = new ArrayList<>();
+    for (ExecutionJobEdge executionJobEdge : inputEdges) {
+      executionJobVertices.add(executionJobEdge.getSource());
+    }
+    return executionJobVertices;
   }
 
   public void connectInputs(List<ExecutionJobEdge> inputEdges) {
@@ -222,6 +238,12 @@ public class ExecutionJobVertex implements Serializable {
     return executionVertices.stream()
             .map(ExecutionVertex::getActor)
             .collect(Collectors.toList());
+  }
+
+  public void updateResources(Map<String, Double> resources) {
+    jobVertex.getResources().putAll(resources);
+    executionVertices.forEach(executionVertex ->
+        executionVertex.updateRequiredResources(resources));
   }
 
   @Override

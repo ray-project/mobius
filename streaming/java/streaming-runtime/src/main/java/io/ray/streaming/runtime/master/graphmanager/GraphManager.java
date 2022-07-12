@@ -37,4 +37,9 @@ public interface GraphManager {
    * @return the execution graph.
    */
   ExecutionGraph getExecutionGraph();
+
+  /**
+   * Clear all PlacementGroups in the graph.
+   */
+  void removeAllPlacementGroup();
 }

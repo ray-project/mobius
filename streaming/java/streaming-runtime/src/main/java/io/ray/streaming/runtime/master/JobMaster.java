@@ -6,6 +6,7 @@ import io.ray.api.ActorHandle;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.Ray;
 import io.ray.api.id.ActorId;
+import io.ray.streaming.common.serializer.KryoUtils;
 import io.ray.streaming.jobgraph.JobGraph;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.config.StreamingMasterConfig;
@@ -22,6 +23,7 @@ import io.ray.streaming.runtime.master.coordinator.command.WorkerCommitReport;
 import io.ray.streaming.runtime.master.coordinator.command.WorkerRollbackRequest;
 import io.ray.streaming.runtime.master.graphmanager.GraphManager;
 import io.ray.streaming.runtime.master.graphmanager.GraphManagerImpl;
+import io.ray.streaming.runtime.master.joblifecycle.JobStatus;
 import io.ray.streaming.runtime.master.resourcemanager.ResourceManager;
 import io.ray.streaming.runtime.master.resourcemanager.ResourceManagerImpl;
 import io.ray.streaming.runtime.master.scheduler.JobSchedulerImpl;
@@ -51,8 +53,6 @@ public class JobMaster {
 
   private ContextBackend contextBackend;
 
-  private ActorHandle<JobMaster> jobMasterActor;
-
   // coordinators
   private CheckpointCoordinator checkpointCoordinator;
   private FailoverCoordinator failoverCoordinator;
@@ -67,7 +67,7 @@ public class JobMaster {
     // init runtime context
     runtimeContext = new JobMasterRuntimeContext(streamingConfig);
 
-    // load checkpoint if is recover
+    // load checkpoint if is recovered
     if (!Ray.getRuntimeContext().isSingleProcess()
         && Ray.getRuntimeContext().wasCurrentActorRestarted()) {
       loadMasterCheckpoint();
@@ -140,13 +140,17 @@ public class JobMaster {
    * </ol>
    *
    * @param jobMasterActor JobMaster actor
-   * @param jobGraph logical plan
+   * @param jobGraphByteArray Serialized #{@JobGraph} bytes
    * @return submit result
    */
-  public boolean submitJob(ActorHandle<JobMaster> jobMasterActor, JobGraph jobGraph) {
+  public boolean submitJob(ActorHandle<JobMaster> jobMasterActor, byte[] jobGraphByteArray) {
+    JobGraph jobGraph = KryoUtils.readFromByteArray(jobGraphByteArray);
     LOG.info("Begin submitting job using logical plan: {}.", jobGraph);
 
-    this.jobMasterActor = jobMasterActor;
+    runtimeContext.setJobMasterActor(jobMasterActor);
+
+    // use user-defined jobConfig to override jobGraph's default config.
+    jobGraph.overrideJobConfig(runtimeContext.getConfig().getMap());
 
     // init manager
     graphManager = new GraphManagerImpl(runtimeContext);
@@ -157,16 +161,17 @@ public class JobMaster {
     runtimeContext.setJobGraph(jobGraph);
     runtimeContext.setExecutionGraph(executionGraph);
 
+    boolean isScheduleSuccess;
     // init scheduler
     try {
       scheduler = new JobSchedulerImpl(this);
-      scheduler.scheduleJob(graphManager.getExecutionGraph());
+      isScheduleSuccess = scheduler.scheduleJob();
     } catch (Exception e) {
       e.printStackTrace();
       LOG.error("Failed to submit job {}.", e, e);
       return false;
     }
-    return true;
+    return isScheduleSuccess;
   }
 
   public synchronized void saveContext() {
@@ -274,10 +279,6 @@ public class JobMaster {
     return graphManager.getExecutionGraph().getExecutionVertexByActorId(id);
   }
 
-  public ActorHandle<JobMaster> getJobMasterActor() {
-    return jobMasterActor;
-  }
-
   public JobMasterRuntimeContext getRuntimeContext() {
     return runtimeContext;
   }
@@ -292,5 +293,10 @@ public class JobMaster {
 
   public StreamingMasterConfig getConf() {
     return conf;
+  }
+
+  public void resetStatus(JobStatus newStatus) {
+    LOG.info("JobMaster statusChanges: {}", newStatus);
+    runtimeContext.setJobStatus(newStatus);
   }
 }

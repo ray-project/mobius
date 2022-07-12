@@ -42,7 +42,7 @@ public class CheckpointCoordinator extends BaseCoordinator {
 
   public CheckpointCoordinator(JobMaster jobMaster) {
     super(jobMaster);
-    StreamingMasterConfig masterConfig = runtimeContext.getConf().getMasterConfig();
+    StreamingMasterConfig masterConfig = runtimeContext.getConfig().getMasterConfig();
 
     // get checkpoint interval from conf
     this.cpIntervalSecs = masterConfig.checkpointConfig.cpIntervalSecs();
@@ -154,7 +154,7 @@ public class CheckpointCoordinator extends BaseCoordinator {
 
     Set<ActorId> deletingActorIds = graphManager.getExecutionGraph().getAllMoribundVertices()
         .stream()
-        .map(ExecutionVertex::getActorId)
+        .map(ExecutionVertex::getWorkerActorId)
         .collect(Collectors.toSet());
 
     for (ActorId id : deletingActorIds) {

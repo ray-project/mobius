@@ -3,6 +3,7 @@ package io.ray.streaming.runtime.worker.tasks;
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.message.Record;
 import io.ray.streaming.runtime.core.processor.Processor;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.serialization.CrossLangSerializer;
 import io.ray.streaming.runtime.serialization.JavaSerializer;
@@ -58,20 +59,21 @@ public abstract class InputStreamTask extends StreamTask {
           byte[] bytes = new byte[dataMessage.body().remaining() - 1];
           byte typeId = dataMessage.body().get();
           dataMessage.body().get(bytes);
-          Object obj;
           Record msg;
           if (typeId == Serializer.JAVA_TYPE_ID) {
-            obj = javaSerializer.deserialize(bytes);
+            msg = javaSerializer.deserialize(bytes);
           } else {
-            obj = crossLangSerializer.deserialize(bytes);
+            msg = crossLangSerializer.deserialize(bytes);
           }
-          processor.process(obj);
+          processor.process(msg);
         } else if (item instanceof BarrierMessage) {
           final BarrierMessage queueBarrier = (BarrierMessage) item;
           byte[] barrierData = new byte[queueBarrier.getData().remaining()];
           queueBarrier.getData().get(barrierData);
           RemoteCall.Barrier barrierPb = RemoteCall.Barrier.parseFrom(barrierData);
-          final long checkpointId = barrierPb.getId();
+          // transform to runtime checkpoint obj from ProtoBuf Message
+          Barrier barrier = new Barrier(barrierPb.getId());
+          final long checkpointId = barrier.getId();
           LOG.info(
               "Start to do checkpoint {}, worker name is {}.",
               checkpointId,

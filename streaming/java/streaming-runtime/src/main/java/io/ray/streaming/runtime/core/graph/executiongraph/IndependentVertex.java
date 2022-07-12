@@ -1,10 +1,5 @@
 package io.ray.streaming.runtime.core.graph.executiongraph;
 
-import com.alipay.streaming.runtime.master.scheduler.hybrid.ActorRoleType;
-import com.alipay.streaming.runtime.udc.controllerCaller.JavaWorkerUnitedDistributedControllerCallerImpl;
-import com.alipay.streaming.runtime.udc.controllerCaller.PyWorkerUnitedDistributedControllerCallerImpl;
-import com.alipay.streaming.runtime.udc.controllerCaller.UnitedDistributedControllerCaller;
-import com.alipay.streaming.runtime.worker.WorkerRuntimeInfo;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
@@ -27,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
  * Working for something else independent of normal job worker
  */
 public class IndependentVertex
-    implements Serializable, HealthCheckable, UnitedDistributedControllerCaller {
+    implements Serializable, HealthCheckable{
 
   /**
    * actor role name . Broker or something else
@@ -48,11 +43,11 @@ public class IndependentVertex
    * actor handler
    */
   protected BaseActorHandle actor;
-
-  /**
-   * caller of united distributed controller
-   */
-  protected UnitedDistributedControllerCaller unitedDistributedControllerCaller;
+//
+//  /**
+//   * caller of united distributed controller
+//   */
+//  protected UnitedDistributedControllerCaller unitedDistributedControllerCaller;
 
   /**
    * resource of this actor
@@ -64,8 +59,10 @@ public class IndependentVertex
    */
   protected Map<String, String> actorConf;
 
+  /** Module name of the vertex(for python). */
   private String moduleName;
 
+  /** Class name of the vertex(for java or python). */
   private String className;
 
   private String name;

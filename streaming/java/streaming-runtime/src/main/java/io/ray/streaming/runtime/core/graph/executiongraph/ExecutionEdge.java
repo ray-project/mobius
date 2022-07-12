@@ -63,12 +63,24 @@ public class ExecutionEdge implements Serializable {
     return targetExecutionVertex.getExecutionVertexId();
   }
 
+  public String getExecutionEdgeId() {
+    return getSourceVertexId() + "_" + getTargetVertexId();
+  }
+
+  public String getExecutionEdgeName() {
+    return getSource().getExecutionVertexName() + "_" + getTarget().getExecutionVertexName();
+  }
+
   public Partition getPartition() {
     return partition;
   }
 
   public String getExecutionEdgeIndex() {
     return executionEdgeIndex;
+  }
+
+  public boolean isAlive() {
+    return !getSource().isToDelete() && !getTarget().isToDelete();
   }
 
   @Override

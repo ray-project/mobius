@@ -1,4 +1,4 @@
-package io.ray.streaming.runtime.master;
+package io.ray.streaming.runtime.master.context;
 
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.jobgraph.JobGraph;

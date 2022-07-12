@@ -95,7 +95,7 @@ public final class JobWorkerContext implements Serializable {
       this.immutableContext = new ImmutableContext(masterActor,
           getJobConf().get(CommonConfig.JOB_NAME),
           executionVertex.getExecutionJobVertexName(),
-          executionVertex.getActorId(),
+          executionVertex.getWorkerActorId(),
           executionVertex.getActorName());
     }
   }
@@ -239,28 +239,12 @@ public final class JobWorkerContext implements Serializable {
     return null;
   }
 
-  public Map<ActorId, String> getInputQueues() {
-    return getExecutionVertex().getInputQueues();
-  }
-
-  public Map<ActorId, String> getOutputQueues() {
-    return getExecutionVertex().getOutputQueues();
-  }
-
   public Map<String, BaseActorHandle> getInputActors() {
-    return getExecutionVertex().getInputActors();
+    return getExecutionVertex().getChannelIdInputActorMap();
   }
 
   public Map<String, BaseActorHandle> getOutputActors() {
-    return getExecutionVertex().getOutputActors();
-  }
-
-  public Map<String, Boolean> getOutputCyclic() {
-    return getExecutionVertex().getOutputCyclic();
-  }
-
-  public Map<String, Boolean> getInputCyclic() {
-    return getExecutionVertex().getInputCyclic();
+    return getExecutionVertex().getChannelIdOutputActorMap();
   }
 
   public ArrayBlockingQueue<ControlMessage> getMailbox() {
@@ -297,8 +281,6 @@ public final class JobWorkerContext implements Serializable {
         .add("workerName", getWorkerName())
         .add("immutableContext", immutableContext)
         .add("workerId", getWorkerActorId())
-        .add("inputActorQueues", getInputQueues())
-        .add("outputActorQueues", getOutputQueues())
         .add("inputActors", getInputActors())
         .add("outputActors", getOutputActors())
         .add("isChanged", isChanged)

@@ -1,15 +1,17 @@
 package io.ray.streaming.runtime.core.graph.executiongraph;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
+import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.streaming.api.Language;
+import io.ray.streaming.common.config.ResourceConfig;
+import io.ray.streaming.common.enums.OperatorType;
 import io.ray.streaming.jobgraph.VertexType;
 import io.ray.streaming.operator.StreamOperator;
-import io.ray.streaming.runtime.config.master.ResourceConfig;
 import io.ray.streaming.runtime.core.resource.ContainerId;
 import io.ray.streaming.runtime.core.resource.ResourceType;
+import io.ray.streaming.runtime.master.scheduler.ExecutionBundle;
 import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
 import io.ray.streaming.runtime.worker.JobWorkerType;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 /** Physical vertex, correspond to {@link ExecutionJobVertex}. */
 public class ExecutionVertex implements Serializable {
@@ -68,25 +71,33 @@ public class ExecutionVertex implements Serializable {
    */
   private WorkerCaller workerCaller;
 
+  private ExecutionBundle executionBundle;
+
+  /**
+   * Role indicate the operator position in the DAG, which need to be distinguished to do things
+   * like broadcast barrier from the sources.
+   */
+  private OperatorType roleInChangedSubDag = OperatorType.TRANSFORM;
+
   /** job config. */
   private Map<String, String> jobConfig;
 
   private List<ExecutionEdge> inputEdges = new ArrayList<>();
   private List<ExecutionEdge> outputEdges = new ArrayList<>();
 
-  private transient List<String> outputChannelIdList;
   private transient List<String> inputChannelIdList;
+  private transient List<String> outputChannelIdList;
 
-  private transient List<BaseActorHandle> outputActorList;
-  private transient List<BaseActorHandle> inputActorList;
+  private transient Map<String, BaseActorHandle> channelIdInputActorMap;
+  private transient Map<String, BaseActorHandle> channelIdOutputActorMap;
   private Map<Integer, String> exeVertexChannelMap;
 
   public ExecutionVertex(
-      int globalIndex,
+      int globalId,
       int index,
       ExecutionJobVertex executionJobVertex,
       ResourceConfig resourceConfig) {
-    this.executionVertexId = globalIndex;
+    this.executionVertexId = globalId;
     this.executionJobVertexId = executionJobVertex.getExecutionJobVertexId();
     this.executionJobVertexName = executionJobVertex.getExecutionJobVertexName();
     this.operator = executionJobVertex.getStreamOperator();
@@ -95,7 +106,7 @@ public class ExecutionVertex implements Serializable {
     this.buildTime = executionJobVertex.getBuildTime();
     this.parallelism = executionJobVertex.getParallelism();
     this.executionVertexIndex = index;
-    this.resource = generateResources(resourceConfig);
+    this.resource = generateResourceMap(resourceConfig);
     this.jobConfig = new HashMap<>(executionJobVertex.getJobConfig());
   }
 
@@ -137,6 +148,36 @@ public class ExecutionVertex implements Serializable {
 
   public void setParallelism(int parallelism) {
     this.parallelism = parallelism;
+  }
+
+  public OperatorType getRoleInChangedSubDag() {
+    return roleInChangedSubDag;
+  }
+
+  public void setRoleInChangedSubDag(OperatorType roleInChangedSubDag) {
+    this.roleInChangedSubDag = roleInChangedSubDag;
+  }
+
+  public ExecutionBundle getExecutionBundle() {
+    return executionBundle;
+  }
+
+  public int getBundleIndex() {
+    if (executionBundle != null) {
+      return executionBundle.getIndex();
+    }
+    return -1;
+  }
+
+  public PlacementGroup getPlacementGroup() {
+    if (executionBundle != null) {
+      return executionBundle.getPlacementGroup();
+    }
+    return null;
+  }
+
+  public void setExecutionBundle(ExecutionBundle executionBundle) {
+    this.executionBundle = executionBundle;
   }
 
   public int getExecutionVertexIndex() {
@@ -222,7 +263,7 @@ public class ExecutionVertex implements Serializable {
         .collect(Collectors.toList());
   }
 
-  public ActorId getActorId() {
+  public ActorId getWorkerActorId() {
     return null == workerActor ? null : workerActor.getId();
   }
 
@@ -232,6 +273,18 @@ public class ExecutionVertex implements Serializable {
 
   public Map<String, Double> getResource() {
     return resource;
+  }
+
+  public void updateRequiredResource(String resourceKey, Double resourceValue) {
+    if (!StringUtils.isEmpty(resourceKey) && resourceValue > 0) {
+      resource.put(resourceKey, resourceValue);
+    }
+  }
+
+  public void updateRequiredResources(Map<String, Double> resources) {
+    for (Map.Entry<String, Double> resource : resources.entrySet()) {
+      updateRequiredResource(resource.getKey(), resource.getValue());
+    }
   }
 
   public long getBuildTime() {
@@ -276,11 +329,11 @@ public class ExecutionVertex implements Serializable {
     return outputChannelIdList;
   }
 
-  public List<BaseActorHandle> getOutputActorList() {
-    if (outputActorList == null) {
+  public Map<String, BaseActorHandle> getChannelIdOutputActorMap() {
+    if (channelIdOutputActorMap == null) {
       generateActorChannelInfo();
     }
-    return outputActorList;
+    return channelIdOutputActorMap;
   }
 
   public List<String> getInputChannelIdList() {
@@ -290,11 +343,11 @@ public class ExecutionVertex implements Serializable {
     return inputChannelIdList;
   }
 
-  public List<BaseActorHandle> getInputActorList() {
-    if (inputActorList == null) {
+  public Map<String, BaseActorHandle> getChannelIdInputActorMap() {
+    if (channelIdInputActorMap == null) {
       generateActorChannelInfo();
     }
-    return inputActorList;
+    return channelIdInputActorMap;
   }
 
   public String getChannelIdByPeerVertex(ExecutionVertex peerVertex) {
@@ -318,9 +371,9 @@ public class ExecutionVertex implements Serializable {
 
   private void generateActorChannelInfo() {
     inputChannelIdList = new ArrayList<>();
-    inputActorList = new ArrayList<>();
+    channelIdInputActorMap = new HashMap<>();
     outputChannelIdList = new ArrayList<>();
-    outputActorList = new ArrayList<>();
+    channelIdOutputActorMap = new HashMap<>();
     exeVertexChannelMap = new HashMap<>();
 
     List<ExecutionEdge> inputEdges = getInputEdges();
@@ -331,7 +384,7 @@ public class ExecutionVertex implements Serializable {
               getExecutionVertexId(),
               getBuildTime());
       inputChannelIdList.add(channelId);
-      inputActorList.add(edge.getSource().getActor());
+      channelIdInputActorMap.put(channelId, edge.getSource().getActor());
       exeVertexChannelMap.put(edge.getSource().getExecutionVertexId(), channelId);
     }
 
@@ -343,12 +396,12 @@ public class ExecutionVertex implements Serializable {
               edge.getTarget().getExecutionVertexId(),
               getBuildTime());
       outputChannelIdList.add(channelId);
-      outputActorList.add(edge.getTarget().getActor());
+      channelIdOutputActorMap.put(channelId, edge.getTarget().getActor());
       exeVertexChannelMap.put(edge.getTarget().getExecutionVertexId(), channelId);
     }
   }
 
-  private Map<String, Double> generateResources(ResourceConfig resourceConfig) {
+  private Map<String, Double> generateResourceMap(ResourceConfig resourceConfig) {
     Map<String, Double> resourceMap = new HashMap<>();
     if (resourceConfig.isTaskCpuResourceLimit()) {
       resourceMap.put(ResourceType.CPU.name(), resourceConfig.taskCpuResource());
@@ -386,13 +439,14 @@ public class ExecutionVertex implements Serializable {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("id", executionVertexId)
-        .add("name", getExecutionVertexName())
-        .add("resources", resource)
-        .add("state", state)
-        .add("containerId", containerId)
-        .add("workerActor", workerActor)
-        .toString();
+    return "ExecutionVertex{" +
+        "executionVertexId=" + executionVertexId +
+        ", executionJobVertexName='" + executionJobVertexName + '\'' +
+        ", resource=" + resource +
+        ", state=" + state +
+        ", actorId='" + getWorkerActorId() + '\'' +
+        ", roleInChangedSubDag=" + roleInChangedSubDag +
+        ", pid='" + pid + '\'' +
+        '}';
   }
 }

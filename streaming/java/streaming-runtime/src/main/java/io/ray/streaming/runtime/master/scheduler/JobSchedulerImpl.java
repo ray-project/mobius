@@ -1,10 +1,10 @@
 package io.ray.streaming.runtime.master.scheduler;
 
-import com.google.common.base.Preconditions;
 import io.ray.api.ActorHandle;
 import io.ray.streaming.common.config.JvmConfig;
 import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.common.enums.ResourceKey;
+import io.ray.streaming.common.serializer.KryoUtils;
 import io.ray.streaming.runtime.config.StreamingConfig;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobVertex;
@@ -25,6 +25,7 @@ import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class JobSchedulerImpl implements JobScheduler {
     this.resourceManager = jobMaster.getResourceManager();
     this.placementGroupAssignStrategy = initPlacementGroupAssignStrategy();
     this.workerLifecycleController = new WorkerLifecycleController();
-    this.jobConfig = jobMaster.getRuntimeContext().getConf();
+    this.jobConfig = jobMaster.getRuntimeContext().getConfig();
 
     LOG.info("Scheduler initiated.");
   }
@@ -60,6 +61,47 @@ public class JobSchedulerImpl implements JobScheduler {
 
     LOG.info("Placement group assign strategy initialized: {}.", placementGroupAssignStrategy.getName());
     return placementGroupAssignStrategy;
+  }
+
+  /**
+   * The entrance of submitting a Job.
+   *
+   * @return Whether the schedule works or not.
+   */
+  public boolean scheduleJob() throws Exception {
+    LOG.info("Start scheduling job.");
+
+    // 1. prepare, including update required resources and create workers
+    ScheduleResult result = prepareJobSubmission();
+    if (!result.result()){
+      // 3. destroy job
+      LOG.error("Failed to prepare job submission: {}.", result.getExceptionMsg());
+      boolean destroyRes = destroyJob(JobStatus.SUBMITTING_FAILED);
+      if (!destroyRes){
+        LOG.error("Failed to destroy job, throwing exception.");
+        // 4. Interrupt the job by throwing an exception
+        markInterrupted("Failed to destroy job.");
+      }
+      return false;
+    }
+
+    // 2.
+    result = doJobSubmission();
+    if (!result.result()){
+      // 3. destroy job
+      LOG.error("Failed to doJobSubmission: {}.", result.getExceptionMsg());
+      boolean destroyRes = destroyJob(JobStatus.SUBMITTING_FAILED);
+      if (!destroyRes){
+        LOG.error("Failed to destroy job, throwing exception.");
+        // 4. Interrupt the job by throwing an exception
+        markInterrupted("Failed to destroy job.");
+      }
+      return false;
+    }
+
+    markFinished();
+    LOG.info("Finish scheduling job.");
+    return true;
   }
 
   @Override
@@ -81,7 +123,7 @@ public class JobSchedulerImpl implements JobScheduler {
     }
 
     // create workers
-    boolean result = workerLifecycleController.createWorkers(executionGraph);
+    boolean result = createWorkers(executionGraph);
     if (!result) {
       return ScheduleResult.fail(EventMessage.START_WORKER_FAIL.getDesc());
     }
@@ -104,10 +146,10 @@ public class JobSchedulerImpl implements JobScheduler {
       return ScheduleResult.fail(new ScheduleException(e));
     }
 
-    jobMaster.resetStatus(JobStatus.RUNNING, System.currentTimeMillis());
+    jobMaster.resetStatus(JobStatus.RUNNING);
 
-    graphManager.updateOriginalAndClearChanged();
-    jobMaster.saveContext(JobMasterContextSaveType.ALL);
+//    graphManager.updateOriginalAndClearChanged();
+    jobMaster.saveContext();
 
     LOG.info("Scheduling job {} succeeded.", jobName);
 
@@ -134,18 +176,16 @@ public class JobSchedulerImpl implements JobScheduler {
     // remove all placement group
     graphManager.removeAllPlacementGroup();
 
-    jobMaster.resetStatus(jobStatus, System.currentTimeMillis());
+    jobMaster.resetStatus(jobStatus);
 
     // deal with resubmit
     if (jobStatus == JobStatus.RESUBMITTING) {
       LOG.info("Save context before resubmission.");
-      jobMaster.saveContext(JobMasterContextSaveType.EXCLUDE_GRAPH_CONTEXT);
-
-      schedulerMetricGroup.getResubmitNum().inc();
+      jobMaster.saveContext();
     }
 
     // unregister group listener
-    jobMaster.unRegisterGroupListener();
+//    jobMaster.unRegisterGroupListener();
 
     return workerDestroyResult;
   }
@@ -157,11 +197,11 @@ public class JobSchedulerImpl implements JobScheduler {
    */
   protected void run(ExecutionGraph executionGraph) throws RuntimeException {
     try {
-      Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = buildWorkersContext(executionGraph);
+      Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = buildJobWorkersContext(executionGraph);
 
       // Register worker context
-      if (!workerLifecycleController.initWorkers(
-              vertexToContextMap, jobConfig.getMasterConfig().schedulerConfig)) {
+      // init workers
+      if (!initWorkers(vertexToContextMap)) {
         throw new RuntimeException(EventMessage.INIT_WORKER_FAIL.getDesc());
       }
 
@@ -171,47 +211,50 @@ public class JobSchedulerImpl implements JobScheduler {
       }
 
       // Start all workers to process data
-      startWorkersOnJobSubmission();
+      startWorkers(executionGraph, jobMaster.getRuntimeContext().lastCheckpointId);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * Allocate job workers' resource then create job workers' actor.
+   * Build workers context.
    *
-   * @param executionGraph the physical plan
+   * @param executionGraph execution graph
+   * @return vertex to worker context map
    */
-  protected void prepareResourceAndCreateWorker(ExecutionGraph executionGraph) {
-    List<Container> containers = resourceManager.getRegisteredContainers();
+  protected Map<ExecutionVertex, JobWorkerContext> buildJobWorkersContext(
+      ExecutionGraph executionGraph) {
+    ActorHandle<JobMaster> masterActor = jobMaster.getRuntimeContext().getJobMasterActor();
 
-    // Assign resource for execution vertices
-    resourceManager.assignResource(containers, executionGraph);
-
-    LOG.info("Allocating map is: {}.", ViewBuilder.buildResourceAssignmentView(containers));
-
-    // Start all new added workers
-    createWorkers(executionGraph);
+    // build workers' context
+    Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = new HashMap<>();
+    executionGraph
+        .getAllExecutionVertices()
+        .forEach(
+            vertex -> {
+              JobWorkerContext context = buildJobWorkerContext(vertex, masterActor);
+              vertexToContextMap.put(vertex, context);
+            });
+    return vertexToContextMap;
   }
 
-  /**
-   * Init JobMaster and JobWorkers then start JobWorkers.
-   *
-   * @param executionGraph physical plan
-   */
-  private void initAndStart(ExecutionGraph executionGraph) {
-    // generate vertex - context map
-    Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = buildWorkersContext(executionGraph);
-
-    // init workers
-    Preconditions.checkState(initWorkers(vertexToContextMap));
-
-    // init master
-    initMaster();
-
-    // start workers
-    startWorkers(executionGraph, jobMaster.getRuntimeContext().lastCheckpointId);
-  }
+//  /**
+//   * Allocate job workers' resource then create job workers' actor.
+//   *
+//   * @param executionGraph the physical plan
+//   */
+//  protected void prepareResourceAndCreateWorker(ExecutionGraph executionGraph) {
+//    List<Container> containers = resourceManager.getRegisteredContainers();
+//
+//    // Assign resource for execution vertices
+//    resourceManager.assignResource(containers, executionGraph);
+//
+//    LOG.info("Allocating map is: {}.", ViewBuilder.buildResourceAssignmentView(containers));
+//
+//    // Start all new added workers
+//    createWorkers(executionGraph);
+//  }
 
   /**
    * Create JobWorker actors according to the physical plan.
@@ -219,13 +262,13 @@ public class JobSchedulerImpl implements JobScheduler {
    * @param executionGraph physical plan
    * @return actor creation result
    */
-  public boolean createWorkers(ExecutionGraph executionGraph) {
+  protected boolean createWorkers(ExecutionGraph executionGraph) {
     LOG.info("Begin creating workers.");
     long startTs = System.currentTimeMillis();
 
     // create JobWorker actors
     boolean createResult =
-        workerLifecycleController.createWorkers(executionGraph.getAllAddedExecutionVertices());
+        workerLifecycleController.createWorkers(executionGraph);
 
     if (createResult) {
       LOG.info("Finished creating workers. Cost {} ms.", System.currentTimeMillis() - startTs);
@@ -243,7 +286,7 @@ public class JobSchedulerImpl implements JobScheduler {
    */
   protected boolean initWorkers(Map<ExecutionVertex, JobWorkerContext> vertexToContextMap) {
     boolean succeed;
-    int timeoutMs = jobConfig.getMasterConfig().schedulerConfig.workerInitiationWaitTimeoutMs();
+    int timeoutMs = jobConfig.getMasterConfig().schedulerConfig.jobSubmissionWorkerWaitTimeoutMs();
     succeed = workerLifecycleController.initWorkers(vertexToContextMap, timeoutMs);
     if (!succeed) {
       LOG.error("Failed to initiate workers in {} milliseconds", timeoutMs);
@@ -259,7 +302,7 @@ public class JobSchedulerImpl implements JobScheduler {
           workerLifecycleController.startWorkers(
               executionGraph,
               checkpointId,
-              jobConfig.getMasterConfig().schedulerConfig.workerStartingWaitTimeoutMs());
+              jobConfig.getMasterConfig().schedulerConfig.jobSubmissionWorkerWaitTimeoutMs());
     } catch (Exception e) {
       LOG.error("Failed to start workers.", e);
       return false;
@@ -267,33 +310,19 @@ public class JobSchedulerImpl implements JobScheduler {
     return result;
   }
 
-  /**
-   * Build workers context.
-   *
-   * @param executionGraph execution graph
-   * @return vertex to worker context map
-   */
-  protected Map<ExecutionVertex, JobWorkerContext> buildWorkersContext(
-      ExecutionGraph executionGraph) {
-    ActorHandle<JobMaster> masterActor = jobMaster.getJobMasterActor();
-
-    // build workers' context
-    Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = new HashMap<>();
-    executionGraph
-        .getAllExecutionVertices()
-        .forEach(
-            vertex -> {
-              JobWorkerContext context = buildJobWorkerContext(vertex, masterActor);
-              vertexToContextMap.put(vertex, context);
-            });
-    return vertexToContextMap;
+  private boolean initMaster() {
+    return jobMaster.init(false);
   }
 
   private JobWorkerContext buildJobWorkerContext(
       ExecutionVertex executionVertex, ActorHandle<JobMaster> masterActor) {
 
+    Map<Integer, ExecutionVertex> vertexIdExecutionVertexMap =
+        graphManager.getExecutionGraph().getExecutionVertexIdExecutionVertexMap();
+    byte[] vertexIdExecutionVertexMapBytes = KryoUtils.writeToByteArray(vertexIdExecutionVertexMap);
+
     // create java worker context
-    JobWorkerContext context = new JobWorkerContext(masterActor, executionVertex);
+    JobWorkerContext context = new JobWorkerContext(masterActor, executionVertex, vertexIdExecutionVertexMapBytes);
 
     return context;
   }
@@ -335,8 +364,39 @@ public class JobSchedulerImpl implements JobScheduler {
     return result;
   }
 
-  private void initMaster() {
-    jobMaster.init(false);
+  private void markInterrupted(String reason) throws Exception {
+    throw new Exception(
+        "JobScheduler interrupted, reason: " + reason);
+  }
+
+  private void markFinished() {
+    // TODO
+  }
+
+  protected boolean checkResource(List<ExecutionJobVertex> executionJobVertices) {
+    return executionJobVertices.stream().allMatch(executionJobVertex -> {
+      Map<String, Double> resources = executionJobVertex.getJobVertex().getResources();
+      String operatorName = executionJobVertex.getExecutionJobVertexName();
+
+      for (Map.Entry<String, Double> resource : resources.entrySet()) {
+        String resourceKey = resource.getKey();
+        Double resourceValue = resource.getValue();
+
+        if (StringUtils.isEmpty(resourceKey)) {
+          LOG.error("Resource key is empty for operator: {}.", operatorName);
+          return false;
+        } else if (resourceValue < 0) {
+          LOG.error("Resource value < 0 for operator: {}.", operatorName);
+          return false;
+        } else if (resourceKey.equals(ResourceKey.MEM.name())) {
+          if (!ResourceUtil.isMemoryMbValue(resourceValue.longValue())) {
+            LOG.error("Memory resource is illegal for operator: {}.", operatorName);
+            return false;
+          }
+        }
+      }
+      return true;
+    });
   }
 
   public boolean checkAndUpdateResources(ExecutionGraph executionGraph) {
@@ -345,6 +405,11 @@ public class JobSchedulerImpl implements JobScheduler {
       LOG.error("Failed to check resource.");
       return false;
     }
+
+    List<Container> containers = resourceManager.getRegisteredContainers();
+    // Assign resource for execution vertices
+    resourceManager.assignResource(containers, executionGraph);
+    LOG.info("Allocating map is: {}.", ViewBuilder.buildResourceAssignmentView(containers));
 
     // update basic resource(cpu+mem)
     updateResource(executionGraph.getAllExecutionJobVertices());
@@ -368,7 +433,7 @@ public class JobSchedulerImpl implements JobScheduler {
    * Set resources(global resource + jvm) for vertex
    */
   protected void updateResource(List<ExecutionJobVertex> executionJobVertices) {
-    ResourceConfig resourceConfig = jobConf.getMasterConfig().resourceConfig;
+    ResourceConfig resourceConfig = jobConfig.getMasterConfig().resourceConfig;
 
     // get global default resource required
     boolean isStrictLimit = resourceConfig.isWorkerResourceStrictLimit();

@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.StreamOperator;
+import io.ray.streaming.operator.chain.ChainedOperator;
+import io.ray.streaming.python.PythonOperator;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -68,6 +70,21 @@ public class JobVertex implements Serializable {
 
   public void setConfig(Map<String, String> config) {
     this.config = config;
+  }
+
+  public String getName() {
+    if (this.operator != null) {
+      if (operator instanceof ChainedOperator || operator instanceof PythonOperator) {
+        return String.format("%s-%s", vertexId, operator.getName().split("\n")[0]).trim();
+      }
+      return String.format("%s-%s", vertexId, operator.getClass().getSimpleName().split("\n")[0])
+          .trim();
+    }
+    return String.format("%s-%s", vertexId, StreamOperator.DEFAULT_NAME).trim();
+  }
+
+  public Map<String, Double> getResources() {
+    return this.operator.getResource();
   }
 
   @Override

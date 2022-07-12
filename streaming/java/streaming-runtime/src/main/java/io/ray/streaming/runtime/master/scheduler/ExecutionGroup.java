@@ -7,12 +7,15 @@ import io.ray.api.PlacementGroups;
 import io.ray.api.options.PlacementGroupCreationOptions;
 import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.api.placementgroup.PlacementStrategy;
+import io.ray.runtime.generated.Common.Bundle;
 import io.ray.streaming.runtime.config.master.SchedulerConfig;
+import io.ray.streaming.runtime.core.resource.ResourceState;
 import io.ray.streaming.runtime.util.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -166,16 +169,16 @@ public class ExecutionGroup implements Serializable {
    *
    * @return placement group
    */
-  public PlacementGroup buildPlacementGroup(Map<String, String> jobConf){
-    int timeoutSecond = Integer.parseInt(
-        jobConf.getOrDefault(SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S,
-            SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S_DEFAULT));
+  public PlacementGroup buildPlacementGroup(){
+//    int timeoutSecond = Integer.parseInt(
+//        jobConf.getOrDefault(SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S,
+//            SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S_DEFAULT));
 
     if (placementGroup == null) {
       PlacementGroupCreationOptions options = new PlacementGroupCreationOptions.Builder()
           .setName(groupName)
           .setBundles(getBundles().stream()
-              .map(bundle -> bundle.initRayBundle(jobConf))
+              .map(ExecutionBundle::getResources)
               .collect(Collectors.toList()))
           .setStrategy(getPlacementStrategy())
           .build();
@@ -189,32 +192,7 @@ public class ExecutionGroup implements Serializable {
       List<ExecutionBundle> notCreatedBundles = executionBundles.stream()
           .filter(executionBundle -> !executionBundle.isCreated())
           .collect(Collectors.toList());
-
-      if (notCreatedBundles.isEmpty()) {
-        LOG.debug("Skip placement group building: {} because group is neither uncreated or " +
-            "has new bundles.", groupName);
-        return placementGroup;
-      }
-
-      // init bundle
-      notCreatedBundles.forEach(bundle -> {
-        bundle.initRayBundle(jobConf);
-        bundle.setPlacementGroup(placementGroup);
-      });
-
-      // add new created bundles into exist placement group
-      LOG.info("Placement group({}) add bundles: {} with timeout: {}s.",
-          groupName, notCreatedBundles, timeoutSecond);
-      placementGroup.addBundles(notCreatedBundles.stream()
-          .map(ExecutionBundle::getBundle)
-          .collect(Collectors.toList()));
-
-      // need to wait when using placement group dynamic
-      if (placementGroup.wait(timeoutSecond)) {
-        LOG.info("Placement group({}) add bundles successfully.", groupName);
-      } else {
-        LOG.error("Placement group({}) failed to add bundles.", groupName);
-      }
+      LOG.error("Not support add bundle into an exist PlacementGroup! new bundles:{}", notCreatedBundles);
     }
     return placementGroup;
   }
@@ -238,20 +216,21 @@ public class ExecutionGroup implements Serializable {
 
   private void refreshBundles() {
     // remove unused bundles from pg
-    executionBundles.stream()
+
+    List<ExecutionBundle> toBeReleaseBundles = executionBundles.stream()
         .filter(ExecutionBundle::isReadyToRelease)
-        .forEach(bundle -> {
-          LOG.info("Remove bundle: {}-{} from placement group: {}.",
-              bundle.getId(), bundle.getIndex(), groupName);
-          placementGroup.removeBundles(ImmutableList.of(bundle.getIndex()));
-        });
+        .collect(Collectors.toList());
+    if (!toBeReleaseBundles.isEmpty()){
+      LOG.error("Not support remove bundle from placement group. The bundles are: {}", toBeReleaseBundles);
+    }
+    LOG.info("Remove bundles: {} from the bundle list.", toBeReleaseBundles);
     executionBundles.removeIf(ExecutionBundle::isReadyToRelease);
   }
 
   public void removePlacementGroup() {
-    if (executionBundles != null) {
-      executionBundles.forEach(executionBundle -> placementGroup.removeBundles(ImmutableList.of(executionBundle.getIndex())));
-    }
+//    if (executionBundles != null) {
+//      executionBundles.forEach(executionBundle -> placementGroup.removeBundles(ImmutableList.of(executionBundle.getIndex())));
+//    }
     PlacementGroups.removePlacementGroup(placementGroup.getId());
     LOG.info("Placement group: {} and all it's bundles has been removed.", placementGroup.getName());
   }
