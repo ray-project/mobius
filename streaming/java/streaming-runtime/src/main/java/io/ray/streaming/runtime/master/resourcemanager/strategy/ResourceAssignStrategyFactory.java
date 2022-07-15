@@ -17,7 +17,7 @@ public class ResourceAssignStrategyFactory {
         strategy = new PipelineFirstStrategy();
         break;
       default:
-        throw new RuntimeException("strategy config error, no memory found for " + strategy);
+        throw new RuntimeException("strategy config error, no buffer found for " + strategy);
     }
     return strategy;
   }

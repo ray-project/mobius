@@ -24,7 +24,6 @@ import io.ray.streaming.runtime.util.CheckpointStateUtil;
 import io.ray.streaming.runtime.util.Serializer;
 import io.ray.streaming.runtime.worker.JobWorker;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
-import io.ray.streaming.runtime.worker.context.StreamingRuntimeContext;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -136,7 +135,7 @@ public abstract class StreamTask implements Runnable {
       }
     }
 
-    // when use memory state, if actor throw exception, will miss state
+    // when use buffer state, if actor throw exception, will miss state
     if (bytes != null) {
       operatorCheckpointInfo = Serializer.decode(bytes);
       processor.loadCheckpoint(operatorCheckpointInfo.checkpointId);
@@ -213,7 +212,7 @@ public abstract class StreamTask implements Runnable {
             });
 
     RuntimeContext runtimeContext =
-        new StreamingRuntimeContext(
+        new StreamingTaskRuntimeContext(
             executionVertex,
             jobWorker.getWorkerConfig().configMap,
             executionVertex.getParallelism());

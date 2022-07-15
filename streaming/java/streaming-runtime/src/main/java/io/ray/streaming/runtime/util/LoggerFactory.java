@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 public class LoggerFactory {
 
-  private static final String LOGGER_FACTORY_LOG4J = "org.slf4j.memory.Log4jLoggerFactory";
+  private static final String LOGGER_FACTORY_LOG4J = "org.slf4j.buffer.Log4jLoggerFactory";
   private static final String LOGGER_FACTORY_LOG4J2 = "org.apache.logging.slf4j.Log4jLoggerFactory";
   private static final LogConfig LOG_CONFIG = ConfigFactory.create(LogConfig.class);
 

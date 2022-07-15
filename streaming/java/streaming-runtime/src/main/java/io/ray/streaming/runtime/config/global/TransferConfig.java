@@ -6,7 +6,7 @@ import io.ray.streaming.runtime.config.types.TransferChannelType;
 /** Job data transfer config. */
 public interface TransferConfig extends Config {
 
-  /** Data transfer channel type, support memory queue and native queue. */
+  /** Data transfer channel type, support buffer queue and native queue. */
   @DefaultValue(value = "NATIVE_CHANNEL")
   @Key(value = io.ray.streaming.util.Config.CHANNEL_TYPE)
   TransferChannelType channelType();

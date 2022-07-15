@@ -18,13 +18,10 @@
 
 package io.ray.streaming.state.backend;
 
-import io.ray.streaming.state.keystate.KeyGroup;
-import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.desc.MapStateDescriptor;
-import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
-import io.ray.streaming.state.keystate.state.MapState;
-import io.ray.streaming.state.keystate.state.ValueState;
+import io.ray.streaming.state.api.desc.MapStateDescriptor;
+import io.ray.streaming.state.api.desc.ValueStateDescriptor;
+import io.ray.streaming.state.api.state.MapState;
+import io.ray.streaming.state.api.state.ValueState;
 import java.util.Arrays;
 import java.util.HashMap;
 import org.testng.Assert;

@@ -20,7 +20,7 @@ package io.ray.streaming.state.backend;
 
 /** Backend Types. */
 public enum StateBackendType {
-  /** Saving the state values in memory */
+  /** Saving the state values in buffer */
   MEMORY;
 
   /** get the enum from input string value, ignoring the case */

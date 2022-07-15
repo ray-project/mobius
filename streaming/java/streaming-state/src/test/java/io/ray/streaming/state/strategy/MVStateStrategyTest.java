@@ -18,18 +18,11 @@
 
 package io.ray.streaming.state.strategy;
 
-import io.ray.streaming.state.backend.KeyStateBackend;
-import io.ray.streaming.state.backend.StateBackendBuilder;
 import io.ray.streaming.state.backend.StateBackendType;
-import io.ray.streaming.state.backend.StateStrategy;
-import io.ray.streaming.state.config.ConfigKey;
-import io.ray.streaming.state.keystate.KeyGroup;
-import io.ray.streaming.state.keystate.desc.ListStateDescriptor;
-import io.ray.streaming.state.keystate.desc.MapStateDescriptor;
-import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.ListState;
-import io.ray.streaming.state.keystate.state.MapState;
-import io.ray.streaming.state.keystate.state.ValueState;
+import io.ray.streaming.state.api.desc.MapStateDescriptor;
+import io.ray.streaming.state.api.desc.ValueStateDescriptor;
+import io.ray.streaming.state.api.state.MapState;
+import io.ray.streaming.state.api.state.ValueState;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

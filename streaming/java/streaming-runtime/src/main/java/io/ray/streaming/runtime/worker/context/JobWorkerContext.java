@@ -15,7 +15,6 @@ import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.python.GraphPbBuilder;
 import io.ray.streaming.runtime.worker.JobWorkerType;
-import io.ray.streaming.runtime.worker.tasks.ControlMessage;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;

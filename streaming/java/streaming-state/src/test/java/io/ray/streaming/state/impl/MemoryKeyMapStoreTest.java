@@ -19,9 +19,6 @@
 package io.ray.streaming.state.impl;
 
 import com.google.common.collect.Maps;
-import io.ray.streaming.state.backend.AbstractStateBackend;
-import io.ray.streaming.state.backend.StateBackendBuilder;
-import io.ray.streaming.state.store.KeyMapStore;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

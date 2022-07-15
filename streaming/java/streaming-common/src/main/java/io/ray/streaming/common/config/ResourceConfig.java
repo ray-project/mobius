@@ -2,15 +2,15 @@ package io.ray.streaming.common.config;
 
 public interface ResourceConfig extends Config {
 
-  String MASTER_MEM = "streaming.resource.master.memory.mb";
+  String MASTER_MEM = "streaming.resource.master.buffer.mb";
   String MASTER_PER_HUNDRED_PARALLELISM_MEM =
-      "streaming.resource.master.per-hundred-parallelism.memory.gb";
+      "streaming.resource.master.per-hundred-parallelism.buffer.gb";
   String WORKER_RESOURCE_STRICT_LIMIT_ENABLE = "streaming.resource.worker.strict-limit.enable";
   String WORKER_CPU = "streaming.resource.worker.cpu";
   String WORKER_MEM = "streaming.resource.worker.mem.mb";
   String WORKER_GPU = "streaming.resource.worker.gpu";
   String EXTRA_CPU = "streaming.resource.extra.cpu";
-  String EXTRA_MEMORY_MB = "streaming.resource.extra.memory.mb";
+  String EXTRA_MEMORY_MB = "streaming.resource.extra.buffer.mb";
   String WORKER_CPU_LIMIT = "streaming.resource.worker.cpu.limit";
   String WORKER_MEM_LIMIT = "streaming.resource.worker.mem.limit";
   String WORKER_GPU_LIMIT = "streaming.resource.worker.gpu.limit";
@@ -35,7 +35,7 @@ public interface ResourceConfig extends Config {
   String TASK_RESOURCE_MEM = "streaming.task.resource.mem";
   /** Whether to enable CPU limit in resource control. */
   String TASK_RESOURCE_CPU_LIMIT_ENABLE = "streaming.task.resource.cpu.limitation.enable";
-  /** Whether to enable memory limit in resource control. */
+  /** Whether to enable buffer limit in resource control. */
   String TASK_RESOURCE_MEM_LIMIT_ENABLE = "streaming.task.resource.mem.limitation.enable";
   /* End of io.ray.streaming.runtime.config.master.ResourceConfig */
 
@@ -44,17 +44,17 @@ public interface ResourceConfig extends Config {
   /**
    * Memory for job master.
    *
-   * @return job master's memory in mb
+   * @return job master's buffer in mb
    */
   @DefaultValue(value = "3000")
   @Key(value = MASTER_MEM)
   int masterMemoryMb();
 
   /**
-   * Gb memory for job master per hundred parallelism. e.g. total parallelism: 400 -> memory:
+   * Gb buffer for job master per hundred parallelism. e.g. total parallelism: 400 -> buffer:
    * 400/100 * 1 = 4gb
    *
-   * @return gb memory
+   * @return gb buffer
    */
   @DefaultValue(value = "1")
   @Key(value = MASTER_PER_HUNDRED_PARALLELISM_MEM)
@@ -80,10 +80,10 @@ public interface ResourceConfig extends Config {
   double workerCpuRequired();
 
   /**
-   * Default memory required for each worker unless jvm-opts is specified. Unit: mb. Warning: do not
+   * Default buffer required for each worker unless jvm-opts is specified. Unit: mb. Warning: do not
    * use float value(only integer is supported) in cluster mode
    *
-   * @return memory size
+   * @return buffer size
    */
   @DefaultValue(value = "1600")
   @Key(value = WORKER_MEM)
@@ -109,9 +109,9 @@ public interface ResourceConfig extends Config {
   double extraCpuNum();
 
   /**
-   * Extra memory for job(including in total memory).
+   * Extra buffer for job(including in total buffer).
    *
-   * @return memory in mb
+   * @return buffer in mb
    */
   @DefaultValue(value = "4000")
   @Key(value = EXTRA_MEMORY_MB)
@@ -168,9 +168,9 @@ public interface ResourceConfig extends Config {
   float[] workerCpuLimit();
 
   /**
-   * Limit of the memory resource for all kind of worker. Unit: mb. format: minimum,maximum
+   * Limit of the buffer resource for all kind of worker. Unit: mb. format: minimum,maximum
    *
-   * @return memory limit
+   * @return buffer limit
    */
   @DefaultValue(value = "1000,128000")
   @Separator(",")
@@ -201,7 +201,7 @@ public interface ResourceConfig extends Config {
    * Recommendation multiple factor for Memory resource. The recommendation vale is valid if the
    * recommendation vale >= the current value * factor.
    *
-   * @return memory factor
+   * @return buffer factor
    */
   @DefaultValue(value = "1.3")
   @Key(value = WORKER_MEM_RECOMMENDATION_FACTOR)
@@ -233,7 +233,7 @@ public interface ResourceConfig extends Config {
   @Key(value = TASK_RESOURCE_CPU_LIMIT_ENABLE)
   boolean isTaskCpuResourceLimit();
 
-  /** Whether to enable memory limit in resource control. */
+  /** Whether to enable buffer limit in resource control. */
   @DefaultValue(value = "false")
   @Key(value = TASK_RESOURCE_MEM_LIMIT_ENABLE)
   boolean isTaskMemResourceLimit();

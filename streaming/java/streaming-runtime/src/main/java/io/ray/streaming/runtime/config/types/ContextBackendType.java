@@ -3,7 +3,7 @@ package io.ray.streaming.runtime.config.types;
 public enum ContextBackendType {
 
   /** Memory type */
-  MEMORY("memory", 0),
+  MEMORY("buffer", 0),
 
   /** Local File */
   LOCAL_FILE("local_file", 1);

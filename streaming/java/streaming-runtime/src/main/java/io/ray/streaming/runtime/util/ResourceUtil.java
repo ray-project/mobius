@@ -42,7 +42,7 @@ public class ResourceUtil {
   private static OperatingSystemMXBean osmxb =
       (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-  /** Log current jvm process's memory detail */
+  /** Log current jvm process's buffer detail */
   public static void logProcessMemoryDetail() {
     int mb = 1024 * 1024;
 
@@ -51,13 +51,13 @@ public class ResourceUtil {
 
     StringBuilder sb = new StringBuilder(32);
 
-    sb.append("used memory: ")
+    sb.append("used buffer: ")
         .append((runtime.totalMemory() - runtime.freeMemory()) / mb)
-        .append(", free memory: ")
+        .append(", free buffer: ")
         .append(runtime.freeMemory() / mb)
-        .append(", total memory: ")
+        .append(", total buffer: ")
         .append(runtime.totalMemory() / mb)
-        .append(", max memory: ")
+        .append(", max buffer: ")
         .append(runtime.maxMemory() / mb);
 
     if (LOG.isInfoEnabled()) {
@@ -67,7 +67,7 @@ public class ResourceUtil {
 
   /**
    * @return jvm heap usage ratio. note that one of the survivor space is not include in total
-   *     memory while calculating this ratio.
+   *     buffer while calculating this ratio.
    */
   public static double getJvmHeapUsageRatio() {
     Runtime runtime = Runtime.getRuntime();
@@ -83,19 +83,19 @@ public class ResourceUtil {
     return runtime.totalMemory() - runtime.freeMemory();
   }
 
-  /** Returns the total amount of physical memory in bytes. */
+  /** Returns the total amount of physical buffer in bytes. */
   public static long getSystemTotalMemory() {
     return osmxb.getTotalPhysicalMemorySize();
   }
 
-  /** Returns the used system physical memory in bytes */
+  /** Returns the used system physical buffer in bytes */
   public static long getSystemMemoryUsage() {
     long totalMemory = osmxb.getTotalPhysicalMemorySize();
     long freeMemory = osmxb.getFreePhysicalMemorySize();
     return totalMemory - freeMemory;
   }
 
-  /** Returns the ratio of used system physical memory. This value is a double in the [0.0,1.0] */
+  /** Returns the ratio of used system physical buffer. This value is a double in the [0.0,1.0] */
   public static double getSystemMemoryUsageRatio() {
     double totalMemory = osmxb.getTotalPhysicalMemorySize();
     double freeMemory = osmxb.getFreePhysicalMemorySize();
@@ -215,13 +215,13 @@ public class ResourceUtil {
   }
 
   /**
-   * Transfer the memory properly to fit the memory value used for ray internal(divisible by 50).
+   * Transfer the buffer properly to fit the buffer value used for ray internal(divisible by 50).
    *
    * Notice:
-   * 1) if the input memory value < 128, it will be used as gb unit
-   * 2) if the input memory value >= 128, it will be used as mb unit
+   * 1) if the input buffer value < 128, it will be used as gb unit
+   * 2) if the input buffer value >= 128, it will be used as mb unit
    *
-   * @param memoryValue the memory value
+   * @param memoryValue the buffer value
    * @return the properly value
    */
   public static long getMemoryMbFromMemoryValue(Double memoryValue) {
@@ -240,27 +240,27 @@ public class ResourceUtil {
   }
 
   /**
-   * Judge whether the value is valid to describe memory in mb.
+   * Judge whether the value is valid to describe buffer in mb.
    * e.g. if user use gb-value, the value should be like 2,4
    *
-   * @param value memory value
-   * @return is a valid to describe memory in mb
+   * @param value buffer value
+   * @return is a valid to describe buffer in mb
    */
   public static boolean isMemoryMbValue(long value) {
     return value >= MEMORY_MB_MIN_VALUE;
   }
 
   /**
-   * Extract "-Xmx" param from jvm options and convert it into memory mb value.
+   * Extract "-Xmx" param from jvm options and convert it into buffer mb value.
    *
    * @param jvmOptions jvm options in string format
    * @param operatorName operator's name (ExecutionJobVertex name)
-   * @return memory in mb
+   * @return buffer in mb
    */
   public static double calculateMemoryMbFromJvmOptsStr(String jvmOptions, String operatorName) {
     // jvm opts empty check
     if (StringUtils.isEmpty(jvmOptions)) {
-      LOG.info("Empty jvm options for operator: {}. Skip memory override.", operatorName);
+      LOG.info("Empty jvm options for operator: {}. Skip buffer override.", operatorName);
       return 0D;
     }
 

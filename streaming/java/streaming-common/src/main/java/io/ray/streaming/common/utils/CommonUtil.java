@@ -198,7 +198,7 @@ public class CommonUtil {
               chainedResources.putIfAbsent(resourceKey, resourceValue);
             } else {
               if (ResourceKey.MEM.name().equals(resourceKey)) {
-                // for memory, use the sum value for chained operator
+                // for buffer, use the sum value for chained operator
                 // e.g. OpA(256mb) chain OpB(512mb) = ChainedOp(768mb)
                 Double currentValue = chainedResources.get(resourceKey);
                 chainedResources.put(resourceKey, currentValue + resourceValue);

@@ -522,7 +522,7 @@ public class JobSchedulerImpl implements JobScheduler {
       // override mem resource with jvm result
       Double currentMemoryMb = resources.get(ResourceKey.MEM.name());
       if (memoryMbFromJvmOpts > 0 && memoryMbFromJvmOpts > currentMemoryMb) {
-        LOG.info("Override memory mb with: {} for operator: {} by jvm options.",
+        LOG.info("Override buffer mb with: {} for operator: {} by jvm options.",
                 memoryMbFromJvmOpts, operatorName);
         resources.put(ResourceKey.MEM.name(), memoryMbFromJvmOpts);
       }

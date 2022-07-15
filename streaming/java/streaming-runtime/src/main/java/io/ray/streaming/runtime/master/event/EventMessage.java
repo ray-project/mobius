@@ -66,10 +66,10 @@ public enum EventMessage {
   SAVE_CHECKPOINT_FAIL("Failed in saving checkpoint."),
 
   /**
-   * For memory request.
+   * For buffer request.
    */
-  MEMORY_REQUEST_SUCCESS("Succeed in memory request."),
-  MEMORY_REQUEST_FAIL("Failed in memory request."),
+  MEMORY_REQUEST_SUCCESS("Succeed in buffer request."),
+  MEMORY_REQUEST_FAIL("Failed in buffer request."),
 
   /**
    * For external optimization.

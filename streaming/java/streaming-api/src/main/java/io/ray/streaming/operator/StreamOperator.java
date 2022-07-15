@@ -1,12 +1,10 @@
 package io.ray.streaming.operator;
 
-import io.ray.runtime.generated.Common;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.api.function.Function;
 import io.ray.streaming.common.enums.OperatorInputType;
-import io.ray.streaming.common.generated.Common;
 import io.ray.streaming.util.TypeInfo;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -128,24 +126,6 @@ public interface StreamOperator extends Serializable {
   }
 
   void addNextOperator(StreamOperator operator);
-
-  /* United Distributed Controller start. */
-  default boolean onPrepare(Common.UnitedDistributedControlMessage controlMessage) {
-    return getFunction().onPrepare(controlMessage);
-  }
-
-  default Common.UnitedDistributedControlMessage onCommit() {
-    return getFunction().onCommit();
-  }
-
-  default boolean onDisposed() {
-    return getFunction().onDisposed();
-  }
-
-  default boolean onCancel() {
-    return getFunction().onCancel();
-  }
-  /* United Distributed Controller end. */
 
   void forwardCommand(String commandMessage);
 }

@@ -1,12 +1,10 @@
 package io.ray.streaming.api.context;
 
 import io.ray.streaming.common.metric.MetricGroup;
-import io.ray.streaming.state.keystate.desc.KeyMapStateDescriptor;
-import io.ray.streaming.state.keystate.desc.KeyValueStateDescriptor;
-import io.ray.streaming.state.keystate.desc.ValueStateDescriptor;
-import io.ray.streaming.state.keystate.state.KeyMapState;
-import io.ray.streaming.state.keystate.state.proxy.KeyValueState;
-import io.ray.streaming.state.keystate.state.ValueState;
+import io.ray.streaming.state.api.desc.MapStateDescriptor;
+import io.ray.streaming.state.api.desc.ValueStateDescriptor;
+import io.ray.streaming.state.api.state.MapState;
+import io.ray.streaming.state.api.state.ValueState;
 import java.util.Map;
 
 /** Encapsulate the runtime information of a streaming task. */
@@ -93,7 +91,7 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> KeyValueState<K, V> getKeyValueState(KeyValueStateDescriptor<K, V> stateDescriptor);
+  <K, V> MapState<K, V> getMapState(MapStateDescriptor<K, V> stateDescriptor);
 
   /**
    * Get state of key-value type(nonKeyed).
@@ -103,19 +101,8 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> KeyValueState<K, V> getNonKeyedKeyValueState(
-      KeyValueStateDescriptor<K, V> stateDescriptor);
-
-  /**
-   * Get state of key-map type.
-   *
-   * @param stateDescriptor state descriptor
-   * @param <K> type of state's key
-   * @param <X> type of state's map value's key
-   * @param <Y> type of state's map value's value
-   * @return state
-   */
-  <K, X, Y> KeyMapState<K, X, Y> getKeyMapState(KeyMapStateDescriptor<K, X, Y> stateDescriptor);
+  <K, V> MapState<K, V> getNonKeyedMapState(
+      MapStateDescriptor<K, V> stateDescriptor);
 
   /**
    * Get the current checkpoint of the runtime.

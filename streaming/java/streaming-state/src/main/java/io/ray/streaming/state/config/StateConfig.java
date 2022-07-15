@@ -27,6 +27,8 @@ public interface StateConfig extends Config {
 
   String STATE_LOCAL_STORE_USE_JOB_DIR = "state.local.store.use.job.dir.enable";
 
+  String STATE_TABLE_NAME = "state.table.name";
+
   @DefaultValue("MEMORY")
   @Key(value = BACKEND_TYPE)
   StateBackendType stateBackendType();
@@ -54,4 +56,8 @@ public interface StateConfig extends Config {
   @DefaultValue("false")
   @Key(value = STATE_LOCAL_STORE_USE_JOB_DIR)
   boolean enableJobStoreDir();
+
+  @DefaultValue("table")
+  @Key(value = STATE_TABLE_NAME)
+  String getStateTableName();
 }

@@ -78,8 +78,8 @@ public final class Platform {
   }
 
   /**
-   * @param buffer a DirectBuffer backed by off-heap memory
-   * @return address of off-heap memory
+   * @param buffer a DirectBuffer backed by off-heap buffer
+   * @return address of off-heap buffer
    */
   public static long getAddress(ByteBuffer buffer) {
     return ((DirectBuffer) buffer).address();

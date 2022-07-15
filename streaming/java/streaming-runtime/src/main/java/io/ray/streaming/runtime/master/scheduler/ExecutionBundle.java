@@ -2,7 +2,6 @@ package io.ray.streaming.runtime.master.scheduler;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import io.ray.api.placementgroup.Bundle;
 import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.runtime.generated.Common.Bundle;
 import io.ray.streaming.common.config.ResourceConfig;
@@ -22,7 +21,7 @@ import org.aeonbits.owner.ConfigFactory;
  */
 public class ExecutionBundle implements Serializable {
 
-  public static final String MEM_KEY_FOR_GCS_SCHEDULING = "memory";
+  public static final String MEM_KEY_FOR_GCS_SCHEDULING = "buffer";
   public static final double MEM_DEFAULT = ConfigFactory.create(ResourceConfig.class).workerMemMbRequired();
 
   /**
@@ -103,7 +102,7 @@ public class ExecutionBundle implements Serializable {
   }
 
   public Map<String, Double> getResources(Map<String, String> jobConf) {
-    // get default memory value first
+    // get default buffer value first
     double memValue;
     if(jobConf == null || !jobConf.containsKey(ResourceConfig.WORKER_MEM)) {
       memValue = MEM_DEFAULT;
@@ -116,7 +115,7 @@ public class ExecutionBundle implements Serializable {
       memValue = resources.get(ResourceKey.MEM.name());
     }
 
-    // replace mem value because: 'Resource 'memory' must be specified in bundles if gcs scheduler enabled.'
+    // replace mem value because: 'Resource 'buffer' must be specified in bundles if gcs scheduler enabled.'
     resources.put(MEM_KEY_FOR_GCS_SCHEDULING, (double) ResourceUtil.getMemoryMbFromMemoryValue(memValue));
 
     return new HashMap<>(resources);
