@@ -19,7 +19,7 @@
 package io.ray.streaming.state.api.desc;
 
 import io.ray.streaming.state.api.StateType;
-import io.ray.streaming.state.typeinfo.statetype.MapTypeInfo;
+import io.ray.streaming.state.typeinfo.MapTypeInfo;
 import java.util.Map;
 
 /** ValueStateDescriptor. */

@@ -20,7 +20,6 @@ package io.ray.streaming.state.backend.memory;
 
 
 import io.ray.streaming.state.backend.StateBackend;
-import io.ray.streaming.state.serialization.KeyMapStoreSerializer;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

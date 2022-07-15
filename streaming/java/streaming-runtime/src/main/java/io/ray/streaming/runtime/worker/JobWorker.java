@@ -1,5 +1,6 @@
 package io.ray.streaming.runtime.worker;
 
+import com.google.common.base.Preconditions;
 import io.ray.api.Ray;
 import io.ray.streaming.runtime.config.StreamingWorkerConfig;
 import io.ray.streaming.runtime.config.types.TransferChannelType;
@@ -10,6 +11,7 @@ import io.ray.streaming.runtime.core.processor.OneInputProcessor;
 import io.ray.streaming.runtime.core.processor.ProcessBuilder;
 import io.ray.streaming.runtime.core.processor.SourceProcessor;
 import io.ray.streaming.runtime.core.processor.StreamProcessor;
+import io.ray.streaming.runtime.core.processor.TwoInputProcessor;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.master.coordinator.command.WorkerRollbackRequest;
 import io.ray.streaming.runtime.message.CallResult;
@@ -19,13 +21,22 @@ import io.ray.streaming.runtime.transfer.channel.ChannelRecoverInfo;
 import io.ray.streaming.runtime.transfer.channel.ChannelRecoverInfo.ChannelCreationStatus;
 import io.ray.streaming.runtime.util.CheckpointStateUtil;
 import io.ray.streaming.runtime.util.EnvUtil;
+import io.ray.streaming.runtime.util.MetricsUtils;
 import io.ray.streaming.runtime.util.Serializer;
+import io.ray.streaming.runtime.util.StateConfigConverter;
+import io.ray.streaming.runtime.worker.context.ImmutableContext;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import io.ray.streaming.runtime.worker.tasks.OneInputStreamTask;
 import io.ray.streaming.runtime.worker.tasks.SourceStreamTask;
 import io.ray.streaming.runtime.worker.tasks.StreamTask;
+import io.ray.streaming.runtime.worker.tasks.TwoInputStreamTask;
+import io.ray.streaming.state.api.desc.MapStateDescriptor;
+import io.ray.streaming.state.api.state.MapState;
+import io.ray.streaming.state.manager.StateManager;
 import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +51,8 @@ import org.slf4j.LoggerFactory;
 public class JobWorker implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(JobWorker.class);
-
+  private static final String JOB_WORKER_CONTEXT_STATE_NAME = "JobWorkerRuntimeContextState";
+  private static final String JOB_WORKER_IMMUTABLE_CONTEXT_STATE_NAME = "JobWorkerImmutableContextState";
   // special flag to indicate this actor not ready
   private static final byte[] NOT_READY_FLAG = new byte[4];
 
@@ -48,11 +60,30 @@ public class JobWorker implements Serializable {
     EnvUtil.loadNativeLibraries();
   }
 
+
+  /**
+   * JobWorker runtime context state.
+   * Used for creating stateful operator like reduce operator.
+   */
+  private StateManager stateManager;
+  /**
+   * History JobWorkerContext, one for each checkpoint id.
+   * Key: generated key name based on checkpoint id (see {@ling #genGlobalContextKey});
+   * Value: The JobWorkerContext during the runtime period of that checkpoint id.
+   */
+  // TODO: Current version only maintain single version of context,
+  //  need to save multiple version with checkpointId as the key.
+  private MapState<String, JobWorkerContext> workerContextKeyValueState;
+  private MapState<String, ImmutableContext> immutableContextKeyValueState;
+
   public final Object initialStateChangeLock = new Object();
   /** isRecreate=true means this worker is initialized more than once after actor created. */
   public AtomicBoolean isRecreate = new AtomicBoolean(false);
 
   public ContextBackend contextBackend;
+  /**
+   * JobWorker's current context.
+   */
   private JobWorkerContext workerContext;
   private ExecutionVertex executionVertex;
   private StreamingWorkerConfig workerConfig;
@@ -134,6 +165,22 @@ public class JobWorker implements Serializable {
     return true;
   }
 
+  private void initWorkerState(){
+    // init state
+    this.stateManager = new StateManager(
+        workerConfig.commonConfig.jobName(),
+        workerConfig.workerInternalConfig.workerOperatorName(),
+        StateConfigConverter.convertCheckpointStateConfig(workerConfig.configMap),
+        MetricsUtils.getMetricGroup(workerConfig.configMap));
+    MapStateDescriptor<String, JobWorkerContext> workerContextDescriptor =
+        MapStateDescriptor.build(JOB_WORKER_CONTEXT_STATE_NAME, String.class, JobWorkerContext.class);
+    MapStateDescriptor<String, ImmutableContext> immutableContextDescriptor =
+        MapStateDescriptor.build(JOB_WORKER_IMMUTABLE_CONTEXT_STATE_NAME, String.class, ImmutableContext.class);
+
+    this.workerContextKeyValueState = stateManager.getMapState(workerContextDescriptor);
+    this.immutableContextKeyValueState = stateManager.getMapState(immutableContextDescriptor);
+  }
+
   /**
    * Start worker's stream tasks with specific checkpoint ID.
    *
@@ -194,20 +241,35 @@ public class JobWorker implements Serializable {
 
   /** Create tasks based on the processor corresponding of the operator. */
   private StreamTask createStreamTask(long checkpointId) {
-    StreamTask task;
+    StreamTask targetTask;
     StreamProcessor streamProcessor =
         ProcessBuilder.buildProcessor(executionVertex.getOperator());
     LOG.debug("Stream processor created: {}.", streamProcessor);
 
     if (streamProcessor instanceof SourceProcessor) {
-      task = new SourceStreamTask(streamProcessor, this, checkpointId);
+      targetTask = new SourceStreamTask(streamProcessor, this, checkpointId);
     } else if (streamProcessor instanceof OneInputProcessor) {
-      task = new OneInputStreamTask(streamProcessor, this, checkpointId);
-    } else {
+      targetTask = new OneInputStreamTask(streamProcessor, this, checkpointId);
+    } else if (streamProcessor instanceof TwoInputProcessor) {
+      LOG.info("Create two input stream task with {}, operator is {}.",
+          checkpointId, workerConfig.workerInternalConfig.workerName());
+      List<Integer> inputOpIds = executionVertex.getInputEdges().stream()
+          .map(executionEdge -> executionEdge.getSource().getExecutionJobVertexId())
+          .distinct()
+          .collect(Collectors.toList());
+      Preconditions.checkState(inputOpIds.size() == 2,
+          "Two input vertex input edge size must be 2.");
+      String leftStream = inputOpIds.get(0).toString();
+      String rightStream = inputOpIds.get(1).toString();
+      targetTask = new TwoInputStreamTask(streamProcessor, this,
+          leftStream,
+          rightStream,
+          task.lastCheckpointId);
+    }  else {
       throw new RuntimeException("Unsupported processor type:" + streamProcessor);
     }
-    LOG.info("Stream task created: {}.", task);
-    return task;
+    LOG.info("Stream task created: {}.", targetTask);
+    return targetTask;
   }
 
   // ----------------------------------------------------------------------

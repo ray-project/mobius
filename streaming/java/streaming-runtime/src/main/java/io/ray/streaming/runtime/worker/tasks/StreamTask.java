@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,10 +152,12 @@ public abstract class StreamTask implements Runnable {
           "Register queue writer, channels={}, outputCheckpoints={}.",
           executionVertex.getOutputChannelIdList(),
           operatorCheckpointInfo.outputPoints);
+      List<BaseActorHandle> outputActors = new ArrayList<>(
+          executionVertex.getChannelIdOutputActorMap().values());
       writer =
           new DataWriter(
               executionVertex.getOutputChannelIdList(),
-              executionVertex.getChannelIdOutputActorMap(),
+              outputActors,
               operatorCheckpointInfo.outputPoints,
               jobWorker.getWorkerConfig());
     }
@@ -165,10 +168,12 @@ public abstract class StreamTask implements Runnable {
           "Register queue reader, channels={}, inputCheckpoints={}.",
           executionVertex.getInputChannelIdList(),
           operatorCheckpointInfo.inputPoints);
+      List<BaseActorHandle> inputActors = new ArrayList<>(
+          executionVertex.getChannelIdInputActorMap().values());
       reader =
           new DataReader(
               executionVertex.getInputChannelIdList(),
-              executionVertex.getChannelIdInputActorMap(),
+              inputActors,
               operatorCheckpointInfo.inputPoints,
               jobWorker.getWorkerConfig());
     }
@@ -214,8 +219,7 @@ public abstract class StreamTask implements Runnable {
     RuntimeContext runtimeContext =
         new StreamingTaskRuntimeContext(
             executionVertex,
-            jobWorker.getWorkerConfig().configMap,
-            executionVertex.getParallelism());
+            lastCheckpointId);
 
     processor.open(collectors, runtimeContext);
   }
@@ -305,7 +309,7 @@ public abstract class StreamTask implements Runnable {
     final JobWorkerContext context = jobWorker.getWorkerContext();
     LOG.info("Report commit async, checkpoint id {}.", checkpointId);
     RemoteCallMaster.reportJobWorkerCommitAsync(
-        context.getMaster(), new WorkerCommitReport(context.getWorkerActorId(), checkpointId));
+        context.getMasterActor(), new WorkerCommitReport(context.getWorkerActorId(), checkpointId));
   }
 
   public void notifyCheckpointTimeout(long checkpointId) {

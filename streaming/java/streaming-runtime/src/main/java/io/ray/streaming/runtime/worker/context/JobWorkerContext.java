@@ -30,7 +30,6 @@ public final class JobWorkerContext implements Serializable {
   /**
    * The execution vertex info.
    */
-  // TODO: please remove this field when kryo-removing is ready (yunye)
   private int executionVertexId;
   private byte[] vertexIdExecutionVertexMapBytes;
   private byte[] pythonWorkerContextBytes;

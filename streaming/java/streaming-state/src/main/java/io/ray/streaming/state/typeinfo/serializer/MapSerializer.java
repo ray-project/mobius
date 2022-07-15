@@ -1,7 +1,7 @@
 package io.ray.streaming.state.typeinfo.serializer;
 
-import io.ray.state.memory.DataInputView;
-import io.ray.state.memory.DataOutputView;
+import io.ray.streaming.state.buffer.DataInputView;
+import io.ray.streaming.state.buffer.DataOutputView;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

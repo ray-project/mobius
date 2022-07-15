@@ -1,8 +1,8 @@
 package io.ray.streaming.state.typeinfo.serializer;
 
-import io.ray.state.memory.DataInputView;
-import io.ray.state.memory.DataOutputView;
-import io.ray.state.typeinfo.TypeInfoUtils;
+import io.ray.streaming.state.buffer.DataInputView;
+import io.ray.streaming.state.buffer.DataOutputView;
+import io.ray.streaming.state.typeinfo.TypeInfoUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

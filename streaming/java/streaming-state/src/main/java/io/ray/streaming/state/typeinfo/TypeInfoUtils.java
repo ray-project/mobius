@@ -111,16 +111,6 @@ public class TypeInfoUtils {
       return pojoTypeInfo;
     }
 
-//    RowTypeInfo<T> rowTypeInfo = isRowTypeClass(clazz, typeHierarchy);
-//    if (rowTypeInfo != null) {
-//      return rowTypeInfo;
-//    }
-//
-//    RowKeyTypeInfo<T> rowKeyTypeInfo = isRowKeyTypeClass(clazz, typeHierarchy);
-//    if (rowKeyTypeInfo != null) {
-//      return rowKeyTypeInfo;
-//    }
-
     ListTypeInfo<T> listTypeInfo = isListTypeClass(clazz, typeHierarchy);
     if (listTypeInfo != null) {
       return listTypeInfo;
