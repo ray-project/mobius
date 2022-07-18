@@ -1,10 +1,9 @@
 package io.ray.streaming.api.function;
 
-import io.ray.runtime.generated.Common;
 import java.io.Serializable;
 
 /** Interface of streaming functions. */
-public interface Function extends Serializable, UnitedDistributedControllerActorAdapter {
+public interface Function extends Serializable {
 
   /**
    * Mark this checkpoint has been finished.
@@ -50,28 +49,6 @@ public interface Function extends Serializable, UnitedDistributedControllerActor
    * @throws Exception
    */
   default void deleteCheckpoint(long checkpointId) throws Exception {}
-
-  /* UDC related start. */
-  @Override
-  default boolean onPrepare(Common.UnitedDistributedControlMessage controlMessage) {
-    return true;
-  }
-
-  @Override
-  default boolean onDisposed() {
-    return true;
-  }
-
-  @Override
-  default boolean onCancel() {
-    return true;
-  }
-
-  @Override
-  default Common.UnitedDistributedControlMessage onCommit() {
-    return null;
-  }
-  /* UDC related end. */
 
   /**
    * User defined command that need to be executed by the function.

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 /** Abstract base class for chained operators. */
 public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
   private static final Logger LOG = LoggerFactory.getLogger(ChainedOperator.class);
+  /** Chained operators */
   protected final List<StreamOperator> operators;
   protected final StreamOperator headOperator;
   protected Set<StreamOperator> tailOperators;
@@ -134,29 +135,6 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
   public void close() {
     operators.forEach(StreamOperator::close);
   }
-
-  @Override
-  public boolean onDisposed() {
-    for (StreamOperator operator : operators) {
-      boolean result = operator.onDisposed();
-      if (!result) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Override
-  public boolean onCancel() {
-    for (StreamOperator operator : operators) {
-      boolean result = operator.onCancel();
-      if (!result) {
-        return false;
-      }
-    }
-    return true;
-  }
-  /* UDC related end. */
 
   @Override
   public OperatorInputType getOpType() {
