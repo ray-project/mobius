@@ -69,7 +69,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
   private Map<BaseActorHandle, Integer> topoLevelOrder = Maps.newHashMap();
   private String digraph;
 
-  private List<IndependentVertex> independentVertices = new ArrayList<>();
+  private List<IndependentExecutionVertex> independentVertices = new ArrayList<>();
 
   private List<ExecutionGroup> executionGroups;
 
@@ -668,17 +668,17 @@ public class ExecutionGraph implements Serializable, Cloneable {
     return graphBuilder.build();
   }
 
-  public List<IndependentVertex> getIndependentVertices() {
+  public List<IndependentExecutionVertex> getIndependentVertices() {
     return independentVertices;
   }
 
-  public List<IndependentVertex> getSpecifiedTypeIndependentActors(String actorRoleType) {
+  public List<IndependentExecutionVertex> getSpecifiedTypeIndependentActors(String actorRoleType) {
     return independentVertices.stream()
             .filter(actor -> actor.getRoleName() == ActorRoleType.valueOfNameOrDesc(actorRoleType))
             .collect(Collectors.toList());
   }
 
-  public List<IndependentVertex> getSpecifiedTypeIndependentActors(ActorRoleType actorRoleType) {
+  public List<IndependentExecutionVertex> getSpecifiedTypeIndependentActors(ActorRoleType actorRoleType) {
     return independentVertices.stream()
             .filter(actor -> actor.getRoleName() == actorRoleType)
             .collect(Collectors.toList());
@@ -689,7 +689,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
   }
 
   public void addIndependentVertices(
-          List<? extends IndependentVertex> independentActors) {
+          List<? extends IndependentExecutionVertex> independentActors) {
     this.independentVertices.addAll(independentActors);
   }
 

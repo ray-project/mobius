@@ -22,13 +22,13 @@ public class CollectionCollector<T> implements Collector<T> {
       collector.collect(new Record<>(value));
     }
   }
-
-  @Override
-  public void retract(T value) {
-    for (Collector<Record<T>> collector : collectorList) {
-      Record<T> record = new Record<>(value);
-      record.setRetract(true);
-      collector.collect(record);
-    }
-  }
+//
+//  @Override
+//  public void retract(T value) {
+//    for (Collector<Record<T>> collector : collectorList) {
+//      Record<T> record = new Record<>(value);
+//      record.setRetract(true);
+//      collector.collect(record);
+//    }
+//  }
 }

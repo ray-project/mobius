@@ -8,7 +8,7 @@ import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobVertex;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertexState;
-import io.ray.streaming.runtime.core.graph.executiongraph.IndependentVertex;
+import io.ray.streaming.runtime.core.graph.executiongraph.IndependentExecutionVertex;
 import io.ray.streaming.runtime.master.scheduler.ExecutionBundle;
 import io.ray.streaming.runtime.master.scheduler.ExecutionGroup;
 import java.util.ArrayList;
@@ -164,9 +164,9 @@ public class GraphUtil {
     });
 
     // for independent
-    executionGraph.getIndependentVertices().forEach(independentVertex -> {
-      String keyName = independentVertex.getActorName();
-      String actorName = independentVertex.getName();
+    executionGraph.getIndependentVertices().forEach(independentExecutionVertex -> {
+      String keyName = independentExecutionVertex.getActorName();
+      String actorName = independentExecutionVertex.getName();
       resultMap.computeIfAbsent(keyName, value -> new HashSet<>()).add(actorName);
     });
 
@@ -245,7 +245,7 @@ public class GraphUtil {
    * @return parallelism map {actor role type, parallelism}
    */
   public static Map<String, Integer> genParallelismMapForIndependentOperators(
-      List<IndependentVertex> independentVertices) {
+      List<IndependentExecutionVertex> independentVertices) {
     if (independentVertices == null) {
       return Collections.emptyMap();
     }
@@ -283,51 +283,14 @@ public class GraphUtil {
   }
 
   /**
-   * Map each ActorId to its corresponding vertex.
-   *
-   * @param allActorIds the list of ActorId that needs to be mapped
-   * @param executionVertices the (empty) container for the mapped {@link ExecutionVertex}.
-   * @param independentVertices the (empty) container for the mapped {@link IndependentVertex}.
-   * @param executionGraph {@link ExecutionGraph}
-   */
-  public static void mapActorId2Vertex(
-      List<ActorId> allActorIds,
-      List<ExecutionVertex> executionVertices,
-      List<IndependentVertex> independentVertices,
-      ExecutionGraph executionGraph){
-
-    // map ActorId to its corresponding Vertex
-    for (ActorId actorId : allActorIds){
-      if (executionGraph.getExecutionVertexByActorId(actorId) != null) {
-        // convert actorIds to their corresponding ExecutionVertex, for the latter Rescaling
-        ExecutionVertex vertex = executionGraph.getExecutionVertexByActorId(actorId);
-        LOG.info("ActorId: {} match to the ExecutionVertex: {}", actorId, vertex.getExecutionVertexName());
-        executionVertices.add(vertex);
-      }
-      else{
-        // may be the independent vertex (or JobMaster itself?)
-        Optional<IndependentVertex> maybeIndependentVertex = executionGraph.getIndependentVertices().stream()
-            .filter(vertex -> actorId.equals(vertex.getActorHandle().getId()))
-            .findFirst();
-        if (maybeIndependentVertex.isPresent()) {
-          LOG.info("ActorId: {} match to the IndependentVertex: {}.", actorId, maybeIndependentVertex.get().getActorName());
-          independentVertices.add(maybeIndependentVertex.get());
-        }else{
-          LOG.warn("ActorId: {} did not match to any vertex, maybe the JobMaster.", actorId);
-        }
-      }
-    }
-  }
-
-  /**
-   * Group a list of ExecutionVertex(including IndependentVertex) to a [JobVertexName, Set of ExeVertex Index] map
+   * Group a list of ExecutionVertex(including IndependentExecutionVertex) to a [JobVertexName, Set of ExeVertex Index] map
    *
    * @param executionVertices ExecutionVertices
    * @param independentVertices IndependentVertices
    * @return A map of group: [JobVertexName, Set of ExeVertex global id]
    */
   public static Map<String, Set<Integer>> groupExecutionVertexByOpName(
-      List<ExecutionVertex> executionVertices, List<IndependentVertex> independentVertices) {
+      List<ExecutionVertex> executionVertices, List<IndependentExecutionVertex> independentVertices) {
 
     // group by jobVertex name (or ActorRoleType) because this is needed by RescalingInfo
     Map<String, Set<Integer>> vertexMap = new HashMap<>();
@@ -344,7 +307,7 @@ public class GraphUtil {
     }
     /* TODO(paer): group independent vertices
     if (!(independentVertices == null || independentVertices.isEmpty())) {
-      for (IndependentVertex vertex : independentVertices) {
+      for (IndependentExecutionVertex vertex : independentVertices) {
         // Desc or name ? RescalingInfo says "ParameterServer" which is the "Desc" rather than the "name"
         String name = vertex.getRoleName().getDesc();
         if (vertexMap.containsKey(name)){

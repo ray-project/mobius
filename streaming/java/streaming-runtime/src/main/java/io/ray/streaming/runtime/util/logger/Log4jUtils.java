@@ -2,6 +2,7 @@ package io.ray.streaming.runtime.util.logger;
 
 import io.ray.streaming.common.config.LogConfig;
 import io.ray.streaming.common.utils.TestHelper;
+import io.ray.streaming.runtime.util.ModuleNameAppender;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;

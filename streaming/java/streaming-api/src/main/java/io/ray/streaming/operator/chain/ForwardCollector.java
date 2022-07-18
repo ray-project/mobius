@@ -28,20 +28,20 @@ class ForwardCollector<T> implements Collector<T> {
     }
   }
 
-  @Override
-  public void retract(T value) {
-    Record record;
-    if (value instanceof Record) {
-      record = (Record) value;
-    } else {
-      record = new Record(value);
-    }
-    Record copy = record.copy();
-    copy.setRetract(true);
-    try {
-      succeedingOperator.processElement(record);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
+//  @Override
+//  public void retract(T value) {
+//    Record record;
+//    if (value instanceof Record) {
+//      record = (Record) value;
+//    } else {
+//      record = new Record(value);
+//    }
+//    Record copy = record.copy();
+//    copy.setRetract(true);
+//    try {
+//      succeedingOperator.processElement(record);
+//    } catch (Exception e) {
+//      throw new RuntimeException(e);
+//    }
+//  }
 }

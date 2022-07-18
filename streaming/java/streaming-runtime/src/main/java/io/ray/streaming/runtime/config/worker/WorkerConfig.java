@@ -1,6 +1,5 @@
 package io.ray.streaming.runtime.config.worker;
 
-import com.alipay.streaming.runtime.queue.impl.streamingqueue.QueueConfigKeys;
 import io.ray.streaming.common.config.Config;
 
 public interface WorkerConfig extends Config {
@@ -9,14 +8,14 @@ public interface WorkerConfig extends Config {
   String WORKER_OP_NAME_INTERNAL = "opName";
   String WORKER_PARALLELISM_INTERNAL = "worker_parallelism";
   String WORKER_PARALLELISM_INDEX_INTERNAL = "worker_parallelism_index";
-  String WORKER_NAME_INTERNAL = QueueConfigKeys.STREAMING_WORKER_NAME;
+//  String WORKER_NAME_INTERNAL = QueueConfigKeys.STREAMING_WORKER_NAME;
   String WORKER_ACTOR_NAME_INTERNAL = "StreamingWorkerActorName";
-  String OPERATOR_TYPE_INTERNAL = QueueConfigKeys.OPERATOR_TYPE;
-  String OPERATOR_NAME_INTERNAL = QueueConfigKeys.STREAMING_OP_NAME;
+//  String OPERATOR_TYPE_INTERNAL = QueueConfigKeys.OPERATOR_TYPE;
+//  String OPERATOR_NAME_INTERNAL = QueueConfigKeys.STREAMING_OP_NAME;
   // just use CommonConfig.JOB_NAME
 //  String JOB_NAME_INTERNAL = QueueConfigKeys.STREAMING_JOB_NAME;
-  String RELIABILITY_LEVEL_INTERNAL = QueueConfigKeys.RELIABILITY_LEVEL;
-  String INDIVIDUAL_CONFIG = QueueConfigKeys.STREAMING_INDIVIDUAL_CONF;
+//  String RELIABILITY_LEVEL_INTERNAL = QueueConfigKeys.RELIABILITY_LEVEL;
+//  String INDIVIDUAL_CONFIG = QueueConfigKeys.STREAMING_INDIVIDUAL_CONF;
   String STATE_VERSION = "streaming.state.version";
 
   /**
@@ -60,25 +59,25 @@ public interface WorkerConfig extends Config {
   @Key(value = WORKER_ID_INTERNAL)
   String workerId();
 
-  @DefaultValue(value = "default-worker-name")
-  @Key(value = WORKER_NAME_INTERNAL)
-  String workerName();
-
-  @DefaultValue(value = "SOURCE")
-  @Key(value = OPERATOR_TYPE_INTERNAL)
-  String operatorType();
-
-  @DefaultValue(value = "default-operator-name")
-  @Key(value = OPERATOR_NAME_INTERNAL)
-  String operatorName();
+//  @DefaultValue(value = "default-worker-name")
+//  @Key(value = WORKER_NAME_INTERNAL)
+//  String workerName();
+//
+//  @DefaultValue(value = "SOURCE")
+//  @Key(value = OPERATOR_TYPE_INTERNAL)
+//  String operatorType();
+//
+//  @DefaultValue(value = "default-operator-name")
+//  @Key(value = OPERATOR_NAME_INTERNAL)
+//  String operatorName();
+//
+//  @DefaultValue(value = "")
+//  @Key(value = INDIVIDUAL_CONFIG)
+//  String individualConfig();
 
   @DefaultValue(value = "")
   @Key(value = STATE_VERSION)
   String stateVersion();
-
-  @DefaultValue(value = "")
-  @Key(value = INDIVIDUAL_CONFIG)
-  String individualConfig();
 
   @DefaultValue(value = "true")
   @Key(value = ENABLE_DYNAMIC_REBALANCE)

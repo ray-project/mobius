@@ -3,7 +3,6 @@ package io.ray.streaming.runtime.core.graph.executiongraph;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
-import io.ray.api.ObjectRef;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.operator.BaseIndependentOperator;
 import io.ray.streaming.runtime.master.scheduler.ActorRoleType;
@@ -20,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
  * Independent vertex.
  * Working for something else independent of normal job worker
  */
-public class IndependentVertex
+public class IndependentExecutionVertex
     implements Serializable, HealthCheckable{
 
   /**
@@ -73,7 +72,7 @@ public class IndependentVertex
 
   protected ExecutionVertexState independentVertexState;
 
-  public IndependentVertex(Builder builder){
+  public IndependentExecutionVertex(Builder builder){
     this.roleName = builder.roleName;
     this.index = builder.index;
     this.requiredResources = ResourceUtil.formatResource(builder.requiredResources);
@@ -263,8 +262,8 @@ public class IndependentVertex
     }
 
 
-    public IndependentVertex build(){
-      return new IndependentVertex(this);
+    public IndependentExecutionVertex build(){
+      return new IndependentExecutionVertex(this);
     }
   }
 

@@ -19,5 +19,5 @@ public interface Collector<T> {
     return -1;
   }
 
-  void retract(T value);
+//  void retract(T value);
 }

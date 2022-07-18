@@ -147,12 +147,12 @@ public abstract class AbstractStreamOperator<F extends Function> implements Stre
       collector.collect(new KeyRecord(key, value));
     }
   }
-
-  protected <T> void retract(T record) {
-    for (Collector collector : this.collectorList) {
-      collector.retract(record);
-    }
-  }
+//
+//  protected <T> void retract(T record) {
+//    for (Collector collector : this.collectorList) {
+//      collector.retract(record);
+//    }
+//  }
 
   @Override
   public String getName() {

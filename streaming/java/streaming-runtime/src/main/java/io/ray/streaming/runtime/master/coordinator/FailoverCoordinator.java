@@ -259,9 +259,9 @@ public class FailoverCoordinator extends BaseCoordinator {
     dataLostQueues.forEach(
         q -> {
           BaseActorHandle upstreamActor =
-              graphManager.getExecutionGraph().getPeerActor(fromVertex.getActor(), q);
+              graphManager.getExecutionGraph().getAnotherActor(fromVertex.getActor(), q);
           ExecutionVertex upstreamExeVertex = getExecutionVertex(upstreamActor);
-          // vertexes that has already cascaded by other vertex in the same level
+          // vertices that have already cascaded by other vertex in the same level
           // of graph should be ignored.
           if (isRollbacking.get(upstreamExeVertex)) {
             return;
