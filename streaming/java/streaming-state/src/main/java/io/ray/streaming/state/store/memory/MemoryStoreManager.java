@@ -64,16 +64,16 @@ public class MemoryStoreManager implements StoreManager{
   @Override
   public <K, V> MapState<K, V> buildNonKeyedMapStore(
           MapStateDescriptor<K, V> descriptor) {
-    MemoryNonKeyedMapStore<K, V> nonKeyedKeyValueStore = new MemoryNonKeyedMapStore<>(memoryStateBackend,
+    MemoryNonKeyedMapStore<K, V> nonKeyedMapStore = new MemoryNonKeyedMapStore<>(memoryStateBackend,
             jobName,
             stateName,
             null,
             metricGroup,
         UNIQUE_STATE_KEY);
 
-    storeList.add(nonKeyedKeyValueStore);
+    storeList.add(nonKeyedMapStore);
     LOG.info("Build nonKeyed key-value state, descriptor: {}", descriptor);
-    return nonKeyedKeyValueStore;
+    return nonKeyedMapStore;
   }
 
   @Override

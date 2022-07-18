@@ -1,8 +1,9 @@
 package io.ray.streaming.state.typeinfo;
 
-import io.ray.state.typeinfo.serializer.GenericArraySerializer;
-import io.ray.state.typeinfo.serializer.TypeSerializer;
-import io.ray.state.typeinfo.serializer.TypeSerializerConfig;
+
+import io.ray.streaming.state.typeinfo.serializer.GenericArraySerializer;
+import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
+import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 
 /**
  * Type information for Object array.

@@ -5,12 +5,11 @@ import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.ObjectRef;
 import io.ray.streaming.api.Language;
-import io.ray.streaming.common.generated.Common;
-import io.ray.streaming.jobgraph.Language;
 import io.ray.streaming.operator.BaseIndependentOperator;
 import io.ray.streaming.runtime.master.scheduler.ActorRoleType;
 import io.ray.streaming.runtime.master.scheduler.HealthCheckable;
 import io.ray.streaming.runtime.util.ResourceUtil;
+import io.ray.streaming.runtime.worker.WorkerRuntimeInfo;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -103,7 +102,6 @@ public class IndependentVertex
   public void attachActor(BaseActorHandle actor) {
     this.actor = actor;
     this.independentVertexState = ExecutionVertexState.RUNNING;
-    initControllerCaller();
   }
 
   public String getModuleName() {
@@ -130,16 +128,6 @@ public class IndependentVertex
    */
   public ActorRoleType getRoleName() {
     return roleName;
-  }
-
-  /**
-   * Getter method for property <tt>actor</tt>.
-   *
-   * @return property value of actor
-   */
-  @Override
-  public BaseActorHandle getActorHandle() {
-    return actor;
   }
 
   public String getActorName() {
@@ -297,44 +285,4 @@ public class IndependentVertex
     }
   }
 
-  /**
-   * Initialize united distributed controller caller.
-   */
-  public void initControllerCaller() {
-    switch (language) {
-      case JAVA:
-        unitedDistributedControllerCaller =
-            new JavaWorkerUnitedDistributedControllerCallerImpl(getActorHandle());
-        break;
-      case PYTHON:
-        unitedDistributedControllerCaller =
-            new PyWorkerUnitedDistributedControllerCallerImpl(getActorHandle());
-        break;
-      default:
-        throw new IllegalArgumentException(String
-            .format("UnitedDistributedControllerCaller language error, not support language type=%s",
-                language));
-    }
-  }
-
-
-  @Override
-  public ObjectRef controllerPrepare(Common.UnitedDistributedControlMessage controlMessage) {
-    return unitedDistributedControllerCaller.controllerPrepare(controlMessage);
-  }
-
-  @Override
-  public void controllerCommit() {
-    unitedDistributedControllerCaller.controllerCommit();
-  }
-
-  @Override
-  public void controllerDispose() {
-    unitedDistributedControllerCaller.controllerDispose();
-  }
-
-  @Override
-  public void controllerCancel() {
-    unitedDistributedControllerCaller.controllerCancel();
-  }
 }

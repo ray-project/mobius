@@ -21,14 +21,14 @@ public class MemoryNonKeyedValueStore<V> extends MemoryValueStore<V> {
 
   @Override
   public V value() throws Exception {
-    readMeter.update(1);
+//    readMeter.update(1);
 
     return storeBackend.get(currentKey);
   }
 
   @Override
   public void update(V value) throws Exception {
-    writeMeter.update(1);
+//    writeMeter.update(1);
 
     storeBackend.put(currentKey, value);
   }

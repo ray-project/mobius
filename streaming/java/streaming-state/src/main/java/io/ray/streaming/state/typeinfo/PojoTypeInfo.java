@@ -1,9 +1,9 @@
 package io.ray.streaming.state.typeinfo;
 
 
-import io.ray.state.typeinfo.serializer.PojoSerializer;
-import io.ray.state.typeinfo.serializer.TypeSerializer;
-import io.ray.state.typeinfo.serializer.TypeSerializerConfig;
+import io.ray.streaming.state.typeinfo.serializer.PojoSerializer;
+import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
+import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import java.lang.reflect.Field;
 import java.util.List;
 

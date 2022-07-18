@@ -32,14 +32,14 @@ public class MemoryMapStore<K, V> extends AbstractMemoryStore implements MapStat
 
   @Override
   public V get(K key) throws Exception {
-    readMeter.update(1);
+//    readMeter.update(1);
 
     return storeBackend.get(key);
   }
 
   @Override
   public void put(K key, V value) throws Exception {
-    writeMeter.update(1);
+//    writeMeter.update(1);
 
     storeBackend.put(key, value);
   }
@@ -49,14 +49,14 @@ public class MemoryMapStore<K, V> extends AbstractMemoryStore implements MapStat
     if (map == null) {
       return;
     }
-    writeMeter.update(map.size());
+//    writeMeter.update(map.size());
 
     storeBackend.putAll(map);
   }
 
   @Override
   public void remove(K key) throws Exception {
-    deleteMeter.update(1);
+//    deleteMeter.update(1);
     storeBackend.remove(key);
   }
 
