@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a python partition function.
  *
- * <p>Python worker can create a partition object using information in this PythonPartition.
+ * <p>Python worker can create a partition object using information in this PythonPartitionFunction.
  *
  * <p>If this object is constructed from serialized python partition, python worker can deserialize
  * it to create python partition directly. If this object is constructed from moduleName and

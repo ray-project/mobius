@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import io.ray.runtime.actor.NativeActorHandle;
 import io.ray.streaming.api.function.Function;
 import io.ray.streaming.api.partition.Partition;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonOperator;
@@ -137,14 +138,14 @@ public class GraphPbBuilder {
   }
 
   private byte[] serializePartition(Partition partition) {
-    if (partition instanceof PythonPartition) {
-      PythonPartition pythonPartition = (PythonPartition) partition;
+    if (partition instanceof PythonPartitionFunction) {
+      PythonPartitionFunction pythonPartitionFunction = (PythonPartitionFunction) partition;
       // partition_bytes, module_name, function_name
       return serializer.serialize(
           Arrays.asList(
-              pythonPartition.getPartition(),
-              pythonPartition.getModuleName(),
-              pythonPartition.getFunctionName()));
+              pythonPartitionFunction.getPartition(),
+              pythonPartitionFunction.getModuleName(),
+              pythonPartitionFunction.getFunctionName()));
     } else {
       return new byte[0];
     }

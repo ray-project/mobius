@@ -5,6 +5,7 @@ import io.ray.streaming.api.Language;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.api.partition.impl.ForwardPartition;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
@@ -93,7 +94,7 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
   private static <T> Partition<T> getForwardPartition(AbstractStreamOperator operator) {
     switch (operator.getLanguage()) {
       case PYTHON:
-        return (Partition<T>) PythonPartition.ForwardPartition;
+        return (Partition<T>) PythonPartitionFunction.ForwardPartition;
       case JAVA:
         return new ForwardPartition<>();
       default:
@@ -194,6 +195,19 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
     Preconditions.checkArgument(!isProxyStream());
     operator.setChainStrategy(chainStrategy);
     return self();
+  }
+
+  /** @return Schema of data in this stream */
+  public Schema getSchema() {
+    if (isProxyStream()) {
+      return getOriginalStream().getSchema();
+    } else {
+      if (!operator.hasSchema()) {
+        throw new IllegalStateException(
+            "Schema information can't be inferred, please specify manually.");
+      }
+      return operator.getSchema();
+    }
   }
 
   /** Set the schema of data in this stream */

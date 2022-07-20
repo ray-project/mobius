@@ -1,5 +1,6 @@
 package io.ray.streaming.python.stream;
 
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.api.stream.DataStream;
 import io.ray.streaming.api.stream.KeyDataStream;
 import io.ray.streaming.operator.ChainStrategy;
@@ -13,7 +14,7 @@ import io.ray.streaming.python.PythonPartition;
 public class PythonKeyDataStream extends PythonDataStream implements PythonStream {
 
   public PythonKeyDataStream(PythonDataStream input, PythonOperator pythonOperator) {
-    super(input, pythonOperator, PythonPartition.KeyPartition);
+    super(input, pythonOperator, PythonPartitionFunction.KeyPartition);
   }
 
   /**

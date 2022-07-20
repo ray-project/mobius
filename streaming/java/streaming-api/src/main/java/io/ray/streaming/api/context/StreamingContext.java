@@ -2,6 +2,7 @@ package io.ray.streaming.api.context;
 
 import com.google.common.base.Preconditions;
 import io.ray.api.Ray;
+import io.ray.streaming.api.Language;
 import io.ray.streaming.api.stream.StreamSink;
 import io.ray.streaming.client.JobClient;
 import io.ray.streaming.jobgraph.JobGraph;
@@ -11,10 +12,12 @@ import io.ray.streaming.util.Config;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,9 @@ public class StreamingContext implements Serializable {
   /** The sinks of this streaming job. */
   private List<StreamSink> streamSinks;
 
+  /** The independent operators of this streaming job. */
+  private Set<IndependentOperatorDescriptor> independentOperatorDescriptors;
+
   /** The user custom streaming job configuration. */
   private Map<String, String> jobConfig;
 
@@ -38,6 +44,7 @@ public class StreamingContext implements Serializable {
   private StreamingContext() {
     this.idGenerator = new AtomicInteger(0);
     this.streamSinks = new ArrayList<>();
+    this.independentOperatorDescriptors = new HashSet<>();
     this.jobConfig = new HashMap<>();
   }
 
@@ -88,6 +95,27 @@ public class StreamingContext implements Serializable {
 
   public void withConfig(Map<String, String> jobConfig) {
     this.jobConfig = jobConfig;
+  }
+
+  public IndependentOperatorDescriptor withIndependentOperator(String className) {
+    return withIndependentOperator(className, "", Language.JAVA);
+  }
+
+  public IndependentOperatorDescriptor withIndependentOperator(
+      String className, String moduleOrConstructorName, Language language) {
+    IndependentOperatorDescriptor independentOperatorDescriptor =
+        new IndependentOperatorDescriptor(className, moduleOrConstructorName, language);
+    this.independentOperatorDescriptors.add(independentOperatorDescriptor);
+    return independentOperatorDescriptor;
+  }
+
+  public void withIndependentOperators(
+      Set<IndependentOperatorDescriptor> independentOperatorDescriptors) {
+    this.independentOperatorDescriptors = independentOperatorDescriptors;
+  }
+
+  public Set<IndependentOperatorDescriptor> getIndependentOperators() {
+    return this.independentOperatorDescriptors;
   }
 
   public void stop() {

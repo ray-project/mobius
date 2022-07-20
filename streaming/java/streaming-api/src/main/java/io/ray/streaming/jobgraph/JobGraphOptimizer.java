@@ -84,7 +84,8 @@ public class JobGraphOptimizer {
   }
 
   /**
-   * Divide the original DAG into multiple chainedOperators.
+   * Divide the original DAG into multiple operator groups,
+   * each group's operators will be chained as one ChainedOperator.
    *
    * @param headVertexId The head vertex id of this chainedOperator.
    * @param srcVertex The source vertex of this edge.

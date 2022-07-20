@@ -16,11 +16,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class ISourceOperatorImpl<T> extends AbstractStreamOperator<SourceFunction<T>>
+public class SourceOperator<T> extends AbstractStreamOperator<SourceFunction<T>>
     implements ISourceOperator {
   private SourceContextImpl sourceContext;
 
-  public ISourceOperatorImpl(SourceFunction<T> function) {
+  public SourceOperator(SourceFunction<T> function) {
     super(function);
     setChainStrategy(ChainStrategy.HEAD);
     Method method = TypeUtils.getFunctionMethod(SourceFunction.class, function, "fetch");

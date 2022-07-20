@@ -159,7 +159,8 @@ public class JobWorker implements Serializable {
     this.workerConfig = new StreamingWorkerConfig(executionVertex.getJobConfig());
     // init state backend
     this.contextBackend = ContextBackendFactory.getContextBackend(this.workerConfig);
-
+    // init worker state from state backend.
+    initWorkerState();
     LOG.info("Initiating job worker succeeded: {}.", workerContext.getWorkerName());
     saveContext();
     return true;
