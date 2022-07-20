@@ -10,7 +10,7 @@ import io.ray.streaming.state.api.state.HiddenKeyState;
 import io.ray.streaming.state.api.state.ListState;
 import io.ray.streaming.state.api.state.MapState;
 import io.ray.streaming.state.api.state.ValueState;
-import io.ray.streaming.state.backend.memory.MemoryStateBackend;
+import io.ray.streaming.state.store.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.store.Store;
 import io.ray.streaming.state.store.StoreManager;
 import java.util.ArrayList;

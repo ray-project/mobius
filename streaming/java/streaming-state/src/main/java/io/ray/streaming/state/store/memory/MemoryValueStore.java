@@ -2,7 +2,7 @@ package io.ray.streaming.state.store.memory;
 
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.api.state.ValueState;
-import io.ray.streaming.state.backend.memory.MemoryStateBackend;
+import io.ray.streaming.state.store.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.util.HashMap;
 import java.util.Map;

@@ -5,7 +5,7 @@ import io.ray.streaming.state.api.desc.MapStateDescriptor;
 import io.ray.streaming.state.api.desc.ValueStateDescriptor;
 import io.ray.streaming.state.api.state.MapState;
 import io.ray.streaming.state.api.state.ValueState;
-import io.ray.streaming.state.backend.StateBackendType;
+import io.ray.streaming.state.store.backend.StateBackendType;
 import io.ray.streaming.state.config.StateConfig;
 import io.ray.streaming.state.manager.StateManager;
 import java.lang.reflect.Method;

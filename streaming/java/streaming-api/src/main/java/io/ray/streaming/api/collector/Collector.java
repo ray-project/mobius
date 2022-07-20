@@ -19,5 +19,5 @@ public interface Collector<T> {
     return -1;
   }
 
-//  void retract(T value);
+  default void retract(T value) {throw new UnsupportedOperationException("Not support retract yet.");}
 }

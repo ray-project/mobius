@@ -22,8 +22,6 @@ public class EnvUtil {
 
   private static final Logger LOG = LoggerFactory.getLogger(EnvUtil.class);
 
-  public static final String DEV_ENV_VALUE = "dev";
-  public static final String APP_ENV = "ALIPAY_APP_ENV";
   private static final String CLUSTER_NAME_ENV_KEY = "cluster_name";
   private static final String NAMESPACE_ENV_KEY = "NAMESPACE";
   private static Set<String> loadedLibs = Sets.newHashSet();
@@ -33,7 +31,7 @@ public class EnvUtil {
   public static String getClusterName() {
     String clusterName = System.getenv(CLUSTER_NAME_ENV_KEY);
     if (StringUtils.isEmpty(clusterName)) {
-      LOG.debug("{} env variable is emtpy.", CLUSTER_NAME_ENV_KEY);
+      LOG.debug("{} env variable is empty.", CLUSTER_NAME_ENV_KEY);
       return DEV_ENV_VALUE;
     }
     return clusterName;
@@ -45,18 +43,6 @@ public class EnvUtil {
       LOG.debug("{} env variable is emtpy.", NAMESPACE_ENV_KEY);
     }
     return namespace;
-  }
-
-  public static String getRuntimeEnv(String envName) {
-    return System.getenv(envName);
-  }
-
-  public static boolean isOnlineEnv() {
-    String env = System.getenv(APP_ENV);
-    LOG.debug("Env ALIPAY_APP_ENV={}", env);
-    return "prod".equalsIgnoreCase(env)
-        || "prepub".equalsIgnoreCase(env)
-        || "gray".equalsIgnoreCase(env);
   }
 
   public static String getHostAddress() {

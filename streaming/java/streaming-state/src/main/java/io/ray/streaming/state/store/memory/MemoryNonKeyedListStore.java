@@ -2,7 +2,7 @@ package io.ray.streaming.state.store.memory;
 
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.state.api.state.ListState;
-import io.ray.streaming.state.backend.memory.MemoryStateBackend;
+import io.ray.streaming.state.store.backend.memory.MemoryStateBackend;
 import java.util.ArrayList;
 import java.util.List;
 

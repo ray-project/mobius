@@ -2,7 +2,7 @@ package io.ray.streaming.state.api.state;
 
 import io.ray.streaming.common.metric.local.LocalMetricGroup;
 import io.ray.streaming.state.api.desc.MapStateDescriptor;
-import io.ray.streaming.state.backend.StateBackendType;
+import io.ray.streaming.state.store.backend.StateBackendType;
 import io.ray.streaming.state.config.StateConfig;
 import io.ray.streaming.state.manager.StateManager;
 import io.ray.streaming.state.util.IOUtils;

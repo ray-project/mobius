@@ -1,6 +1,6 @@
 package io.ray.streaming.state.config;
 
-import io.ray.streaming.state.backend.StateBackendType;
+import io.ray.streaming.state.store.backend.StateBackendType;
 import org.aeonbits.owner.Config;
 
 public interface StateConfig extends Config {

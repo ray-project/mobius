@@ -48,24 +48,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>io.ant-ray</groupId>
-      <artifactId>common-libs-actor-optimizes</artifactId>
-      <version>0.1.5-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>io.ray</groupId>
       <artifactId>streaming-api</artifactId>
-      <version>${streaming.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.ray</groupId>
-      <artifactId>streaming-common</artifactId>
       <version>${streaming.version}</version>
     </dependency>
     <!-- jars for test begin -->

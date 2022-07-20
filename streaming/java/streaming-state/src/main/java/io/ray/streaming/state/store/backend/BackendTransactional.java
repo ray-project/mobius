@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.backend;
+package io.ray.streaming.state.store.backend;
 
 /**
  * TransactionState interface.

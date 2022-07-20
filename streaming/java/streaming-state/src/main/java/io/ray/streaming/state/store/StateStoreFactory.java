@@ -1,7 +1,7 @@
 package io.ray.streaming.state.store;
 
 import io.ray.streaming.common.metric.MetricGroup;
-import io.ray.streaming.state.backend.StateBackendType;
+import io.ray.streaming.state.store.backend.StateBackendType;
 import io.ray.streaming.state.store.memory.MemoryStoreManager;
 import java.util.Map;
 import org.slf4j.Logger;

@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-package io.ray.streaming.state.backend.memory;
+package io.ray.streaming.state.store.backend.memory;
 
 
-import io.ray.streaming.state.backend.StateBackend;
+import io.ray.streaming.state.store.backend.StateBackend;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

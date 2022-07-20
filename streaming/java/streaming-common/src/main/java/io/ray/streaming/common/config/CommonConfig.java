@@ -1,6 +1,5 @@
 package io.ray.streaming.common.config;
 
-import io.ray.streaming.common.config.converter.EnvConverter;
 import io.ray.streaming.common.config.converter.MaxParallelismConverter;
 
 public interface CommonConfig extends Config {
@@ -90,9 +89,4 @@ public interface CommonConfig extends Config {
 
   @DefaultValue(value = "256")
   int maxParallelismProd();
-
-  @DefaultValue(value = "dev")
-  @ConverterClass(EnvConverter.class)
-  @Key(value = CommonConfig.ENV_TYPE)
-  String env();
 }

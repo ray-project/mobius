@@ -18,9 +18,7 @@ public class MaxParallelismConverter implements Converter<Integer> {
         && config.maxParallelismDev() != Integer.parseInt(value)) {
       return Integer.parseInt(value);
     }
-    if (EnvUtil.isOnlineEnv()) {
-      return config.maxParallelismProd();
-    }
+
     return config.maxParallelismDev();
   }
 }

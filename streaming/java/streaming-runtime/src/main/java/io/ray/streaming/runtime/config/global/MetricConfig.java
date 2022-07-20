@@ -136,10 +136,6 @@ public interface MetricConfig extends Config, Mutable {
   @DefaultValue("")
   String metricsKmonitorServiceName();
 
-  @Key(METRICS_TSDB_SERVICE_NAME)
-  @DefaultValue("alipay_stm")
-  String metricsTsdbServiceName();
-
   /**
    * Metric reporter format is:
    * <pre>
@@ -160,32 +156,6 @@ public interface MetricConfig extends Config, Mutable {
   @Key(METRICS_REPORTER_DEFAULT_INTERVAL)
   @DefaultValue("3")
   int metricsReporterDefaultInterval();
-
-  @Key(METRICS_REPORTER_GLOBAL_SCOPE_DELIMITER)
-  @DefaultValue(".")
-  String metricsReporterGlobalScopeDelimiter();
-
-  @Key(EXTERNAL_METRICS_QUERY_KMONITOR_ENABLE)
-  @DefaultValue("false")
-  boolean kmonitorQueryEnable();
-
-  /**
-   * KMonitor query url.
-   *
-   * @return query url
-   */
-  @Key(EXTERNAL_METRICS_QUERY_KMONITOR_URL)
-  @DefaultValue("http://kmonitor-query.alipay.com/api/query")
-  String kmonitorQueryUrl();
-
-  /**
-   * KMonitor query time range. unit: minute. defalut: 5mins-ago
-   *
-   * @return range of time
-   */
-  @Key(EXTERNAL_METRICS_QUERY_KMONITOR_TIME_RANGE)
-  @DefaultValue("5")
-  int kmonitorQueryRangeFromNow();
 
   @DefaultValue(value = "true")
   @ConverterClass(MetricEnableConverter.class)

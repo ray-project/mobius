@@ -1,4 +1,4 @@
-package io.ray.streaming.state.backend;
+package io.ray.streaming.state.store.backend;
 
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
