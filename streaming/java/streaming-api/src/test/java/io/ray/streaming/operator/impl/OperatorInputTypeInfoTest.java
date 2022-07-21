@@ -21,12 +21,7 @@ public class OperatorInputTypeInfoTest {
   public void testFilterOperatorType() {
     FilterOperator<String> operator =
         new FilterOperator<>(
-            new FilterFunction<String>() {
-              @Override
-              public boolean filter(String value) {
-                return false;
-              }
-            });
+            (FilterFunction<String>) value -> false);
     Assert.assertEquals(operator.getTypeInfo(), new TypeInfo<String>() {});
     Assert.assertEquals(operator.getInputTypeInfo(), new TypeInfo<String>() {});
   }
@@ -62,12 +57,7 @@ public class OperatorInputTypeInfoTest {
   public void testKeyByOperator() {
     KeyByOperator<String, String> operator =
         new KeyByOperator<>(
-            new KeyFunction<String, String>() {
-              @Override
-              public String keyBy(String value) {
-                return null;
-              }
-            });
+            (KeyFunction<String, String>) value -> null);
     Assert.assertEquals(operator.getTypeInfo(), new TypeInfo<String>() {});
     Assert.assertEquals(operator.getInputTypeInfo(), new TypeInfo<String>() {});
   }
@@ -92,10 +82,7 @@ public class OperatorInputTypeInfoTest {
   public void testSinkOperatorType() {
     SinkOperator<String> operator =
         new SinkOperator<>(
-            new SinkFunction<String>() {
-              @Override
-              public void sink(String value) {}
-            });
+            (SinkFunction<String>) value -> {});
     Assert.assertEquals(operator.getTypeInfo(), new TypeInfo<String>() {});
     Assert.assertEquals(operator.getInputTypeInfo(), new TypeInfo<String>() {});
   }
