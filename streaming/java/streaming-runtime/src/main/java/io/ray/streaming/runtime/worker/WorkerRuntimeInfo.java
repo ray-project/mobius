@@ -21,11 +21,6 @@ public class WorkerRuntimeInfo implements Serializable {
   private String clusterName;
 
   /**
-   * Datecenter name.
-   */
-  private String idcName;
-
-  /**
    * Previous process id.
    */
   private String previousPid;
@@ -62,7 +57,6 @@ public class WorkerRuntimeInfo implements Serializable {
   public WorkerRuntimeInfo(boolean useCurrentEnv) {
     if (useCurrentEnv) {
       clusterName = EnvUtil.getClusterName();
-      idcName = EnvUtil.getIDCName();
       pid = EnvUtil.getJvmPid();
       previousPid = pid;
       hostname = EnvUtil.getHostName();
@@ -78,14 +72,6 @@ public class WorkerRuntimeInfo implements Serializable {
 
   public void setClusterName(String clusterName) {
     this.clusterName = clusterName;
-  }
-
-  public String getIdcName() {
-    return idcName;
-  }
-
-  public void setIdcName(String idcName) {
-    this.idcName = idcName;
   }
 
   public String getPreviousPid() {
@@ -139,7 +125,6 @@ public class WorkerRuntimeInfo implements Serializable {
 
     healthy = workerRuntimeInfo.isHealthy();
     clusterName = workerRuntimeInfo.getClusterName();
-    idcName = workerRuntimeInfo.getIdcName();
 
     if (StringUtils.isEmpty(previousPid)) {
       previousPid = workerRuntimeInfo.pid;
@@ -171,7 +156,6 @@ public class WorkerRuntimeInfo implements Serializable {
     return MoreObjects.toStringHelper(this)
         .add("healthy", healthy)
         .add("clusterName", clusterName)
-        .add("idcName", idcName)
         .add("previousPid", previousPid)
         .add("pid", pid)
         .add("previousHostname", previousHostname)

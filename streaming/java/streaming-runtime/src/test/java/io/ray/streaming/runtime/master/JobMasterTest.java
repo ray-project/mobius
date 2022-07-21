@@ -14,7 +14,7 @@ public class JobMasterTest extends RayEnvBaseTest {
     Assert.assertNotNull(jobMaster.getConf());
     Assert.assertNull(jobMaster.getGraphManager());
     Assert.assertNull(jobMaster.getResourceManager());
-    Assert.assertNull(jobMaster.getJobMasterActor());
+    Assert.assertNull(jobMaster.getRuntimeContext().getJobMasterActor());
     Assert.assertFalse(jobMaster.init(false));
 
     jobMaster.destroy();

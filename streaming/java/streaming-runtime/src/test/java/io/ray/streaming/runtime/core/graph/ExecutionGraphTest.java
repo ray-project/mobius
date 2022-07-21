@@ -38,16 +38,13 @@ public class ExecutionGraphTest {
     jobGraph.getJobConfig().put("streaming.task.resource.cpu.limitation.enable", "true");
 
     ExecutionGraph executionGraph = buildExecutionGraph(graphManager, jobGraph);
-    List<ExecutionJobVertex> executionJobVertices = executionGraph.getExecutionJobVertexList();
+    List<ExecutionJobVertex> executionJobVertices = executionGraph.getAllExecutionJobVertices();
 
     Assert.assertEquals(executionJobVertices.size(), jobGraph.getJobVertices().size());
 
     int totalVertexNum =
         jobGraph.getJobVertices().stream().mapToInt(JobVertex::getParallelism).sum();
     Assert.assertEquals(executionGraph.getAllExecutionVertices().size(), totalVertexNum);
-    Assert.assertEquals(
-        executionGraph.getAllExecutionVertices().size(),
-        executionGraph.getExecutionVertexIdGenerator().get());
 
     executionGraph
         .getAllExecutionVertices()

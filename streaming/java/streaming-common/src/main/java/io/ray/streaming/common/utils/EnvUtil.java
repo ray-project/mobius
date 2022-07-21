@@ -32,7 +32,7 @@ public class EnvUtil {
     String clusterName = System.getenv(CLUSTER_NAME_ENV_KEY);
     if (StringUtils.isEmpty(clusterName)) {
       LOG.debug("{} env variable is empty.", CLUSTER_NAME_ENV_KEY);
-      return DEV_ENV_VALUE;
+      return "";
     }
     return clusterName;
   }
@@ -250,17 +250,7 @@ public class EnvUtil {
       Runtime.getRuntime().exec("kill -9 " + pid);
     }
   }
-
-  /**
-   * Get IDC name from env.
-   *
-   * @return engine room
-   */
-  public static String getIDCName() {
-    String idc = System.getenv(IDC_NAME_ENV_KEY);
-    return StringUtils.isEmpty(idc) ? DEV_ENV_VALUE : idc;
-  }
-
+  
   public static String getJobID() {
     String jobID = System.getenv("RAY_JOB_ID");
     return jobID == null ? "default" : jobID;
