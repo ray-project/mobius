@@ -3,14 +3,10 @@ package io.ray.streaming.state.store.backend;
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Store backend abstract interface.
- */
+/** Store backend abstract interface. */
 public interface StateBackend extends Serializable {
 
-  /**
-   * Initialize the store backend system.
-   */
+  /** Initialize the store backend system. */
   void init();
 
   /**

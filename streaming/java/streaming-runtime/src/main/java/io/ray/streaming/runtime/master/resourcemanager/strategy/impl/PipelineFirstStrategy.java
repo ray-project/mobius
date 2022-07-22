@@ -49,7 +49,8 @@ public class PipelineFirstStrategy implements ResourceAssignStrategy {
   public ResourceAssignmentView assignResource(
       List<Container> containers, ExecutionGraph executionGraph) {
 
-    Map<Integer, ExecutionJobVertex> vertices = executionGraph.getJobVertexIdExecutionJobVertexMap();
+    Map<Integer, ExecutionJobVertex> vertices =
+        executionGraph.getJobVertexIdExecutionJobVertexMap();
     Map<Integer, Integer> vertexRemainingNum = new HashMap<>();
 
     vertices.forEach(

@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for float.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class FloatComparator extends TypeComparator<Float> {
 

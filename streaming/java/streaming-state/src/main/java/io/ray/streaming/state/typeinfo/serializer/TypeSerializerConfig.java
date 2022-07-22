@@ -4,9 +4,7 @@ import com.google.common.base.MoreObjects;
 import io.ray.streaming.state.typeinfo.serializer.kryo.KryoRegistration;
 import java.util.List;
 
-/**
- * Configuration information related to type information.
- */
+/** Configuration information related to type information. */
 public class TypeSerializerConfig {
 
   private List<KryoRegistration> kryoRegistrations;
@@ -21,8 +19,6 @@ public class TypeSerializerConfig {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("kryoRegistrations", kryoRegistrations)
-        .toString();
+    return MoreObjects.toStringHelper(this).add("kryoRegistrations", kryoRegistrations).toString();
   }
 }

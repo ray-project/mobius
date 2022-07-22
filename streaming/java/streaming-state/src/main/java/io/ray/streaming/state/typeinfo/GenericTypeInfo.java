@@ -1,15 +1,13 @@
 package io.ray.streaming.state.typeinfo;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import io.ray.streaming.state.typeinfo.serializer.kryo.KryoSerializer;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-/**
- * RayState does no recognize the data type, the serializer use kryo.
- */
+/** RayState does no recognize the data type, the serializer use kryo. */
 public class GenericTypeInfo<T> extends TypeInformation<T> {
 
   private final Class<T> typeClass;

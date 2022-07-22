@@ -4,14 +4,10 @@ import io.ray.streaming.state.api.StateType;
 import io.ray.streaming.state.typeinfo.MapTypeInfo;
 import java.util.Map;
 
-/**
- * Description <br>
- *
- */
+/** Description <br> */
 public class ListStateDescriptor<V> extends AbstractStateDescriptor<Map<String, V>> {
 
-  public static <V> ListStateDescriptor<V> build(String stateName,
-                                                           Class<V> valueClass) {
+  public static <V> ListStateDescriptor<V> build(String stateName, Class<V> valueClass) {
 
     return new ListStateDescriptor<>(stateName, new MapTypeInfo<>(String.class, valueClass));
   }

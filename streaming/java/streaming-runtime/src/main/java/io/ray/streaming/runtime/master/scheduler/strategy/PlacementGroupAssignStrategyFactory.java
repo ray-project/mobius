@@ -5,9 +5,11 @@ import org.slf4j.LoggerFactory;
 
 public class PlacementGroupAssignStrategyFactory {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PlacementGroupAssignStrategyFactory.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(PlacementGroupAssignStrategyFactory.class);
 
-  public static PlacementGroupAssignStrategy getStrategy(final PlacementGroupAssignStrategyType type) {
+  public static PlacementGroupAssignStrategy getStrategy(
+      final PlacementGroupAssignStrategyType type) {
     PlacementGroupAssignStrategy strategy;
     LOG.info("Placement group assign strategy is: {}.", type);
 
@@ -21,6 +23,6 @@ public class PlacementGroupAssignStrategyFactory {
   }
 
   public static PlacementGroupAssignStrategyType getType(PlacementGroupAssignStrategy strategy) {
-      return PlacementGroupAssignStrategyType.RANDOM;
+    return PlacementGroupAssignStrategyType.RANDOM;
   }
 }

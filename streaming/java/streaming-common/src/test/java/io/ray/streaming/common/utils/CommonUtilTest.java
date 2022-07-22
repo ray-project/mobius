@@ -35,10 +35,7 @@ public class CommonUtilTest {
 
     @Override
     public String toString() {
-      return MoreObjects.toStringHelper(this)
-          .add("test1", test1)
-          .add("test2", test2)
-          .toString();
+      return MoreObjects.toStringHelper(this).add("test1", test1).add("test2", test2).toString();
     }
   }
 

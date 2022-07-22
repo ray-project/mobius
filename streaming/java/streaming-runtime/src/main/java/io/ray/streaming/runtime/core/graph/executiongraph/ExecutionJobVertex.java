@@ -31,7 +31,8 @@ public class ExecutionJobVertex implements Serializable {
   private final JobVertex jobVertex;
 
   /**
-   * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g. 1-ISourceOperator
+   * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g.
+   * 1-ISourceOperator
    */
   private final String executionJobVertexName;
 
@@ -51,6 +52,7 @@ public class ExecutionJobVertex implements Serializable {
 
   /** Input and output edges of current execution job vertex. */
   private List<ExecutionJobEdge> inputEdges = new ArrayList<>();
+
   private List<ExecutionJobEdge> outputEdges = new ArrayList<>();
 
   /** The status of the vertex considering any scaling process. */
@@ -64,8 +66,7 @@ public class ExecutionJobVertex implements Serializable {
     this.jobVertex = jobVertex;
     this.executionJobVertexId = jobVertex.getVertexId();
     this.executionJobVertexName =
-        generateExecutionJobVertexName(
-            executionJobVertexId, jobVertex.getOperator().getName());
+        generateExecutionJobVertexName(executionJobVertexId, jobVertex.getOperator().getName());
     this.streamOperator = jobVertex.getOperator();
     this.vertexType = jobVertex.getVertexType();
     this.language = jobVertex.getLanguage();
@@ -216,14 +217,14 @@ public class ExecutionJobVertex implements Serializable {
 
   public List<ExecutionVertex> getNewbornVertices() {
     return executionVertices.stream()
-            .filter(v -> v.getState() == ExecutionVertexState.TO_ADD)
-            .collect(Collectors.toList());
+        .filter(v -> v.getState() == ExecutionVertexState.TO_ADD)
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionVertex> getMoribundVertices() {
     return executionVertices.stream()
-            .filter(v -> v.getState() == ExecutionVertexState.TO_DEL)
-            .collect(Collectors.toList());
+        .filter(v -> v.getState() == ExecutionVertexState.TO_DEL)
+        .collect(Collectors.toList());
   }
 
   public boolean isChangedOrAffected() {
@@ -235,15 +236,13 @@ public class ExecutionJobVertex implements Serializable {
   }
 
   public List<BaseActorHandle> getAllActors() {
-    return executionVertices.stream()
-            .map(ExecutionVertex::getActor)
-            .collect(Collectors.toList());
+    return executionVertices.stream().map(ExecutionVertex::getActor).collect(Collectors.toList());
   }
 
   public void updateResources(Map<String, Double> resources) {
     jobVertex.getResources().putAll(resources);
-    executionVertices.forEach(executionVertex ->
-        executionVertex.updateRequiredResources(resources));
+    executionVertices.forEach(
+        executionVertex -> executionVertex.updateRequiredResources(resources));
   }
 
   @Override

@@ -41,7 +41,9 @@ public class JobClientImpl implements JobClient {
 
     try {
       ObjectRef<Boolean> submitResult =
-          jobMasterActor.task(JobMaster::submitJob, jobMasterActor, KryoUtils.writeToByteArray(jobGraph)).remote();
+          jobMasterActor
+              .task(JobMaster::submitJob, jobMasterActor, KryoUtils.writeToByteArray(jobGraph))
+              .remote();
 
       if (submitResult.get()) {
         LOG.info("Finish submitting job: {}.", jobGraph.getJobName());

@@ -5,15 +5,12 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import java.io.IOException;
 import java.lang.reflect.Array;
 
-/**
- * Type serializer for Object[].
- */
+/** Type serializer for Object[]. */
 public class GenericArraySerializer<C> extends TypeSerializer<C[]> {
   private final Class<C> componentClass;
   private final TypeSerializer<C> componentSerializer;
 
-  public GenericArraySerializer(Class<C> componentClass,
-                                TypeSerializer<C> componentSerializer) {
+  public GenericArraySerializer(Class<C> componentClass, TypeSerializer<C> componentSerializer) {
     this.componentClass = componentClass;
     this.componentSerializer = componentSerializer;
   }

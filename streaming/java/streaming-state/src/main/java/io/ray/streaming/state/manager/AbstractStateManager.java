@@ -23,9 +23,7 @@ import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * StateManager abstract base class.
- */
+/** StateManager abstract base class. */
 public abstract class AbstractStateManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractStateManager.class);
@@ -40,12 +38,13 @@ public abstract class AbstractStateManager {
   private final MemoryManager memoryManager;
   private final TypeSerializerConfig serializerConfig;
   private final MetricGroup metricGroup;
-//  protected KeyGroup keyGroup;
+  //  protected KeyGroup keyGroup;
   protected StoreManager storeManager;
-  //for value state
+  // for value state
   private Object currentKey;
 
-  public AbstractStateManager(final String jobName,
+  public AbstractStateManager(
+      final String jobName,
       final String operatorName,
       final int taskParallelism,
       final int taskIndex,
@@ -67,13 +66,16 @@ public abstract class AbstractStateManager {
 
     this.stateConfig = ConfigFactory.create(StateConfig.class, config);
     maxShard = stateConfig.maxShard();
-    Preconditions.checkArgument(maxShard <= StateConfig.STATE_MAX_SHARD_DEFAULT_VALUE,
-            "%s[%s] must <= %s", StateConfig.STATE_MAX_SHARD, maxShard,
-            StateConfig.STATE_MAX_SHARD_DEFAULT_VALUE);
-//    this.keyGroup = KeyGroupAssignment.computeKeyGroupRangeForOperatorIndex(
-//        maxShard,
-//        taskParallelism,
-//        taskIndex);
+    Preconditions.checkArgument(
+        maxShard <= StateConfig.STATE_MAX_SHARD_DEFAULT_VALUE,
+        "%s[%s] must <= %s",
+        StateConfig.STATE_MAX_SHARD,
+        maxShard,
+        StateConfig.STATE_MAX_SHARD_DEFAULT_VALUE);
+    //    this.keyGroup = KeyGroupAssignment.computeKeyGroupRangeForOperatorIndex(
+    //        maxShard,
+    //        taskParallelism,
+    //        taskIndex);
 
     this.metricGroup = metricGroup;
 
@@ -103,10 +105,11 @@ public abstract class AbstractStateManager {
     if (storeManager != null) {
       return storeManager.snapshot(snapshotId);
     } else {
-      return CompletableFuture.supplyAsync(() -> {
-        LOG.warn("StateManager has not been initialized.");
-        return new SnapshotResult(snapshotId, true);
-      });
+      return CompletableFuture.supplyAsync(
+          () -> {
+            LOG.warn("StateManager has not been initialized.");
+            return new SnapshotResult(snapshotId, true);
+          });
     }
   }
 
@@ -120,16 +123,15 @@ public abstract class AbstractStateManager {
     if (storeManager != null) {
       return storeManager.rollbackSnapshot(snapshotId);
     } else {
-      return CompletableFuture.supplyAsync(() -> {
-        LOG.warn("StateManager has not been initialized.");
-        return new RollbackSnapshotResult(snapshotId, true);
-      });
+      return CompletableFuture.supplyAsync(
+          () -> {
+            LOG.warn("StateManager has not been initialized.");
+            return new RollbackSnapshotResult(snapshotId, true);
+          });
     }
   }
 
-  /**
-   * Close the current resource handle and synchronize the memory state to backend.
-   */
+  /** Close the current resource handle and synchronize the memory state to backend. */
   public void close() {
     LOG.info("State close.");
     if (storeManager != null) {
@@ -141,8 +143,9 @@ public abstract class AbstractStateManager {
     if (storeManager == null) {
       synchronized (lock) {
         if (storeManager == null) {
-          storeManager = StateStoreFactory.build(stateConfig.stateBackendType(),
-              jobName, operatorName, config, metricGroup);
+          storeManager =
+              StateStoreFactory.build(
+                  stateConfig.stateBackendType(), jobName, operatorName, config, metricGroup);
         }
       }
     }
@@ -164,8 +167,7 @@ public abstract class AbstractStateManager {
     return null;
   }
 
-  public abstract <K, V> MapState<K, V> getMapState(
-      MapStateDescriptor<K, V> stateDescriptor);
+  public abstract <K, V> MapState<K, V> getMapState(MapStateDescriptor<K, V> stateDescriptor);
 
   public abstract <K, V> MapState<K, V> getNonKeyedMapState(
       MapStateDescriptor<K, V> stateDescriptor);

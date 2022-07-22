@@ -15,46 +15,30 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * Independent vertex.
- * Working for something else independent of normal job worker
- */
-public class IndependentExecutionVertex
-    implements Serializable, HealthCheckable{
+/** Independent vertex. Working for something else independent of normal job worker */
+public class IndependentExecutionVertex implements Serializable, HealthCheckable {
 
-  /**
-   * actor role name . Broker or something else
-   */
+  /** actor role name . Broker or something else */
   protected final ActorRoleType roleName;
 
-  /**
-   * index of the same role actor
-   */
+  /** index of the same role actor */
   protected final int index;
 
-  /**
-   * language of the independent operator
-   */
+  /** language of the independent operator */
   protected Language language;
 
-  /**
-   * actor handler
-   */
+  /** actor handler */
   protected BaseActorHandle actor;
-//
-//  /**
-//   * caller of united distributed controller
-//   */
-//  protected UnitedDistributedControllerCaller unitedDistributedControllerCaller;
+  //
+  //  /**
+  //   * caller of united distributed controller
+  //   */
+  //  protected UnitedDistributedControllerCaller unitedDistributedControllerCaller;
 
-  /**
-   * resource of this actor
-   */
+  /** resource of this actor */
   protected Map<String, Double> requiredResources;
 
-  /**
-   * Config(map) for Independent vertex.
-   */
+  /** Config(map) for Independent vertex. */
   protected Map<String, String> actorConf;
 
   /** Module name of the vertex(for python). */
@@ -65,14 +49,12 @@ public class IndependentExecutionVertex
 
   private String name;
 
-  /**
-   * Runtime info for independent actor.
-   */
+  /** Runtime info for independent actor. */
   protected WorkerRuntimeInfo runtimeInfo;
 
   protected ExecutionVertexState independentVertexState;
 
-  public IndependentExecutionVertex(Builder builder){
+  public IndependentExecutionVertex(Builder builder) {
     this.roleName = builder.roleName;
     this.index = builder.index;
     this.requiredResources = ResourceUtil.formatResource(builder.requiredResources);
@@ -84,20 +66,23 @@ public class IndependentExecutionVertex
     this.independentVertexState = ExecutionVertexState.TO_ADD;
   }
 
-  public static BaseIndependentOperator buildIndependentOperator(String className, Map<String, String> config) throws Exception {
-      Class actorClass = Class.forName(className);
-      Constructor<?>[] constructors = actorClass.getConstructors();
-      Preconditions.checkArgument(constructors.length == 1,
-        "Independent operator only support at most 1 constructor instead of %s", constructors.length);
-      Constructor ctor = constructors[0];
-      Object ret = ctor.newInstance(config);
-      Preconditions.checkState(ret instanceof BaseIndependentOperator, "Independent operator class must be sub class of BaseIndependentOperator ");
-      return (BaseIndependentOperator)ret;
+  public static BaseIndependentOperator buildIndependentOperator(
+      String className, Map<String, String> config) throws Exception {
+    Class actorClass = Class.forName(className);
+    Constructor<?>[] constructors = actorClass.getConstructors();
+    Preconditions.checkArgument(
+        constructors.length == 1,
+        "Independent operator only support at most 1 constructor instead of %s",
+        constructors.length);
+    Constructor ctor = constructors[0];
+    Object ret = ctor.newInstance(config);
+    Preconditions.checkState(
+        ret instanceof BaseIndependentOperator,
+        "Independent operator class must be sub class of BaseIndependentOperator ");
+    return (BaseIndependentOperator) ret;
   }
 
-  /**
-   * attach specify actor to this
-   */
+  /** attach specify actor to this */
   public void attachActor(BaseActorHandle actor) {
     this.actor = actor;
     this.independentVertexState = ExecutionVertexState.RUNNING;
@@ -197,7 +182,6 @@ public class IndependentExecutionVertex
     return "";
   }
 
-
   public String getRuntimeIpAddress() {
     if (runtimeInfo != null) {
       return runtimeInfo.getIpAddress();
@@ -214,9 +198,7 @@ public class IndependentExecutionVertex
     return false;
   }
 
-  /**
-   * IndependentActor builder
-   */
+  /** IndependentActor builder */
   public static class Builder {
     private final ActorRoleType roleName;
     private final Language language;
@@ -228,7 +210,6 @@ public class IndependentExecutionVertex
     private String moduleName;
     private String className;
     private String name;
-
 
     public Builder(ActorRoleType roleName, int index, Language language) {
       this.roleName = roleName;
@@ -261,8 +242,7 @@ public class IndependentExecutionVertex
       return this;
     }
 
-
-    public IndependentExecutionVertex build(){
+    public IndependentExecutionVertex build() {
       return new IndependentExecutionVertex(this);
     }
   }
@@ -283,5 +263,4 @@ public class IndependentExecutionVertex
       actor.kill(true);
     }
   }
-
 }

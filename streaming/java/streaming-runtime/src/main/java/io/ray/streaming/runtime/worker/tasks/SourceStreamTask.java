@@ -75,7 +75,7 @@ public class SourceStreamTask extends StreamTask {
             LOG.warn("SourceStreamTask EndOfDataException.");
             /// Maybe a new checkpoint should be triggered before finite stream finish.
             processor.finish(lastCheckpointId);
-//            handleEndOfDataBarrierMessage();
+            //            handleEndOfDataBarrierMessage();
             break;
           } else {
             throw e;

@@ -2,67 +2,46 @@ package io.ray.streaming.runtime.master.scheduler;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import io.ray.api.PlacementGroups;
 import io.ray.api.options.PlacementGroupCreationOptions;
 import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.api.placementgroup.PlacementStrategy;
-import io.ray.runtime.generated.Common.Bundle;
-import io.ray.streaming.runtime.config.master.SchedulerConfig;
 import io.ray.streaming.runtime.core.resource.ResourceState;
 import io.ray.streaming.runtime.util.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-/**
- * Placement group info, including name, bundles and strategy.
- */
+/** Placement group info, including name, bundles and strategy. */
 public class ExecutionGroup implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ExecutionGroup.class);
 
-  /**
-   * Group id.
-   */
+  /** Group id. */
   private final int groupId;
 
-  /**
-   * Use id and job name as group name.
-   * e.g. 1-job_name
-   */
+  /** Use id and job name as group name. e.g. 1-job_name */
   private final String groupName;
 
-  /**
-   * How many bundles is expected.
-   */
+  /** How many bundles is expected. */
   private int expectSize = -1;
 
-  /**
-   * Placement strategy. Please refers to {@link PlacementStrategy}.
-   */
+  /** Placement strategy. Please refers to {@link PlacementStrategy}. */
   private PlacementStrategy placementStrategy;
 
-  /**
-   * Bundles info.
-   */
+  /** Bundles info. */
   private List<ExecutionBundle> executionBundles;
 
-  /**
-   * Placement group for ray using.
-   */
+  /** Placement group for ray using. */
   private PlacementGroup placementGroup;
 
   /**
-   * State of the current execution group.
-   * IN_USE: placement group is in used
-   * TO_RELEASE: placement group is removed
+   * State of the current execution group. IN_USE: placement group is in used TO_RELEASE: placement
+   * group is removed
    */
   private ResourceState resourceState = ResourceState.UNKNOWN;
 
@@ -76,7 +55,11 @@ public class ExecutionGroup implements Serializable {
     this(groupId, jobName, placementStrategy, new ArrayList<>());
   }
 
-  public ExecutionGroup(int groupId, String jobName, PlacementStrategy placementStrategy, List<ExecutionBundle> executionBundles) {
+  public ExecutionGroup(
+      int groupId,
+      String jobName,
+      PlacementStrategy placementStrategy,
+      List<ExecutionBundle> executionBundles) {
     Preconditions.checkArgument(groupId >= 0, "illegal group id");
     Preconditions.checkArgument(!StringUtils.isEmpty(jobName), "illegal group name");
     Preconditions.checkNotNull(placementStrategy, "illegal placement strategy");
@@ -104,8 +87,8 @@ public class ExecutionGroup implements Serializable {
   }
 
   public boolean reachExpectSize() {
-    Preconditions.checkArgument(expectSize > 0,
-        "Expect size should > 0 if use function 'reachExpectSize'.");
+    Preconditions.checkArgument(
+        expectSize > 0, "Expect size should > 0 if use function 'reachExpectSize'.");
     if (getSize() < expectSize) {
       return false;
     }
@@ -169,37 +152,39 @@ public class ExecutionGroup implements Serializable {
    *
    * @return placement group
    */
-  public PlacementGroup buildPlacementGroup(){
-//    int timeoutSecond = Integer.parseInt(
-//        jobConf.getOrDefault(SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S,
-//            SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S_DEFAULT));
+  public PlacementGroup buildPlacementGroup() {
+    //    int timeoutSecond = Integer.parseInt(
+    //        jobConf.getOrDefault(SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S,
+    //            SchedulerConfig.RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S_DEFAULT));
 
     if (placementGroup == null) {
-      PlacementGroupCreationOptions options = new PlacementGroupCreationOptions.Builder()
-          .setName(groupName)
-          .setBundles(getBundles().stream()
-              .map(ExecutionBundle::getResources)
-              .collect(Collectors.toList()))
-          .setStrategy(getPlacementStrategy())
-          .build();
+      PlacementGroupCreationOptions options =
+          new PlacementGroupCreationOptions.Builder()
+              .setName(groupName)
+              .setBundles(
+                  getBundles().stream()
+                      .map(ExecutionBundle::getResources)
+                      .collect(Collectors.toList()))
+              .setStrategy(getPlacementStrategy())
+              .build();
 
-      LOG.info("Create placement group: {} with bundles: {}.",
-          groupName, executionBundles);
+      LOG.info("Create placement group: {} with bundles: {}.", groupName, executionBundles);
       placementGroup = PlacementGroups.createPlacementGroup(options);
-      executionBundles.forEach(executionBundle -> executionBundle.setPlacementGroup(placementGroup));
+      executionBundles.forEach(
+          executionBundle -> executionBundle.setPlacementGroup(placementGroup));
       resourceState = ResourceState.IN_USE;
     } else {
-      List<ExecutionBundle> notCreatedBundles = executionBundles.stream()
-          .filter(executionBundle -> !executionBundle.isCreated())
-          .collect(Collectors.toList());
-      LOG.error("Not support add bundle into an exist PlacementGroup! new bundles:{}", notCreatedBundles);
+      List<ExecutionBundle> notCreatedBundles =
+          executionBundles.stream()
+              .filter(executionBundle -> !executionBundle.isCreated())
+              .collect(Collectors.toList());
+      LOG.error(
+          "Not support add bundle into an exist PlacementGroup! new bundles:{}", notCreatedBundles);
     }
     return placementGroup;
   }
 
-  /**
-   * Update inner bundles and update self statement.
-   */
+  /** Update inner bundles and update self statement. */
   public void refresh() {
     if (executionBundles == null || placementGroup == null) {
       LOG.error("Can not refresh bundles when placement group or bundle is null.");
@@ -217,22 +202,27 @@ public class ExecutionGroup implements Serializable {
   private void refreshBundles() {
     // remove unused bundles from pg
 
-    List<ExecutionBundle> toBeReleaseBundles = executionBundles.stream()
-        .filter(ExecutionBundle::isReadyToRelease)
-        .collect(Collectors.toList());
-    if (!toBeReleaseBundles.isEmpty()){
-      LOG.error("Not support remove bundle from placement group. The bundles are: {}", toBeReleaseBundles);
+    List<ExecutionBundle> toBeReleaseBundles =
+        executionBundles.stream()
+            .filter(ExecutionBundle::isReadyToRelease)
+            .collect(Collectors.toList());
+    if (!toBeReleaseBundles.isEmpty()) {
+      LOG.error(
+          "Not support remove bundle from placement group. The bundles are: {}",
+          toBeReleaseBundles);
     }
     LOG.info("Remove bundles: {} from the bundle list.", toBeReleaseBundles);
     executionBundles.removeIf(ExecutionBundle::isReadyToRelease);
   }
 
   public void removePlacementGroup() {
-//    if (executionBundles != null) {
-//      executionBundles.forEach(executionBundle -> placementGroup.removeBundles(ImmutableList.of(executionBundle.getIndex())));
-//    }
+    //    if (executionBundles != null) {
+    //      executionBundles.forEach(executionBundle ->
+    // placementGroup.removeBundles(ImmutableList.of(executionBundle.getIndex())));
+    //    }
     PlacementGroups.removePlacementGroup(placementGroup.getId());
-    LOG.info("Placement group: {} and all it's bundles has been removed.", placementGroup.getName());
+    LOG.info(
+        "Placement group: {} and all it's bundles has been removed.", placementGroup.getName());
   }
 
   public void updateBundleIndex(int index) {
@@ -245,7 +235,9 @@ public class ExecutionGroup implements Serializable {
         .add("groupId", groupId)
         .add("groupName", groupName)
         .add("placementStrategy", placementStrategy)
-        .add("bundles", executionBundles.stream().map(ExecutionBundle::getId).collect(Collectors.toList()))
+        .add(
+            "bundles",
+            executionBundles.stream().map(ExecutionBundle::getId).collect(Collectors.toList()))
         .toString();
   }
 }

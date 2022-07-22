@@ -2,9 +2,7 @@ package io.ray.streaming.runtime.master.scheduler;
 
 import io.ray.streaming.common.utils.CommonUtil;
 
-/**
- * To unify return info for scheduling event like 'job-submission'.
- */
+/** To unify return info for scheduling event like 'job-submission'. */
 public class ScheduleResult {
 
   private static final String NO_EXCEPT = "NO_EXCEPTION";

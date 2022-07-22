@@ -1,7 +1,4 @@
-/**
- * Alipay.com Inc. Copyright (c) 2004-2019 All Rights Reserved.
- */
-
+/** Alipay.com Inc. Copyright (c) 2004-2019 All Rights Reserved. */
 package io.ray.streaming.runtime.config.converter;
 
 import io.ray.streaming.common.utils.TestHelper;
@@ -9,9 +6,7 @@ import io.ray.streaming.runtime.config.global.MetricConfig;
 import java.lang.reflect.Method;
 import org.aeonbits.owner.Converter;
 
-/**
- * MetricReporterConverter
- */
+/** MetricReporterConverter */
 public class MetricReporterConverter implements Converter<String> {
 
   /**
@@ -26,5 +21,4 @@ public class MetricReporterConverter implements Converter<String> {
     }
     return input;
   }
-
 }

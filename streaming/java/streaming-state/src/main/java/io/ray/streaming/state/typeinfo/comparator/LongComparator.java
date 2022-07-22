@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for long.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class LongComparator extends TypeComparator<Long> {
 

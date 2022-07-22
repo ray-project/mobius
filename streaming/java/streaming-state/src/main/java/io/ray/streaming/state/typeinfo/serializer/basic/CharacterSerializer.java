@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for char.
- */
+/** Type serializer for char. */
 public class CharacterSerializer extends TypeSerializer<Character> {
 
   public static final CharacterSerializer INSTANCE = new CharacterSerializer();

@@ -20,13 +20,9 @@ package io.ray.streaming.state.api.state;
 
 /** ValueState interface. */
 public interface ValueState<V> extends HiddenKeyState {
-  /**
-   * get the value
-   */
+  /** get the value */
   V value() throws Exception;
 
-  /**
-   * update the value
-   */
+  /** update the value */
   void update(V value) throws Exception;
 }

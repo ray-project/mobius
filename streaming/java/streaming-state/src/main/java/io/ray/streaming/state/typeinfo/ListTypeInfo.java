@@ -5,9 +5,7 @@ import io.ray.streaming.state.typeinfo.serializer.ListSerializer;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 
-/**
- * Type information for {@link java.util.List}.
- */
+/** Type information for {@link java.util.List}. */
 public class ListTypeInfo<T> extends TypeInformation<T> {
 
   private final TypeInformation<T> elementTypeInfo;

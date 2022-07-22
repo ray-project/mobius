@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for boolean.
- */
+/** Type serializer for boolean. */
 public class BooleanSerializer extends TypeSerializer<Boolean> {
 
   public static final BooleanSerializer INSTANCE = new BooleanSerializer();

@@ -7,7 +7,6 @@ import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.api.stream.DataStream;
 import io.ray.streaming.api.stream.Stream;
 import io.ray.streaming.python.PythonFunction;
-import io.ray.streaming.python.PythonPartition;
 import io.ray.streaming.python.stream.PythonDataStream;
 import io.ray.streaming.python.stream.PythonStreamSource;
 import io.ray.streaming.runtime.serialization.MsgPackSerializer;

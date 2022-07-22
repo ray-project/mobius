@@ -2,7 +2,6 @@ package io.ray.streaming.runtime.util;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
-import io.ray.api.id.ActorId;
 import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobVertex;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -31,13 +29,17 @@ public class GraphUtil {
   public static final String OP_NAME_DELIMITER = "-";
 
   public static void buildExecutionEdges(ExecutionGraph executionGraph) {
-    Map<Integer, ExecutionVertex> vertexMap = executionGraph.getExecutionVertexIdExecutionVertexMap();
-    executionGraph.getAllExecutionEdges().forEach(executionEdge -> {
-      ExecutionVertex source = vertexMap.get(executionEdge.getSourceVertexId());
-      ExecutionVertex target = vertexMap.get(executionEdge.getTargetVertexId());
-      executionEdge.setSource(source);
-      executionEdge.setTarget(target);
-    });
+    Map<Integer, ExecutionVertex> vertexMap =
+        executionGraph.getExecutionVertexIdExecutionVertexMap();
+    executionGraph
+        .getAllExecutionEdges()
+        .forEach(
+            executionEdge -> {
+              ExecutionVertex source = vertexMap.get(executionEdge.getSourceVertexId());
+              ExecutionVertex target = vertexMap.get(executionEdge.getTargetVertexId());
+              executionEdge.setSource(source);
+              executionEdge.setTarget(target);
+            });
   }
 
   /**
@@ -51,10 +53,14 @@ public class GraphUtil {
       ExecutionGraph source, ExecutionGraph target) {
     List<ExecutionVertex> addedVertices = new ArrayList<>();
 
-    for (ExecutionJobVertex sourceExecutionJobVertex : source.getJobVertexIdExecutionJobVertexMap().values()) {
-      ExecutionJobVertex targetExecutionJobVertex = target.getJobVertexIdExecutionJobVertexMap()
-          .get(sourceExecutionJobVertex.getJobVertex().getVertexId());
-      List<ExecutionVertex> sourceExecutionVertices = sourceExecutionJobVertex.getExecutionVertices();
+    for (ExecutionJobVertex sourceExecutionJobVertex :
+        source.getJobVertexIdExecutionJobVertexMap().values()) {
+      ExecutionJobVertex targetExecutionJobVertex =
+          target
+              .getJobVertexIdExecutionJobVertexMap()
+              .get(sourceExecutionJobVertex.getJobVertex().getVertexId());
+      List<ExecutionVertex> sourceExecutionVertices =
+          sourceExecutionJobVertex.getExecutionVertices();
 
       // add all if target execution job vertex does not exist
       if (targetExecutionJobVertex == null) {
@@ -62,8 +68,8 @@ public class GraphUtil {
         continue;
       }
 
-      int diffSize = sourceExecutionVertices.size()
-          - targetExecutionJobVertex.getExecutionVertices().size();
+      int diffSize =
+          sourceExecutionVertices.size() - targetExecutionJobVertex.getExecutionVertices().size();
       if (diffSize > 0) {
         for (int index = sourceExecutionVertices.size() - 1; diffSize > 0; diffSize--, index--) {
           addedVertices.add(sourceExecutionVertices.get(index));
@@ -87,10 +93,14 @@ public class GraphUtil {
       ExecutionGraph source, ExecutionGraph target) {
     List<ExecutionVertex> deletedVertices = new ArrayList<>();
 
-    for (ExecutionJobVertex targetExecutionJobVertex : target.getJobVertexIdExecutionJobVertexMap().values()) {
-      ExecutionJobVertex sourceExecutionJobVertex = source.getJobVertexIdExecutionJobVertexMap()
-          .get(targetExecutionJobVertex.getJobVertex().getVertexId());
-      List<ExecutionVertex> targetExecutionVertices = targetExecutionJobVertex.getExecutionVertices();
+    for (ExecutionJobVertex targetExecutionJobVertex :
+        target.getJobVertexIdExecutionJobVertexMap().values()) {
+      ExecutionJobVertex sourceExecutionJobVertex =
+          source
+              .getJobVertexIdExecutionJobVertexMap()
+              .get(targetExecutionJobVertex.getJobVertex().getVertexId());
+      List<ExecutionVertex> targetExecutionVertices =
+          targetExecutionJobVertex.getExecutionVertices();
 
       // add all if source execution job vertex does not exist
       if (sourceExecutionJobVertex == null) {
@@ -98,8 +108,8 @@ public class GraphUtil {
         continue;
       }
 
-      int diffSize = targetExecutionVertices.size()
-          - sourceExecutionJobVertex.getExecutionVertices().size();
+      int diffSize =
+          targetExecutionVertices.size() - sourceExecutionJobVertex.getExecutionVertices().size();
       if (diffSize > 0) {
         for (int index = targetExecutionVertices.size() - 1; diffSize > 0; diffSize--, index--) {
           deletedVertices.add(targetExecutionVertices.get(index));
@@ -131,9 +141,11 @@ public class GraphUtil {
    * @return the minimum parallelism
    */
   public static int getMinParallelism(ExecutionGraph executionGraph) {
-    int minParallelism = executionGraph.getAllExecutionJobVertices().stream()
-        .mapToInt(ExecutionJobVertex::getParallelism)
-        .min().orElse(0);
+    int minParallelism =
+        executionGraph.getAllExecutionJobVertices().stream()
+            .mapToInt(ExecutionJobVertex::getParallelism)
+            .min()
+            .orElse(0);
 
     Preconditions.checkArgument(minParallelism != 0, "get 0 parallelism abnormally");
     return minParallelism;
@@ -151,30 +163,38 @@ public class GraphUtil {
     if (executionGraph == null) {
       return Collections.emptyMap();
     }
-    Map<String, Set<String>> resultMap = new HashMap<>(
-        executionGraph.getJobVertexIdExecutionJobVertexMap().size());
+    Map<String, Set<String>> resultMap =
+        new HashMap<>(executionGraph.getJobVertexIdExecutionJobVertexMap().size());
 
     // for dag
-    executionGraph.getAllExecutionJobVertices().forEach(executionJobVertex -> {
-      Set<String> actorNameSet = new HashSet<>(executionJobVertex.getParallelism());
-      for (ExecutionVertex executionVertex : executionJobVertex.getExecutionVertices()) {
-        actorNameSet.add(executionVertex.getActorFullName());
-      }
-      resultMap.put(String.valueOf(executionJobVertex.getExecutionJobVertexId()), actorNameSet);
-    });
+    executionGraph
+        .getAllExecutionJobVertices()
+        .forEach(
+            executionJobVertex -> {
+              Set<String> actorNameSet = new HashSet<>(executionJobVertex.getParallelism());
+              for (ExecutionVertex executionVertex : executionJobVertex.getExecutionVertices()) {
+                actorNameSet.add(executionVertex.getActorFullName());
+              }
+              resultMap.put(
+                  String.valueOf(executionJobVertex.getExecutionJobVertexId()), actorNameSet);
+            });
 
     // for independent
-    executionGraph.getIndependentVertices().forEach(independentExecutionVertex -> {
-      String keyName = independentExecutionVertex.getActorName();
-      String actorName = independentExecutionVertex.getName();
-      resultMap.computeIfAbsent(keyName, value -> new HashSet<>()).add(actorName);
-    });
+    executionGraph
+        .getIndependentVertices()
+        .forEach(
+            independentExecutionVertex -> {
+              String keyName = independentExecutionVertex.getActorName();
+              String actorName = independentExecutionVertex.getName();
+              resultMap.computeIfAbsent(keyName, value -> new HashSet<>()).add(actorName);
+            });
 
     return resultMap;
   }
 
   /**
-   * Generate operator's worker actor name json. e.g.{"1":["1-src-0|0"],"2":["2-filter-0|1"],"3":["3-sink-1|3","3-sink-0|2"]}
+   * Generate operator's worker actor name json.
+   * e.g.{"1":["1-src-0|0"],"2":["2-filter-0|1"],"3":["3-sink-1|3","3-sink-0|2"]}
    *
    * @param executionGraph graph
    * @return json result
@@ -199,16 +219,15 @@ public class GraphUtil {
         .collect(Collectors.toList());
   }
 
-  /**
-   * Find execution vertex's bundle
-   */
-  public static ExecutionBundle findBundleForExecutionVertexById(ExecutionGraph executionGraph,
-      int id) {
+  /** Find execution vertex's bundle */
+  public static ExecutionBundle findBundleForExecutionVertexById(
+      ExecutionGraph executionGraph, int id) {
     return executionGraph.getExecutionGroups().stream()
         .map(ExecutionGroup::getBundles)
         .flatMap(Collection::stream)
         .filter(bundle -> bundle.getId() == id)
-        .findFirst().orElse(null);
+        .findFirst()
+        .orElse(null);
   }
 
   /**
@@ -220,20 +239,21 @@ public class GraphUtil {
    */
   public static Map<String, Tuple2<Integer, Integer>> generateLimitParallelism(
       Map<String, Integer> expectParallelism, float factor) {
-    Preconditions.checkArgument(expectParallelism != null,
-        "Expect parallelism map can not be null.");
+    Preconditions.checkArgument(
+        expectParallelism != null, "Expect parallelism map can not be null.");
     Preconditions.checkArgument(factor >= 0, "Limit factor is invalid.");
 
     Map<String, Tuple2<Integer, Integer>> limitResult = new HashMap<>(expectParallelism.size());
-    expectParallelism.forEach((k, v) -> {
-      int max = (int) (v + v * factor);
-      int min = (int) (v - v * factor);
-      if (min <= 0) {
-        min = 1;
-      }
-      Tuple2<Integer, Integer> limit = new Tuple2<>(min, max);
-      limitResult.put(k, limit);
-    });
+    expectParallelism.forEach(
+        (k, v) -> {
+          int max = (int) (v + v * factor);
+          int min = (int) (v - v * factor);
+          if (min <= 0) {
+            min = 1;
+          }
+          Tuple2<Integer, Integer> limit = new Tuple2<>(min, max);
+          limitResult.put(k, limit);
+        });
 
     return limitResult;
   }
@@ -251,25 +271,26 @@ public class GraphUtil {
     }
 
     Map<String, Integer> resultMap = new HashMap();
-    independentVertices.forEach(actor -> {
-      String type = actor.getActorName();
-      resultMap.compute(type, (k, v) -> {
-        if (v == null) {
-          return 1;
-        }
-        return v + 1;
-      });
-    });
+    independentVertices.forEach(
+        actor -> {
+          String type = actor.getActorName();
+          resultMap.compute(
+              type,
+              (k, v) -> {
+                if (v == null) {
+                  return 1;
+                }
+                return v + 1;
+              });
+        });
 
     return resultMap;
   }
 
   /**
-   * For DAG operator, the operator name is: number-name
-   * e.g. 1-SourceOperator
+   * For DAG operator, the operator name is: number-name e.g. 1-SourceOperator
    *
-   * For independent operator, the operator name is: name
-   * e.g. PARAMETER_SERVER
+   * <p>For independent operator, the operator name is: name e.g. PARAMETER_SERVER
    *
    * @param operatorName the target operator name
    * @return true if the operator name represent DAG operator
@@ -283,23 +304,30 @@ public class GraphUtil {
   }
 
   /**
-   * Group a list of ExecutionVertex(including IndependentExecutionVertex) to a [JobVertexName, Set of ExeVertex Index] map
+   * Group a list of ExecutionVertex(including IndependentExecutionVertex) to a [JobVertexName, Set
+   * of ExeVertex Index] map
    *
    * @param executionVertices ExecutionVertices
    * @param independentVertices IndependentVertices
    * @return A map of group: [JobVertexName, Set of ExeVertex global id]
    */
   public static Map<String, Set<Integer>> groupExecutionVertexByOpName(
-      List<ExecutionVertex> executionVertices, List<IndependentExecutionVertex> independentVertices) {
+      List<ExecutionVertex> executionVertices,
+      List<IndependentExecutionVertex> independentVertices) {
 
     // group by jobVertex name (or ActorRoleType) because this is needed by RescalingInfo
     Map<String, Set<Integer>> vertexMap = new HashMap<>();
-    if (!(executionVertices == null || executionVertices.isEmpty())){
+    if (!(executionVertices == null || executionVertices.isEmpty())) {
       for (ExecutionVertex executionVertex : executionVertices) {
         String opName = executionVertex.getExecutionJobVertexName();
-        LOG.info("opName: {}, map contains? {}, map value: {}", opName, vertexMap.containsKey(opName), vertexMap.get(opName));
+        LOG.info(
+            "opName: {}, map contains? {}, map value: {}",
+            opName,
+            vertexMap.containsKey(opName),
+            vertexMap.get(opName));
         if (!vertexMap.containsKey(opName)) {
-          // can't put an ImmutableSet.of since it returns a fixed-sized set that can't be added by new items
+          // can't put an ImmutableSet.of since it returns a fixed-sized set that can't be added by
+          // new items
           vertexMap.put(opName, new HashSet<>());
         }
         vertexMap.get(opName).add(executionVertex.getExecutionVertexId());

@@ -53,13 +53,18 @@ public class JobSchedulerImpl implements JobScheduler {
 
   private PlacementGroupAssignStrategy initPlacementGroupAssignStrategy() {
     PlacementGroupAssignStrategyType placementGroupAssignStrategyType =
-            PlacementGroupAssignStrategyType.valueOf(
-                    jobConfig.getMasterConfig().schedulerConfig.placementGroupAssignStrategy().toUpperCase());
+        PlacementGroupAssignStrategyType.valueOf(
+            jobConfig
+                .getMasterConfig()
+                .schedulerConfig
+                .placementGroupAssignStrategy()
+                .toUpperCase());
 
-    PlacementGroupAssignStrategy placementGroupAssignStrategy = PlacementGroupAssignStrategyFactory
-            .getStrategy(placementGroupAssignStrategyType);
+    PlacementGroupAssignStrategy placementGroupAssignStrategy =
+        PlacementGroupAssignStrategyFactory.getStrategy(placementGroupAssignStrategyType);
 
-    LOG.info("Placement group assign strategy initialized: {}.", placementGroupAssignStrategy.getName());
+    LOG.info(
+        "Placement group assign strategy initialized: {}.", placementGroupAssignStrategy.getName());
     return placementGroupAssignStrategy;
   }
 
@@ -73,11 +78,11 @@ public class JobSchedulerImpl implements JobScheduler {
 
     // 1. prepare, including update required resources and create workers
     ScheduleResult result = prepareJobSubmission();
-    if (!result.result()){
+    if (!result.result()) {
       // 3. destroy job
       LOG.error("Failed to prepare job submission: {}.", result.getExceptionMsg());
       boolean destroyRes = destroyJob(JobStatus.SUBMITTING_FAILED);
-      if (!destroyRes){
+      if (!destroyRes) {
         LOG.error("Failed to destroy job, throwing exception.");
         // 4. Interrupt the job by throwing an exception
         markInterrupted("Failed to destroy job.");
@@ -87,11 +92,11 @@ public class JobSchedulerImpl implements JobScheduler {
 
     // 2.
     result = doJobSubmission();
-    if (!result.result()){
+    if (!result.result()) {
       // 3. destroy job
       LOG.error("Failed to doJobSubmission: {}.", result.getExceptionMsg());
       boolean destroyRes = destroyJob(JobStatus.SUBMITTING_FAILED);
-      if (!destroyRes){
+      if (!destroyRes) {
         LOG.error("Failed to destroy job, throwing exception.");
         // 4. Interrupt the job by throwing an exception
         markInterrupted("Failed to destroy job.");
@@ -148,7 +153,7 @@ public class JobSchedulerImpl implements JobScheduler {
 
     jobMaster.resetStatus(JobStatus.RUNNING);
 
-//    graphManager.updateOriginalAndClearChanged();
+    //    graphManager.updateOriginalAndClearChanged();
     jobMaster.saveContext();
 
     LOG.info("Scheduling job {} succeeded.", jobName);
@@ -165,12 +170,12 @@ public class JobSchedulerImpl implements JobScheduler {
     boolean workerDestroyResult;
     if (jobStatus == JobStatus.FINISHED_AND_CLEAN) {
       workerDestroyResult =
-              workerLifecycleController.destroyWorkers(
-                      graphManager.getExecutionGraph().getAllExecutionVertices());
+          workerLifecycleController.destroyWorkers(
+              graphManager.getExecutionGraph().getAllExecutionVertices());
     } else {
       workerDestroyResult =
-              workerLifecycleController.destroyWorkersDirectly(
-                      graphManager.getExecutionGraph().getAllExecutionVertices());
+          workerLifecycleController.destroyWorkersDirectly(
+              graphManager.getExecutionGraph().getAllExecutionVertices());
     }
 
     // remove all placement group
@@ -185,7 +190,7 @@ public class JobSchedulerImpl implements JobScheduler {
     }
 
     // unregister group listener
-//    jobMaster.unRegisterGroupListener();
+    //    jobMaster.unRegisterGroupListener();
 
     return workerDestroyResult;
   }
@@ -197,7 +202,8 @@ public class JobSchedulerImpl implements JobScheduler {
    */
   protected void run(ExecutionGraph executionGraph) throws RuntimeException {
     try {
-      Map<ExecutionVertex, JobWorkerContext> vertexToContextMap = buildJobWorkersContext(executionGraph);
+      Map<ExecutionVertex, JobWorkerContext> vertexToContextMap =
+          buildJobWorkersContext(executionGraph);
 
       // Register worker context
       // init workers
@@ -239,22 +245,22 @@ public class JobSchedulerImpl implements JobScheduler {
     return vertexToContextMap;
   }
 
-//  /**
-//   * Allocate job workers' resource then create job workers' actor.
-//   *
-//   * @param executionGraph the physical plan
-//   */
-//  protected void prepareResourceAndCreateWorker(ExecutionGraph executionGraph) {
-//    List<Container> containers = resourceManager.getRegisteredContainers();
-//
-//    // Assign resource for execution vertices
-//    resourceManager.assignResource(containers, executionGraph);
-//
-//    LOG.info("Allocating map is: {}.", ViewBuilder.buildResourceAssignmentView(containers));
-//
-//    // Start all new added workers
-//    createWorkers(executionGraph);
-//  }
+  //  /**
+  //   * Allocate job workers' resource then create job workers' actor.
+  //   *
+  //   * @param executionGraph the physical plan
+  //   */
+  //  protected void prepareResourceAndCreateWorker(ExecutionGraph executionGraph) {
+  //    List<Container> containers = resourceManager.getRegisteredContainers();
+  //
+  //    // Assign resource for execution vertices
+  //    resourceManager.assignResource(containers, executionGraph);
+  //
+  //    LOG.info("Allocating map is: {}.", ViewBuilder.buildResourceAssignmentView(containers));
+  //
+  //    // Start all new added workers
+  //    createWorkers(executionGraph);
+  //  }
 
   /**
    * Create JobWorker actors according to the physical plan.
@@ -267,8 +273,7 @@ public class JobSchedulerImpl implements JobScheduler {
     long startTs = System.currentTimeMillis();
 
     // create JobWorker actors
-    boolean createResult =
-        workerLifecycleController.createWorkers(executionGraph);
+    boolean createResult = workerLifecycleController.createWorkers(executionGraph);
 
     if (createResult) {
       LOG.info("Finished creating workers. Cost {} ms.", System.currentTimeMillis() - startTs);
@@ -322,7 +327,8 @@ public class JobSchedulerImpl implements JobScheduler {
     byte[] vertexIdExecutionVertexMapBytes = KryoUtils.writeToByteArray(vertexIdExecutionVertexMap);
 
     // create java worker context
-    JobWorkerContext context = new JobWorkerContext(masterActor, executionVertex, vertexIdExecutionVertexMapBytes);
+    JobWorkerContext context =
+        new JobWorkerContext(masterActor, executionVertex, vertexIdExecutionVertexMapBytes);
 
     return context;
   }
@@ -365,8 +371,7 @@ public class JobSchedulerImpl implements JobScheduler {
   }
 
   private void markInterrupted(String reason) throws Exception {
-    throw new Exception(
-        "JobScheduler interrupted, reason: " + reason);
+    throw new Exception("JobScheduler interrupted, reason: " + reason);
   }
 
   private void markFinished() {
@@ -374,29 +379,31 @@ public class JobSchedulerImpl implements JobScheduler {
   }
 
   protected boolean checkResource(List<ExecutionJobVertex> executionJobVertices) {
-    return executionJobVertices.stream().allMatch(executionJobVertex -> {
-      Map<String, Double> resources = executionJobVertex.getJobVertex().getResources();
-      String operatorName = executionJobVertex.getExecutionJobVertexName();
+    return executionJobVertices.stream()
+        .allMatch(
+            executionJobVertex -> {
+              Map<String, Double> resources = executionJobVertex.getJobVertex().getResources();
+              String operatorName = executionJobVertex.getExecutionJobVertexName();
 
-      for (Map.Entry<String, Double> resource : resources.entrySet()) {
-        String resourceKey = resource.getKey();
-        Double resourceValue = resource.getValue();
+              for (Map.Entry<String, Double> resource : resources.entrySet()) {
+                String resourceKey = resource.getKey();
+                Double resourceValue = resource.getValue();
 
-        if (StringUtils.isEmpty(resourceKey)) {
-          LOG.error("Resource key is empty for operator: {}.", operatorName);
-          return false;
-        } else if (resourceValue < 0) {
-          LOG.error("Resource value < 0 for operator: {}.", operatorName);
-          return false;
-        } else if (resourceKey.equals(ResourceKey.MEM.name())) {
-          if (!ResourceUtil.isMemoryMbValue(resourceValue.longValue())) {
-            LOG.error("Memory resource is illegal for operator: {}.", operatorName);
-            return false;
-          }
-        }
-      }
-      return true;
-    });
+                if (StringUtils.isEmpty(resourceKey)) {
+                  LOG.error("Resource key is empty for operator: {}.", operatorName);
+                  return false;
+                } else if (resourceValue < 0) {
+                  LOG.error("Resource value < 0 for operator: {}.", operatorName);
+                  return false;
+                } else if (resourceKey.equals(ResourceKey.MEM.name())) {
+                  if (!ResourceUtil.isMemoryMbValue(resourceValue.longValue())) {
+                    LOG.error("Memory resource is illegal for operator: {}.", operatorName);
+                    return false;
+                  }
+                }
+              }
+              return true;
+            });
   }
 
   public boolean checkAndUpdateResources(ExecutionGraph executionGraph) {
@@ -420,18 +427,15 @@ public class JobSchedulerImpl implements JobScheduler {
   }
 
   /**
-   * Update resource for specific execution vertices.
-   * In job scheduler class, nothing can be done in this function but
-   * there will be changes in its subclass of scheduler.
+   * Update resource for specific execution vertices. In job scheduler class, nothing can be done in
+   * this function but there will be changes in its subclass of scheduler.
    */
   protected void updateResourceForSpecificVertices() {
     // NOTE(lingxuan.zlx): it updates resource for dynamic py sink and must be after
     // update all execution job vertices.
   }
 
-  /**
-   * Set resources(global resource + jvm) for vertex
-   */
+  /** Set resources(global resource + jvm) for vertex */
   protected void updateResource(List<ExecutionJobVertex> executionJobVertices) {
     ResourceConfig resourceConfig = jobConfig.getMasterConfig().resourceConfig;
 
@@ -443,94 +447,104 @@ public class JobSchedulerImpl implements JobScheduler {
 
     // get default proposed resource
     Map<String, Map<String, Double>> proposedOperatorResources =
-            ResourceUtil.resolveOperatorResourcesFromJobConfig(resourceConfig.operatorProposedResource());
+        ResourceUtil.resolveOperatorResourcesFromJobConfig(
+            resourceConfig.operatorProposedResource());
 
     // get global resource definition from job config
     Map<String, Map<String, Double>> operatorResourcesFromJobConfig =
-            ResourceUtil.resolveOperatorResourcesFromJobConfig(resourceConfig.operatorCustomResource());
+        ResourceUtil.resolveOperatorResourcesFromJobConfig(resourceConfig.operatorCustomResource());
 
-    executionJobVertices.forEach(executionJobVertex -> {
-      Map<String, Double> resources = new HashMap<>(4);
-      String operatorId = String.valueOf(executionJobVertex.getExecutionJobVertexId());
-      String operatorName = executionJobVertex.getExecutionJobVertexName();
+    executionJobVertices.forEach(
+        executionJobVertex -> {
+          Map<String, Double> resources = new HashMap<>(4);
+          String operatorId = String.valueOf(executionJobVertex.getExecutionJobVertexId());
+          String operatorName = executionJobVertex.getExecutionJobVertexName();
 
-      // --------------------------------
-      // set default required resource
-      // --------------------------------
-      if (isStrictLimit) {
-        resources.put(ResourceKey.CPU.name(), defaultCpuRequired);
-        resources.put(ResourceKey.GPU.name(), defaultGpuRequired);
-        resources.put(ResourceKey.MEM.name(), defaultMemRequired);
-      }
-
-      // ----------------------------------------------------
-      // override resource by default proposed op resource
-      // ----------------------------------------------------
-      if (!proposedOperatorResources.isEmpty() && resourceConfig.enableProposedResource()) {
-        for (Map.Entry<String, Map<String, Double>> proposed : proposedOperatorResources
-                .entrySet()) {
-          String opNameKey = proposed.getKey();
-          if (operatorName.contains(opNameKey)) {
-            Map<String, Double> resource = proposedOperatorResources.get(opNameKey);
-            ResourceUtil.formatResource(resource);
-            LOG.info("Override resource by default proposed for operator: {}, resource: {}.",
-                    operatorName, resource);
-            resources.putAll(resource);
-            break;
+          // --------------------------------
+          // set default required resource
+          // --------------------------------
+          if (isStrictLimit) {
+            resources.put(ResourceKey.CPU.name(), defaultCpuRequired);
+            resources.put(ResourceKey.GPU.name(), defaultGpuRequired);
+            resources.put(ResourceKey.MEM.name(), defaultMemRequired);
           }
-        }
-      }
 
-      // ----------------------------------------------------
-      // override resource by op custom resource from job config
-      // ----------------------------------------------------
-      if (!operatorResourcesFromJobConfig.isEmpty()) {
-        Map<String, Double> resource = null;
-        if (operatorResourcesFromJobConfig.containsKey(operatorName)) {
-          resource = operatorResourcesFromJobConfig.get(operatorName);
-        } else if (operatorResourcesFromJobConfig.containsKey(operatorId)) {
-          resource = operatorResourcesFromJobConfig.get(operatorId);
-        }
+          // ----------------------------------------------------
+          // override resource by default proposed op resource
+          // ----------------------------------------------------
+          if (!proposedOperatorResources.isEmpty() && resourceConfig.enableProposedResource()) {
+            for (Map.Entry<String, Map<String, Double>> proposed :
+                proposedOperatorResources.entrySet()) {
+              String opNameKey = proposed.getKey();
+              if (operatorName.contains(opNameKey)) {
+                Map<String, Double> resource = proposedOperatorResources.get(opNameKey);
+                ResourceUtil.formatResource(resource);
+                LOG.info(
+                    "Override resource by default proposed for operator: {}, resource: {}.",
+                    operatorName,
+                    resource);
+                resources.putAll(resource);
+                break;
+              }
+            }
+          }
 
-        if (resource != null) {
-          ResourceUtil.formatResource(resource);
-          LOG.info("Override resource from job config for operator: {}, resource: {}.",
-                  operatorName, resource);
-          resources.putAll(resource);
-        }
-      }
+          // ----------------------------------------------------
+          // override resource by op custom resource from job config
+          // ----------------------------------------------------
+          if (!operatorResourcesFromJobConfig.isEmpty()) {
+            Map<String, Double> resource = null;
+            if (operatorResourcesFromJobConfig.containsKey(operatorName)) {
+              resource = operatorResourcesFromJobConfig.get(operatorName);
+            } else if (operatorResourcesFromJobConfig.containsKey(operatorId)) {
+              resource = operatorResourcesFromJobConfig.get(operatorId);
+            }
 
-      // ----------------------------------------------------
-      // override resource by op custom resource from op config
-      // ----------------------------------------------------
-      Map<String, Double> operatorResourcesFromOpConfig =
+            if (resource != null) {
+              ResourceUtil.formatResource(resource);
+              LOG.info(
+                  "Override resource from job config for operator: {}, resource: {}.",
+                  operatorName,
+                  resource);
+              resources.putAll(resource);
+            }
+          }
+
+          // ----------------------------------------------------
+          // override resource by op custom resource from op config
+          // ----------------------------------------------------
+          Map<String, Double> operatorResourcesFromOpConfig =
               executionJobVertex.getJobVertex().getResources();
-      if (!operatorResourcesFromOpConfig.isEmpty()) {
-        ResourceUtil.formatResource(operatorResourcesFromOpConfig);
-        LOG.info("Override resource from op config for operator: {}, resource: {}.",
-                operatorName, operatorResourcesFromOpConfig);
-        resources.putAll(operatorResourcesFromOpConfig);
-      }
+          if (!operatorResourcesFromOpConfig.isEmpty()) {
+            ResourceUtil.formatResource(operatorResourcesFromOpConfig);
+            LOG.info(
+                "Override resource from op config for operator: {}, resource: {}.",
+                operatorName,
+                operatorResourcesFromOpConfig);
+            resources.putAll(operatorResourcesFromOpConfig);
+          }
 
-      // --------------------------------
-      // override mem if jvm opts is set
-      // --------------------------------
-      Double memoryMbFromJvmOpts = ResourceUtil.calculateMemoryMbFromJvmOptsStr(
-              executionJobVertex.getOpConfig().getOrDefault(JvmConfig.JVM_OPTS, ""),
-              operatorName);
+          // --------------------------------
+          // override mem if jvm opts is set
+          // --------------------------------
+          Double memoryMbFromJvmOpts =
+              ResourceUtil.calculateMemoryMbFromJvmOptsStr(
+                  executionJobVertex.getOpConfig().getOrDefault(JvmConfig.JVM_OPTS, ""),
+                  operatorName);
 
-      // override mem resource with jvm result
-      Double currentMemoryMb = resources.get(ResourceKey.MEM.name());
-      if (memoryMbFromJvmOpts > 0 && memoryMbFromJvmOpts > currentMemoryMb) {
-        LOG.info("Override buffer mb with: {} for operator: {} by jvm options.",
-                memoryMbFromJvmOpts, operatorName);
-        resources.put(ResourceKey.MEM.name(), memoryMbFromJvmOpts);
-      }
+          // override mem resource with jvm result
+          Double currentMemoryMb = resources.get(ResourceKey.MEM.name());
+          if (memoryMbFromJvmOpts > 0 && memoryMbFromJvmOpts > currentMemoryMb) {
+            LOG.info(
+                "Override buffer mb with: {} for operator: {} by jvm options.",
+                memoryMbFromJvmOpts,
+                operatorName);
+            resources.put(ResourceKey.MEM.name(), memoryMbFromJvmOpts);
+          }
 
-      // update resource for all it's vertices
-      LOG.info("Operator resources are: {}.", resources);
-      executionJobVertex.updateResources(resources);
-    });
+          // update resource for all it's vertices
+          LOG.info("Operator resources are: {}.", resources);
+          executionJobVertex.updateResources(resources);
+        });
   }
-
 }

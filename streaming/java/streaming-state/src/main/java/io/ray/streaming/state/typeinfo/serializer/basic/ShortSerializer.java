@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for short.
- */
+/** Type serializer for short. */
 public class ShortSerializer extends TypeSerializer<Short> {
 
   public static final ShortSerializer INSTANCE = new ShortSerializer();

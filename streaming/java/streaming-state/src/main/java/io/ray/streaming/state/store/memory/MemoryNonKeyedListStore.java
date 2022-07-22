@@ -6,25 +6,20 @@ import io.ray.streaming.state.store.backend.memory.MemoryStateBackend;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Description <br>
- *
- */
+/** Description <br> */
 public class MemoryNonKeyedListStore<V> extends AbstractMemoryStore implements ListState<V> {
 
   private final List<V> list;
 
-  public MemoryNonKeyedListStore(MemoryStateBackend backend,
-                                 String jobName,
-                                 String stateName,
-                                 MetricGroup metricGroup) {
+  public MemoryNonKeyedListStore(
+      MemoryStateBackend backend, String jobName, String stateName, MetricGroup metricGroup) {
     super(jobName, stateName, metricGroup);
     list = new ArrayList<>();
   }
 
   @Override
   public void add(V ele) {
-//    writeMeter.update();
+    //    writeMeter.update();
     list.add(ele);
   }
 
@@ -37,13 +32,13 @@ public class MemoryNonKeyedListStore<V> extends AbstractMemoryStore implements L
 
   @Override
   public V get(int index) {
-//    readMeter.update();
+    //    readMeter.update();
     return list.get(index);
   }
 
   @Override
   public V remove(int index) {
-//    deleteMeter.update();
+    //    deleteMeter.update();
     return list.remove(index);
   }
 

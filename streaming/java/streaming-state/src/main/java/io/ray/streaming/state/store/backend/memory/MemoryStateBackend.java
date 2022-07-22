@@ -18,19 +18,15 @@
 
 package io.ray.streaming.state.store.backend.memory;
 
-
 import io.ray.streaming.state.store.backend.StateBackend;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Memory storage backend, implementing snapshot,restore，etc.
- */
+/** Memory storage backend, implementing snapshot,restore，etc. */
 public class MemoryStateBackend implements StateBackend {
 
   private static final Logger LOG = LoggerFactory.getLogger(MemoryStateBackend.class);
-
 
   @Override
   public void init() {
@@ -39,10 +35,11 @@ public class MemoryStateBackend implements StateBackend {
 
   @Override
   public CompletableFuture<Boolean> snapshot(long snapshotId) {
-    return CompletableFuture.supplyAsync(() -> {
-      LOG.info("Memory store backend not support checkpoint.");
-      return false;
-    });
+    return CompletableFuture.supplyAsync(
+        () -> {
+          LOG.info("Memory store backend not support checkpoint.");
+          return false;
+        });
   }
 
   @Override
@@ -56,6 +53,5 @@ public class MemoryStateBackend implements StateBackend {
   }
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 }

@@ -7,10 +7,7 @@ import java.io.UTFDataFormatException;
 import java.nio.ByteOrder;
 import sun.misc.Unsafe;
 
-/**
- * TODO
- * This class is temporary and will be replaced by buffer manager.
- */
+/** TODO This class is temporary and will be replaced by buffer manager. */
 public class DataInputView implements DataInput {
 
   private static final Unsafe UNSAFE = UnsafeUtil.UNSAFE;
@@ -47,7 +44,8 @@ public class DataInputView implements DataInput {
   @Override
   public char readChar() throws IOException {
     if (this.position >= 0 && this.position < this.end - 1) {
-      return (char) (((this.buffer[this.position++] & 0xff)) << 8 | (this.buffer[this.position++] & 0xff));
+      return (char)
+          (((this.buffer[this.position++] & 0xff)) << 8 | (this.buffer[this.position++] & 0xff));
     } else {
       throw new EOFException();
     }
@@ -56,7 +54,8 @@ public class DataInputView implements DataInput {
   @Override
   public short readShort() throws IOException {
     if (this.position >= 0 && this.position < this.end - 1) {
-      return (short) (((this.buffer[this.position++] & 0xff) << 8) | (this.buffer[this.position++] & 0xff));
+      return (short)
+          (((this.buffer[this.position++] & 0xff) << 8) | (this.buffer[this.position++] & 0xff));
     } else {
       throw new EOFException();
     }
@@ -148,6 +147,7 @@ public class DataInputView implements DataInput {
       throw new EOFException();
     }
   }
+
   @Override
   public int readUnsignedShort() throws IOException {
     if (this.position < this.end - 1) {
@@ -156,7 +156,6 @@ public class DataInputView implements DataInput {
       throw new EOFException();
     }
   }
-
 
   @Override
   public String readLine() throws IOException {
@@ -182,7 +181,7 @@ public class DataInputView implements DataInput {
 
   @Override
   public String readUTF() throws IOException {
-    //read length
+    // read length
     int utfLen = readUnsignedShort();
     byte[] byteArray = new byte[utfLen];
     char[] charArray = new char[utfLen];
@@ -241,7 +240,8 @@ public class DataInputView implements DataInput {
           if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
             throw new UTFDataFormatException("malformed input around byte " + (count - 1));
           }
-          charArray[charArrayCount++] = (char) (((c & 0x0F) << 12) | ((char2 & 0x3F) << 6) | (char3 & 0x3F));
+          charArray[charArrayCount++] =
+              (char) (((c & 0x0F) << 12) | ((char2 & 0x3F) << 6) | (char3 & 0x3F));
           break;
         default:
           /* 10xx xxxx, 1111 xxxx */
@@ -254,11 +254,13 @@ public class DataInputView implements DataInput {
 
   public int read(byte[] b, int off, int len) throws IOException {
     if (off < 0 || len < 0) {
-      throw new IndexOutOfBoundsException("Offset:" + off + " or len: " + len + " cannot be nagative");
+      throw new IndexOutOfBoundsException(
+          "Offset:" + off + " or len: " + len + " cannot be nagative");
     }
 
     if (b.length - off < len) {
-      throw new IndexOutOfBoundsException("Byte array does not provide enough space to store requested data.");
+      throw new IndexOutOfBoundsException(
+          "Byte array does not provide enough space to store requested data.");
     }
 
     if (this.position >= this.end) {
@@ -271,5 +273,4 @@ public class DataInputView implements DataInput {
       return toRead;
     }
   }
-
 }

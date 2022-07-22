@@ -19,5 +19,4 @@
 package io.ray.streaming.state.api.state;
 
 /** State interface. */
-public interface State {
-}
+public interface State {}

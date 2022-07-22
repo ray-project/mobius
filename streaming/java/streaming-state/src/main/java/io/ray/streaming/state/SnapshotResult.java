@@ -8,7 +8,7 @@ public class SnapshotResult {
 
   public boolean result;
 
-  public SnapshotResult() {} ;
+  public SnapshotResult() {};
 
   public SnapshotResult(long snapshotId, boolean result) {
     this.snapshotId = snapshotId;
@@ -17,8 +17,6 @@ public class SnapshotResult {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("snapshotId", snapshotId)
-        .toString();
+    return MoreObjects.toStringHelper(this).add("snapshotId", snapshotId).toString();
   }
 }

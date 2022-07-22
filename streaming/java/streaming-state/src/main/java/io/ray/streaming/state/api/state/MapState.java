@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 /** MapState interface. */
 public interface MapState<K, V> extends KeyedState {
 
-
   /**
    * Get the value corresponding to key.
    *
@@ -37,7 +36,7 @@ public interface MapState<K, V> extends KeyedState {
   /**
    * Associates a new value with the give key.
    *
-   * @param key   The key of the key-value.
+   * @param key The key of the key-value.
    * @param value The new value of the key-value.
    */
   void put(K key, V value) throws Exception;
@@ -92,8 +91,6 @@ public interface MapState<K, V> extends KeyedState {
    */
   Iterator<Entry<K, V>> iterator() throws Exception;
 
-  /**
-   * Removes current key-value state of all data.
-   */
+  /** Removes current key-value state of all data. */
   void clear();
 }

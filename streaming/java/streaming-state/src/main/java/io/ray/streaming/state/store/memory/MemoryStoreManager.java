@@ -10,9 +10,9 @@ import io.ray.streaming.state.api.state.HiddenKeyState;
 import io.ray.streaming.state.api.state.ListState;
 import io.ray.streaming.state.api.state.MapState;
 import io.ray.streaming.state.api.state.ValueState;
-import io.ray.streaming.state.store.backend.memory.MemoryStateBackend;
 import io.ray.streaming.state.store.Store;
 import io.ray.streaming.state.store.StoreManager;
+import io.ray.streaming.state.store.backend.memory.MemoryStateBackend;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +20,8 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Memory state backend.
- */
-public class MemoryStoreManager implements StoreManager{
+/** Memory state backend. */
+public class MemoryStoreManager implements StoreManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(MemoryStoreManager.class);
   private static final int UNIQUE_STATE_KEY = -1;
@@ -36,10 +34,8 @@ public class MemoryStoreManager implements StoreManager{
 
   private MetricGroup metricGroup;
 
-  public MemoryStoreManager(String jobName,
-                            String stateName,
-                            Map<String, String> stateConfig,
-                            MetricGroup metricGroup) {
+  public MemoryStoreManager(
+      String jobName, String stateName, Map<String, String> stateConfig, MetricGroup metricGroup) {
 
     this.memoryStateBackend = new MemoryStateBackend();
     this.jobName = jobName;
@@ -50,11 +46,8 @@ public class MemoryStoreManager implements StoreManager{
 
   @Override
   public <K, V> MapState<K, V> buildMapStore(MapStateDescriptor<K, V> descriptor) {
-    MemoryMapStore<K, V> keyValueStore = new MemoryMapStore<>(memoryStateBackend,
-        jobName,
-        stateName,
-        null,
-        metricGroup);
+    MemoryMapStore<K, V> keyValueStore =
+        new MemoryMapStore<>(memoryStateBackend, jobName, stateName, null, metricGroup);
 
     storeList.add(keyValueStore);
     LOG.info("Build key-value state, descriptor: {}", descriptor);
@@ -62,14 +55,10 @@ public class MemoryStoreManager implements StoreManager{
   }
 
   @Override
-  public <K, V> MapState<K, V> buildNonKeyedMapStore(
-          MapStateDescriptor<K, V> descriptor) {
-    MemoryNonKeyedMapStore<K, V> nonKeyedMapStore = new MemoryNonKeyedMapStore<>(memoryStateBackend,
-            jobName,
-            stateName,
-            null,
-            metricGroup,
-        UNIQUE_STATE_KEY);
+  public <K, V> MapState<K, V> buildNonKeyedMapStore(MapStateDescriptor<K, V> descriptor) {
+    MemoryNonKeyedMapStore<K, V> nonKeyedMapStore =
+        new MemoryNonKeyedMapStore<>(
+            memoryStateBackend, jobName, stateName, null, metricGroup, UNIQUE_STATE_KEY);
 
     storeList.add(nonKeyedMapStore);
     LOG.info("Build nonKeyed key-value state, descriptor: {}", descriptor);
@@ -78,11 +67,8 @@ public class MemoryStoreManager implements StoreManager{
 
   @Override
   public <V> ValueState<V> buildValueStore(ValueStateDescriptor<V> descriptor) {
-    MemoryValueStore<V> valueStore = new MemoryValueStore<>(memoryStateBackend,
-        jobName,
-        stateName,
-        null,
-        metricGroup);
+    MemoryValueStore<V> valueStore =
+        new MemoryValueStore<>(memoryStateBackend, jobName, stateName, null, metricGroup);
 
     storeList.add(valueStore);
     LOG.info("Build value state, descriptor: {}", descriptor);
@@ -91,12 +77,9 @@ public class MemoryStoreManager implements StoreManager{
 
   @Override
   public <V> ValueState<V> buildNonKeyedValueStore(ValueStateDescriptor<V> descriptor) {
-    MemoryNonKeyedValueStore<V> valueStore = new MemoryNonKeyedValueStore<>(memoryStateBackend,
-            jobName,
-            stateName,
-            null,
-            metricGroup,
-        UNIQUE_STATE_KEY);
+    MemoryNonKeyedValueStore<V> valueStore =
+        new MemoryNonKeyedValueStore<>(
+            memoryStateBackend, jobName, stateName, null, metricGroup, UNIQUE_STATE_KEY);
 
     storeList.add(valueStore);
     LOG.info("Build value state, descriptor: {}", descriptor);
@@ -105,10 +88,8 @@ public class MemoryStoreManager implements StoreManager{
 
   @Override
   public <V> ListState<V> buildNonKeyedListStore(ListStateDescriptor<V> descriptor) {
-    MemoryNonKeyedListStore<V> listStore = new MemoryNonKeyedListStore<>(memoryStateBackend,
-            jobName,
-            stateName,
-            metricGroup);
+    MemoryNonKeyedListStore<V> listStore =
+        new MemoryNonKeyedListStore<>(memoryStateBackend, jobName, stateName, metricGroup);
     storeList.add(listStore);
     LOG.info("Build value state, descriptor: {}", descriptor);
     return listStore;
@@ -128,7 +109,7 @@ public class MemoryStoreManager implements StoreManager{
   public CompletableFuture<SnapshotResult> snapshot(long snapshotId) {
     CompletableFuture<Boolean> snapshotFuture = memoryStateBackend.snapshot(snapshotId);
     try {
-      //sync flush
+      // sync flush
       snapshotFuture.get();
     } catch (Exception e) {
       throw new RuntimeException("Doing snapshot failed.", e);
@@ -143,13 +124,11 @@ public class MemoryStoreManager implements StoreManager{
 
   @Override
   public boolean deleteSnapshot(long expiredCheckpointId) {
-    //TODO
+    // TODO
     LOG.info("Clean expired checkpoint id: {}.", expiredCheckpointId);
     return true;
   }
 
   @Override
-  public void close() {
-
-  }
+  public void close() {}
 }

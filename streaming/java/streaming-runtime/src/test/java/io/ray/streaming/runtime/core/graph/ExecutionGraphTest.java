@@ -73,8 +73,7 @@ public class ExecutionGraphTest {
               .getOutputEdges()
               .forEach(
                   upStreamOutPutEdge -> {
-                    Assert.assertTrue(
-                        downStreamVertices.contains(upStreamOutPutEdge.getTarget()));
+                    Assert.assertTrue(downStreamVertices.contains(upStreamOutPutEdge.getTarget()));
                   });
         });
   }

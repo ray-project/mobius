@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for int.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class IntegerComparator extends TypeComparator<Integer> {
 

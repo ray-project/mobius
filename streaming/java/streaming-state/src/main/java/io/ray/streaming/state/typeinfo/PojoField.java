@@ -3,9 +3,7 @@ package io.ray.streaming.state.typeinfo;
 import com.google.common.base.MoreObjects;
 import java.lang.reflect.Field;
 
-/**
- * Represent a field definition for {@link PojoTypeInfo} type of objects.
- */
+/** Represent a field definition for {@link PojoTypeInfo} type of objects. */
 public class PojoField {
 
   private final Field field;

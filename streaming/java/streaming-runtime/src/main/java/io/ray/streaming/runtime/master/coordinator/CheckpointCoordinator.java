@@ -3,10 +3,10 @@ package io.ray.streaming.runtime.master.coordinator;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.api.id.ActorId;
-import io.ray.streaming.runtime.core.checkpoint.Barrier;
-import io.ray.streaming.runtime.core.command.WorkerCommitBarrierReport;
 import io.ray.streaming.runtime.config.StreamingMasterConfig;
 import io.ray.streaming.runtime.config.global.CheckpointConfig;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
+import io.ray.streaming.runtime.core.command.WorkerCommitBarrierReport;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.master.coordinator.command.BaseWorkerCmd;
@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * CheckpointCoordinator is the controller of checkpoint, responsible for triggering checkpoint,
@@ -152,10 +151,10 @@ public class CheckpointCoordinator extends BaseCoordinator {
     markAsCheckpointing();
     interruptedCheckpointSet.clear();
 
-    Set<ActorId> deletingActorIds = graphManager.getExecutionGraph().getAllMoribundVertices()
-        .stream()
-        .map(ExecutionVertex::getWorkerActorId)
-        .collect(Collectors.toSet());
+    Set<ActorId> deletingActorIds =
+        graphManager.getExecutionGraph().getAllMoribundVertices().stream()
+            .map(ExecutionVertex::getWorkerActorId)
+            .collect(Collectors.toSet());
 
     for (ActorId id : deletingActorIds) {
       if (pendingCheckpointActors.contains(id)) {
@@ -177,17 +176,20 @@ public class CheckpointCoordinator extends BaseCoordinator {
     Barrier barrier = new Barrier(runtimeContext.lastCheckpointId);
 
     // get all the source worker's caller except the one who is ready to be deleted
-    List<WorkerCaller> targetWorkers = graphManager.getExecutionGraph().getSourceWorkerCallers().stream()
-        .filter(workerCaller -> !deletingActorIds.contains(workerCaller.getActorHandle().getId()))
-        .collect(Collectors.toList());
+    List<WorkerCaller> targetWorkers =
+        graphManager.getExecutionGraph().getSourceWorkerCallers().stream()
+            .filter(
+                workerCaller -> !deletingActorIds.contains(workerCaller.getActorHandle().getId()))
+            .collect(Collectors.toList());
 
     // NOTE(lingxuan.zlx): the lastest timestamp must be updated to prevent coordiantor from
     // interrupting checkpoint wrongly if any source returns false trigger result.
     runtimeContext.lastCpTimestamp = System.currentTimeMillis();
 
-    if (RemoteCallWorker
-        .batchTriggerCheckpoint(targetWorkers, barrier, CheckpointConfig.TRIGGER_CHECKPOINT_TIMEOUT)
-        .stream().anyMatch(eachTriggerResult -> !eachTriggerResult)) {
+    if (RemoteCallWorker.batchTriggerCheckpoint(
+            targetWorkers, barrier, CheckpointConfig.TRIGGER_CHECKPOINT_TIMEOUT)
+        .stream()
+        .anyMatch(eachTriggerResult -> !eachTriggerResult)) {
       LOG.error("Trigger checkpoint failed: {}.", runtimeContext.lastCheckpointId);
 
       return;

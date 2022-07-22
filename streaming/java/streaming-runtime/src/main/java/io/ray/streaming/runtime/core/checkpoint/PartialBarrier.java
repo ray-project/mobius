@@ -31,8 +31,8 @@ public class PartialBarrier implements Serializable {
       return false;
     }
     PartialBarrier that = (PartialBarrier) o;
-    return globalCheckpointId == that.globalCheckpointId &&
-        partialCheckpointId == that.partialCheckpointId;
+    return globalCheckpointId == that.globalCheckpointId
+        && partialCheckpointId == that.partialCheckpointId;
   }
 
   @Override

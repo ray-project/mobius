@@ -5,10 +5,8 @@ import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 import java.util.Map;
 
-/**
- * Type information for {@link Map}.
- */
-public class MapTypeInfo<K, V> extends TypeInformation<Map<K, V>>{
+/** Type information for {@link Map}. */
+public class MapTypeInfo<K, V> extends TypeInformation<Map<K, V>> {
 
   private final TypeInformation<K> keyTypeInfo;
   private final TypeInformation<V> valueTypeInfo;

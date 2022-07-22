@@ -24,6 +24,7 @@ public class ExecutionJobEdge implements Serializable {
 
   /** An unique id for current execution job vertices' upstream and downstream. */
   private List<ExecutionJobEdge> inputs = new ArrayList<>();
+
   private List<ExecutionJobEdge> outputs = new ArrayList<>();
 
   /** All execution edges of current execution job edge. */

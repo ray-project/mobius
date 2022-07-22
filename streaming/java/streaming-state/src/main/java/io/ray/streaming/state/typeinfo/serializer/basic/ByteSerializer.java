@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for byte.
- */
+/** Type serializer for byte. */
 public class ByteSerializer extends TypeSerializer<Byte> {
 
   public static final ByteSerializer INSTANCE = new ByteSerializer();
@@ -24,7 +22,7 @@ public class ByteSerializer extends TypeSerializer<Byte> {
     return inputView.readByte();
   }
 
-  //basic type
+  // basic type
   @Override
   public TypeSerializer<Byte> duplicate() {
     return this;

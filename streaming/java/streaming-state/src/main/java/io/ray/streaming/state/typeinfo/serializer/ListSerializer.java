@@ -1,18 +1,17 @@
 package io.ray.streaming.state.typeinfo.serializer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.ray.streaming.state.buffer.DataInputView;
 import io.ray.streaming.state.buffer.DataOutputView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Type serializer for {@link List}.
  *
- * The serialization format for the list:
- * | list size(int) | element data | element data | ...|
+ * <p>The serialization format for the list: | list size(int) | element data | element data | ...|
  */
 public class ListSerializer<T> extends TypeSerializer<List<T>> {
 

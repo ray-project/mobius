@@ -8,8 +8,8 @@ public class WorkerCommitPartialBarrierReport extends BaseWorkerCmd {
   public final long globalCheckpointId;
   public final long partialCheckpointId;
 
-  public WorkerCommitPartialBarrierReport(final ActorId actorId, final long globalCheckpointId,
-                                          final long partialCheckpointId) {
+  public WorkerCommitPartialBarrierReport(
+      final ActorId actorId, final long globalCheckpointId, final long partialCheckpointId) {
     super(actorId);
     this.globalCheckpointId = globalCheckpointId;
     this.partialCheckpointId = partialCheckpointId;

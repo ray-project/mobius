@@ -32,14 +32,10 @@ public abstract class AbstractStateDescriptor<T> implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractStateDescriptor.class);
 
-  /**
-   * The current state name.
-   */
+  /** The current state name. */
   private final String stateName;
 
-  /**
-   * The current state type info.
-   */
+  /** The current state type info. */
   private TypeInformation<T> typeInfo;
 
   public AbstractStateDescriptor(String stateName, TypeInformation<T> typeInfo) {
@@ -59,7 +55,9 @@ public abstract class AbstractStateDescriptor<T> implements Serializable {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this).add("stateName", stateName)
-        .add("typeInfo", typeInfo).toString();
+    return MoreObjects.toStringHelper(this)
+        .add("stateName", stateName)
+        .add("typeInfo", typeInfo)
+        .toString();
   }
 }

@@ -2,14 +2,10 @@ package io.ray.streaming.runtime.master.scheduler.strategy;
 
 public enum PlacementGroupAssignStrategyType {
 
-  /**
-   * RANDOM(without placement group)
-   */
+  /** RANDOM(without placement group) */
   RANDOM("random", -1),
 
-  /**
-   * PIPELINE_FIRST
-   */
+  /** PIPELINE_FIRST */
   PIPELINE_FIRST("pipeline_first", 0);
 
   private String name;

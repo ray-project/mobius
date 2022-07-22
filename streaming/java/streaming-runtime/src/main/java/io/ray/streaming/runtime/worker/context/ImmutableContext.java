@@ -6,9 +6,7 @@ import io.ray.api.id.ActorId;
 import io.ray.streaming.runtime.master.JobMaster;
 import java.io.Serializable;
 
-/**
- * ImmutableContext is the static context of `JobWorker` and will not change.
- */
+/** ImmutableContext is the static context of `JobWorker` and will not change. */
 public class ImmutableContext implements Serializable {
 
   private ActorHandle<JobMaster> masterActor;
@@ -17,14 +15,17 @@ public class ImmutableContext implements Serializable {
   private ActorId actorId;
   private String workerName;
 
-  public ImmutableContext() {
-  }
+  public ImmutableContext() {}
 
-  public ImmutableContext(ActorHandle<JobMaster> masterActor, String jobName, String opName,
-                          ActorId actorId, String workerName) {
+  public ImmutableContext(
+      ActorHandle<JobMaster> masterActor,
+      String jobName,
+      String opName,
+      ActorId actorId,
+      String workerName) {
     this.masterActor = masterActor;
     this.jobName = jobName;
-    this.opName =opName;
+    this.opName = opName;
     this.actorId = actorId;
     this.workerName = workerName;
   }
@@ -33,8 +34,7 @@ public class ImmutableContext implements Serializable {
     return masterActor;
   }
 
-  public void setMasterActor(
-      ActorHandle<JobMaster> masterActor) {
+  public void setMasterActor(ActorHandle<JobMaster> masterActor) {
     this.masterActor = masterActor;
   }
 

@@ -1,7 +1,6 @@
 package io.ray.streaming.common.config.converter;
 
 import io.ray.streaming.common.config.CommonConfig;
-import io.ray.streaming.common.utils.EnvUtil;
 import java.lang.reflect.Method;
 import org.aeonbits.owner.ConfigFactory;
 import org.aeonbits.owner.Converter;

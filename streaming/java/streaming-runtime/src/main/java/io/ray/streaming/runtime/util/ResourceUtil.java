@@ -217,9 +217,8 @@ public class ResourceUtil {
   /**
    * Transfer the buffer properly to fit the buffer value used for ray internal(divisible by 50).
    *
-   * Notice:
-   * 1) if the input buffer value < 128, it will be used as gb unit
-   * 2) if the input buffer value >= 128, it will be used as mb unit
+   * <p>Notice: 1) if the input buffer value < 128, it will be used as gb unit 2) if the input
+   * buffer value >= 128, it will be used as mb unit
    *
    * @param memoryValue the buffer value
    * @return the properly value
@@ -231,17 +230,23 @@ public class ResourceUtil {
         return memoryValue.longValue();
       }
       return Double.valueOf(
-          (memoryValue.longValue() + (MEMORY_UNIT_SIZE - 1)) / MEMORY_UNIT_SIZE * MEMORY_UNIT_SIZE).longValue();
+              (memoryValue.longValue() + (MEMORY_UNIT_SIZE - 1))
+                  / MEMORY_UNIT_SIZE
+                  * MEMORY_UNIT_SIZE)
+          .longValue();
     } else {
       // for gb value
       return Double.valueOf(
-          (memoryValue.longValue() * 1024 + (MEMORY_UNIT_SIZE - 1)) / MEMORY_UNIT_SIZE * MEMORY_UNIT_SIZE).longValue();
+              (memoryValue.longValue() * 1024 + (MEMORY_UNIT_SIZE - 1))
+                  / MEMORY_UNIT_SIZE
+                  * MEMORY_UNIT_SIZE)
+          .longValue();
     }
   }
 
   /**
-   * Judge whether the value is valid to describe buffer in mb.
-   * e.g. if user use gb-value, the value should be like 2,4
+   * Judge whether the value is valid to describe buffer in mb. e.g. if user use gb-value, the value
+   * should be like 2,4
    *
    * @param value buffer value
    * @return is a valid to describe buffer in mb
@@ -282,7 +287,8 @@ public class ResourceUtil {
 
     } catch (Exception e) {
       if (jvmOptions.trim().contains("{") || jvmOptions.trim().contains("}")) {
-        LOG.error("Jvm options [{}] contain '{ or }' but not in json format, set empty directly.",
+        LOG.error(
+            "Jvm options [{}] contain '{ or }' but not in json format, set empty directly.",
             jvmOptions);
         return 0D;
       } else {
@@ -308,13 +314,14 @@ public class ResourceUtil {
   public static double convertJvmXmxMemWithOverhead(String jvmMem, int memOverhead) {
     double resourceMemWithGb;
     if (jvmMem.endsWith("m")) {
-      int jvmMemWithMb = Integer.parseInt(
-          jvmMem.substring(jvmMem.lastIndexOf("x") + 1, jvmMem.lastIndexOf("m"))) + memOverhead;
+      int jvmMemWithMb =
+          Integer.parseInt(jvmMem.substring(jvmMem.lastIndexOf("x") + 1, jvmMem.lastIndexOf("m")))
+              + memOverhead;
       return jvmMemWithMb;
     } else if (jvmMem.endsWith("g")) {
-      resourceMemWithGb = Double.parseDouble(
-          jvmMem.substring(jvmMem.lastIndexOf("x") + 1,
-              jvmMem.lastIndexOf("g"))) + (memOverhead == 0 ? 0 : 1);
+      resourceMemWithGb =
+          Double.parseDouble(jvmMem.substring(jvmMem.lastIndexOf("x") + 1, jvmMem.lastIndexOf("g")))
+              + (memOverhead == 0 ? 0 : 1);
       return resourceMemWithGb * 1024;
     } else {
       throw new IllegalArgumentException("Unsupported unit for -Xmx");
@@ -322,10 +329,8 @@ public class ResourceUtil {
   }
 
   /**
-   * Format cpu value for ray's limitation.
-   * limitation:
-   * if 0 < cpu <= 1, value can be decimal
-   * if cpu > 1, value must be integer
+   * Format cpu value for ray's limitation. limitation: if 0 < cpu <= 1, value can be decimal if cpu
+   * > 1, value must be integer
    *
    * @param cpuValue the target value
    * @return formatted value
@@ -355,14 +360,17 @@ public class ResourceUtil {
 
   /**
    * Transfer operator resources into map.
+   *
    * @param customOpResourceConfig resource config in job config
    * @return map result
    */
   public static Map<String, Map<String, Double>> resolveOperatorResourcesFromJobConfig(
       String customOpResourceConfig) {
     try {
-      return new Gson().fromJson(
-          customOpResourceConfig, new TypeToken<Map<String, Map<String, Double>>>() {}.getType());
+      return new Gson()
+          .fromJson(
+              customOpResourceConfig,
+              new TypeToken<Map<String, Map<String, Double>>>() {}.getType());
     } catch (Exception e) {
       LOG.error("Failed to resolve operator resource from job config: {}.", customOpResourceConfig);
     }

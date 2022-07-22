@@ -2,8 +2,8 @@ package io.ray.streaming.runtime.worker.tasks;
 
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.message.Record;
-import io.ray.streaming.runtime.core.processor.Processor;
 import io.ray.streaming.runtime.core.checkpoint.Barrier;
+import io.ray.streaming.runtime.core.processor.Processor;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.serialization.CrossLangSerializer;
 import io.ray.streaming.runtime.serialization.JavaSerializer;

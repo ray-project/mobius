@@ -11,7 +11,6 @@ public interface MetricConfig extends Config, Mutable {
   // Metrics common configuration
   // ====================================================================================
 
-
   String METRIC_ENABLE = "streaming.metric.enable";
   String METRIC_TYPE = "streaming.metric.type";
   String METRICS_SCOPE_JOB_MASTER = "streaming.metrics.jobmaster";
@@ -25,14 +24,16 @@ public interface MetricConfig extends Config, Mutable {
   String METRICS_KMONITOR_SERVICE_NAME = "streaming.metrics.kmonitor.service.name";
   String METRICS_REPORTERS = "streaming.metrics.reporters";
   String METRICS_REPORTER_DEFAULT_INTERVAL = "streaming.metrics.reporter.default.interval";
-  String METRICS_REPORTER_GLOBAL_SCOPE_DELIMITER = "streaming.metrics.reporter.global.scope.delimiter";
+  String METRICS_REPORTER_GLOBAL_SCOPE_DELIMITER =
+      "streaming.metrics.reporter.global.scope.delimiter";
 
   String METRICS_REPORTER_INTERVAL_SEPARATOR = ",";
   String METRICS_REPORTER_EXTERNAL_SEPARATOR = ";";
   String METRICS_REPORTERS_DEFAULT_VALUE = "ray_metric,1,.";
 
   String METRIC_WORKER_SAMPLE_FREQUENCY = "streaming.metric.worker.sample.frequency";
-  String METRIC_TRUE_RATE_AGGREGATOR_INTERVAL_SEC = "streaming.metric.true.rate.aggregator.interval.sec";
+  String METRIC_TRUE_RATE_AGGREGATOR_INTERVAL_SEC =
+      "streaming.metric.true.rate.aggregator.interval.sec";
   String METRIC_TRUE_RATE_ENABLE = "streaming.metric.true.rate.enable";
 
   // ====================================================================================
@@ -65,38 +66,27 @@ public interface MetricConfig extends Config, Mutable {
   // ====================================================================================
   String METRICS_TSDB_SERVICE_NAME = "streaming.metrics.tsdb.service.name";
 
-
-  /**
-   * metric fetcher update interval in millisecond.
-   */
+  /** metric fetcher update interval in millisecond. */
   @Key(METRICS_FETCHER_UPDATE_INTERVAL)
   @DefaultValue("10000")
   Long metricsFetcherUpdateInterval();
 
-  /**
-   * metric fetcher ray call worker timeout in millisecond.
-   */
+  /** metric fetcher ray call worker timeout in millisecond. */
   @Key(METRICS_FETCHER_TIMEOUT)
   @DefaultValue("6000")
   Integer metricsFetcherTimeout();
 
-  /**
-   * Enable queue metrics fetcher or not.
-   */
+  /** Enable queue metrics fetcher or not. */
   @Key(METRICS_FETCHER_QUEUE_ENABLE)
   @DefaultValue("true")
   boolean metricsFetcherQueueEnable();
 
-  /**
-   * Enable metrics provider service or not.
-   */
+  /** Enable metrics provider service or not. */
   @Key(METRICS_PROVIDER_SERVICE_ENABLE)
   @DefaultValue("true")
   boolean metricsProviderServiceEnable();
 
-  /**
-   * metric provider update interval in millisecond.
-   */
+  /** metric provider update interval in millisecond. */
   @Key(METRICS_PROVIDER_UPDATE_INTERVAL)
   @DefaultValue("10000")
   Long metricsProviderUpdateInterval();
@@ -114,14 +104,14 @@ public interface MetricConfig extends Config, Mutable {
   String metricScopeBroker();
 
   @Key(METRICS_SCOPE_MASTER_REMOTE_CALL)
-  @DefaultValue("<host>.jobmaster.<job_name>.<pid>.<remote_op_name>.<remote_op_index>.<remote_worker_id>")
+  @DefaultValue(
+      "<host>.jobmaster.<job_name>.<pid>.<remote_op_name>.<remote_op_index>.<remote_worker_id>")
   String metricsScopeMasterRemoteCall();
 
-  /**
-   * Last three scopes are remote worker's
-   */
+  /** Last three scopes are remote worker's */
   @Key(METRICS_SCOPE_WORKER_REMOTE_CALL)
-  @DefaultValue("<host>.jobworker.<job_name>.<op_name>.<worker_id>.<pid>.<remote_op_name>.<remote_worker_id>.<remote_worker_name>")
+  @DefaultValue(
+      "<host>.jobworker.<job_name>.<op_name>.<worker_id>.<pid>.<remote_op_name>.<remote_worker_id>.<remote_worker_name>")
   String metricsScopeWorkerRemoteCall();
 
   @Key(METRICS_SCOPE_QUEUE)
@@ -138,15 +128,14 @@ public interface MetricConfig extends Config, Mutable {
 
   /**
    * Metric reporter format is:
+   *
    * <pre>
    * reporter_name,interval,delimiter;reporter_name,interval,delimiter
    * </pre>
-   * <p>
-   * interval time unit is second
-   * </p>
-   * you can only assign reporter_name,interval and use global delimiter or only reporter_name and
-   * use default interval and default delimiter. Do not report to any reporter if you config this
-   * configuration empty.
+   *
+   * <p>interval time unit is second you can only assign reporter_name,interval and use global
+   * delimiter or only reporter_name and use default interval and default delimiter. Do not report
+   * to any reporter if you config this configuration empty.
    */
   @Key(METRICS_REPORTERS)
   @DefaultValue(METRICS_REPORTERS_DEFAULT_VALUE)
@@ -166,9 +155,7 @@ public interface MetricConfig extends Config, Mutable {
   @Key(value = METRIC_TYPE)
   String metricType();
 
-  /**
-   * worker metric (MetricNames.WK_CONSUME_MSG and MetricNames.WK_PRODUCE_MSG) sample frequency
-   */
+  /** worker metric (MetricNames.WK_CONSUME_MSG and MetricNames.WK_PRODUCE_MSG) sample frequency */
   @DefaultValue(value = "1000")
   @Key(value = METRIC_WORKER_SAMPLE_FREQUENCY)
   long metricWorkerSampleFrequency();

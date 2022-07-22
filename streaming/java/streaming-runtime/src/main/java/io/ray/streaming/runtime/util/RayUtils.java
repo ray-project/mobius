@@ -64,7 +64,9 @@ public class RayUtils {
   }
 
   public static boolean isInClusterMode() {
-    if (Ray.isInitialized() && null != Ray.internal() && !Ray.getRuntimeContext().isSingleProcess()) {
+    if (Ray.isInitialized()
+        && null != Ray.internal()
+        && !Ray.getRuntimeContext().isSingleProcess()) {
       return true;
     }
     return false;

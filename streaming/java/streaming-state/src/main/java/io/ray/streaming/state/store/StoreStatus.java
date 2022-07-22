@@ -1,8 +1,6 @@
 package io.ray.streaming.state.store;
 
-/**
- * Store status for detail description.
- */
+/** Store status for detail description. */
 public class StoreStatus {
   private final Long capacity;
   private final Long fileCount;

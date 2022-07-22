@@ -1,18 +1,17 @@
 package io.ray.streaming.state.typeinfo.serializer.kryo;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.factories.ReflectionSerializerFactory;
 import java.io.Serializable;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class KryoRegistration implements Serializable {
 
   private final Class<?> registeredClass;
 
   private final Class<? extends Serializer> serializerClass;
-
 
   public KryoRegistration(Class<?> registeredClass) {
     checkNotNull(registeredClass);
@@ -21,7 +20,8 @@ public class KryoRegistration implements Serializable {
     this.serializerClass = null;
   }
 
-  public KryoRegistration(Class<?> registeredClass, Class<? extends Serializer<?>> serializerClass) {
+  public KryoRegistration(
+      Class<?> registeredClass, Class<? extends Serializer<?>> serializerClass) {
     checkNotNull(registeredClass);
     checkNotNull(serializerClass);
 

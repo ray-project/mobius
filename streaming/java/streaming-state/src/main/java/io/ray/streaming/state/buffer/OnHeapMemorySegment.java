@@ -1,8 +1,6 @@
 package io.ray.streaming.state.buffer;
 
-/**
- * On-heap buffer segment, using byte array to store data.
- */
+/** On-heap buffer segment, using byte array to store data. */
 public class OnHeapMemorySegment extends MemorySegment {
 
   private byte[] heapMemory;

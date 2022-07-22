@@ -38,8 +38,6 @@ public interface GraphManager {
    */
   ExecutionGraph getExecutionGraph();
 
-  /**
-   * Clear all PlacementGroups in the graph.
-   */
+  /** Clear all PlacementGroups in the graph. */
   void removeAllPlacementGroup();
 }

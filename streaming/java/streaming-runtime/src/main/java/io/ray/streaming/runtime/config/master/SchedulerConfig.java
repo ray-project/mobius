@@ -7,11 +7,14 @@ public interface SchedulerConfig extends Config {
 
   String STRATEGY_TYPE = "streaming.scheduler.strategy.type";
   String MAX_PARALLELISM = "streaming.job.max.parallelism";
-  String JOB_SUBMISSION_WORKER_WAIT_TIMEOUT_MS = "streaming.scheduler.job-submission.worker.timeout.ms";
+  String JOB_SUBMISSION_WORKER_WAIT_TIMEOUT_MS =
+      "streaming.scheduler.job-submission.worker.timeout.ms";
   String SCALING_NUM_PER_CHECKPOINT = "streaming.scheduler.scaling.num.per.checkpoint";
   String RESCALING_WORKER_WAIT_TIMEOUT_MS = "streaming.scheduler.rescaling.worker.timeout.ms";
-  String RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S = "streaming.scheduler.rescaling.placementgroup.timeout.sec";
-  String RESCALING_MANDATORY_SUCCESS_ENABLE = "streaming.scheduler.rescaling.mandatory-success.enable";
+  String RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S =
+      "streaming.scheduler.rescaling.placementgroup.timeout.sec";
+  String RESCALING_MANDATORY_SUCCESS_ENABLE =
+      "streaming.scheduler.rescaling.mandatory-success.enable";
   String RESCALING_FO_RESUBMIT_TYPE = "streaming.scheduler.rescaling.failover-resubmit.type";
   String ENABLE_DYNAMIC_DIVISION = "streaming.scheduler.dynamic.division.enable";
   String PARAMETER_SERVER_RESCALING_TIMEOUT = "streaming.scheduler.ps.rescaling.timeout.sec";
@@ -29,6 +32,7 @@ public interface SchedulerConfig extends Config {
 
   /**
    * 10 minutes by default
+   *
    * @return value in ms
    */
   @Key(JOB_SUBMISSION_WORKER_WAIT_TIMEOUT_MS)
@@ -37,6 +41,7 @@ public interface SchedulerConfig extends Config {
 
   /**
    * 5 minutes by default
+   *
    * @return value in ms
    */
   @Key(RESCALING_WORKER_WAIT_TIMEOUT_MS)
@@ -45,6 +50,7 @@ public interface SchedulerConfig extends Config {
 
   /**
    * 5 seconds by default. Used in {@link ExecutionGroup#buildPlacementGroup(java.util.Map)}
+   *
    * @return value in second
    */
   @Key(RESCALING_PLACEMENTGROUP_WAIT_TIMEOUT_S)
@@ -53,6 +59,7 @@ public interface SchedulerConfig extends Config {
 
   /**
    * Whether need to resubmit to finish rescaling when rescaling meet failover.
+   *
    * @return true: resubmit when rescaling meet failover
    */
   @Key(RESCALING_MANDATORY_SUCCESS_ENABLE)
@@ -61,6 +68,7 @@ public interface SchedulerConfig extends Config {
 
   /**
    * Resubmit the whole dag or just the subdag.
+   *
    * @return true: DAG or SUBDAG
    */
   @Key(RESCALING_FO_RESUBMIT_TYPE)

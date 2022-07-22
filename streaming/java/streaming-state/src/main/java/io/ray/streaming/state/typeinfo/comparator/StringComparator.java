@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for string.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class StringComparator extends TypeComparator<String> {
 

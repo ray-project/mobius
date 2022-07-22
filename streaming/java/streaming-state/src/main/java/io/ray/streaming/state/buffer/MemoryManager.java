@@ -1,5 +1,7 @@
 package io.ray.streaming.state.buffer;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.ray.streaming.state.config.MemoryConfig;
 import java.util.List;
 import java.util.Map;
@@ -10,37 +12,23 @@ import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 /**
- *  - - - - RayState Memory - - - -
- *     ------------On Heap------------
- *       ———————————————————————————
- *      │      JVM Heap Memory      │
- *      │     (Memory backend/      │
- *      │      off-heap cache)      │
- *       ———————————————————————————
- *     --------------------------------
+ * - - - - RayState Memory - - - - ------------On Heap------------ ——————————————————————————— │ JVM
+ * Heap Memory │ │ (Memory backend/ │ │ off-heap cache) │ ———————————————————————————
+ * --------------------------------
  *
- *     ------------Off Heap------------
- *       —————————————————————————————
- *      │      JVM Direct Memory      │
- *      │ (Serializer/off-heap cache) │
- *       —————————————————————————————
- *       —————————————————————————————
- *      │        Native buffer        │
- *      │      (RocksDB backend)      │
- *       —————————————————————————————
- *     --------------------------------
+ * <p>------------Off Heap------------ ————————————————————————————— │ JVM Direct Memory │ │
+ * (Serializer/off-heap cache) │ ————————————————————————————— ————————————————————————————— │
+ * Native buffer │ │ (RocksDB backend) │ —————————————————————————————
+ * --------------------------------
  *
- *  RayState buffer management includes on-heap buffer and off-heap buffer.
+ * <p>RayState buffer management includes on-heap buffer and off-heap buffer.
  *
- *  On-heap buffer is mainly used for buffer backend and on-heap cache.
+ * <p>On-heap buffer is mainly used for buffer backend and on-heap cache.
  *
- *  Off-heap buffer is divided into JVM Direct Memory  controlled by JVM and
- *  Native buffer not controlled by JVM.
- *  Direct buffer is mainly used for IO operations(Serialization) and off-heap cache.
- *  Native buffer is mainly third-party plugins, such as RocksDB.
+ * <p>Off-heap buffer is divided into JVM Direct Memory controlled by JVM and Native buffer not
+ * controlled by JVM. Direct buffer is mainly used for IO operations(Serialization) and off-heap
+ * cache. Native buffer is mainly third-party plugins, such as RocksDB.
  */
 public class MemoryManager {
 
@@ -67,7 +55,8 @@ public class MemoryManager {
 
     final double heapSizeRatio = memoryConfig.onHeapMemorySizeRatio();
     final double offHeapSizeRatio = memoryConfig.offHeapMemorySizeRatio();
-    checkArgument((heapSizeRatio + offHeapSizeRatio) <= 1,
+    checkArgument(
+        (heapSizeRatio + offHeapSizeRatio) <= 1,
         "The ratio of on-heap and the ratio of off-heap is less than 1.");
     this.heapMemorySize = (long) (totalMemorySize * heapSizeRatio);
     this.offHeapMemorySize = (long) (totalMemorySize * offHeapSizeRatio);
@@ -76,9 +65,15 @@ public class MemoryManager {
     this.allocatedSegments = new ConcurrentHashMap<>();
     this.allocatedNativeMemoryInfo = new CopyOnWriteArrayList<>();
 
-    LOG.info("Create MemoryManager success, RayState total buffer size:{}, on-heap size ratio:{}, " +
-            "on-heap size: {}, off-heap size ratio:{}, off-heap size:{}, segment size:{}.",
-        totalMemorySize, heapSizeRatio, heapMemorySize, offHeapSizeRatio, offHeapMemorySize, segmentSize);
+    LOG.info(
+        "Create MemoryManager success, RayState total buffer size:{}, on-heap size ratio:{}, "
+            + "on-heap size: {}, off-heap size ratio:{}, off-heap size:{}, segment size:{}.",
+        totalMemorySize,
+        heapSizeRatio,
+        heapMemorySize,
+        offHeapSizeRatio,
+        offHeapMemorySize,
+        segmentSize);
   }
 
   public boolean registerNativeMemory(NativeMemoryInfo ownerInfo) {
@@ -86,8 +81,12 @@ public class MemoryManager {
       LOG.info("Register native buffer, buffer info:{}.", ownerInfo.toString());
       long requestMemorySize = ownerInfo.getTotalMemorySize();
       if (requestMemorySize > totalMemorySize) {
-        LOG.warn("Register native buffer failed, total buffer size: {}, available buffer size:{}, " +
-            "register buffer size:{}.", totalMemorySize, getAvailableMemorySize(), requestMemorySize);
+        LOG.warn(
+            "Register native buffer failed, total buffer size: {}, available buffer size:{}, "
+                + "register buffer size:{}.",
+            totalMemorySize,
+            getAvailableMemorySize(),
+            requestMemorySize);
         return false;
       } else {
         allocatedNativeMemoryInfo.add(ownerInfo);

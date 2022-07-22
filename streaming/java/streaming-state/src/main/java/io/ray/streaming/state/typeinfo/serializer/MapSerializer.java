@@ -1,18 +1,18 @@
 package io.ray.streaming.state.typeinfo.serializer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.ray.streaming.state.buffer.DataInputView;
 import io.ray.streaming.state.buffer.DataOutputView;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Type serializer for {@link Map}.
  *
- * The serialization format for the map:
- * | map size(int) | key data(key type serializer) | value is null(boolean) | value data(value type serializer) | ...|
+ * <p>The serialization format for the map: | map size(int) | key data(key type serializer) | value
+ * is null(boolean) | value data(value type serializer) | ...|
  */
 public class MapSerializer<K, V> extends TypeSerializer<Map<K, V>> {
 
@@ -32,7 +32,7 @@ public class MapSerializer<K, V> extends TypeSerializer<Map<K, V>> {
     for (Map.Entry<K, V> entry : records.entrySet()) {
       keySerializer.serialize(entry.getKey(), outputView);
 
-      //whether value is null
+      // whether value is null
       if (entry.getValue() == null) {
         outputView.writeBoolean(true);
       } else {

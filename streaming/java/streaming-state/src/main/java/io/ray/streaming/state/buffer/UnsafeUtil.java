@@ -3,9 +3,7 @@ package io.ray.streaming.state.buffer;
 import java.lang.reflect.Field;
 import sun.misc.Unsafe;
 
-/**
- * The {@link Unsafe} can be used to perform native buffer accesses.
- */
+/** The {@link Unsafe} can be used to perform native buffer accesses. */
 public class UnsafeUtil {
 
   public static final Unsafe UNSAFE;

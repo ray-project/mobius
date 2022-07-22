@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for double.
- */
+/** Type serializer for double. */
 public class DoubleSerializer extends TypeSerializer<Double> {
 
   public static final DoubleSerializer INSTANCE = new DoubleSerializer();

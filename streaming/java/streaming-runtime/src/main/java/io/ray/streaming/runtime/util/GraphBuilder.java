@@ -10,8 +10,14 @@ public class GraphBuilder {
   }
 
   public void append(String from, String to, String connection) {
-    dagBuilder.append(from).append(" -> ").append(to).append(" [label =\" ").append(connection)
-        .append("\"];").append(LINE_SEPARATOR);
+    dagBuilder
+        .append(from)
+        .append(" -> ")
+        .append(to)
+        .append(" [label =\" ")
+        .append(connection)
+        .append("\"];")
+        .append(LINE_SEPARATOR);
   }
 
   public void append(String isolatedNode) {

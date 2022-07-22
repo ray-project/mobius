@@ -9,7 +9,6 @@ import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonOperator;
 import io.ray.streaming.python.PythonOperator.ChainedPythonOperator;
-import io.ray.streaming.python.PythonPartition;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionEdge;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.generated.RemoteCall;

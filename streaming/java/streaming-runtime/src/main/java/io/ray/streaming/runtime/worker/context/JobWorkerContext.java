@@ -19,36 +19,27 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
-/**
- * JobWorkerContext is part of execution vertex
- */
+/** JobWorkerContext is part of execution vertex */
 public final class JobWorkerContext implements Serializable {
 
   private ActorHandle masterActor;
   private ImmutableContext immutableContext;
 
-  /**
-   * The execution vertex info.
-   */
+  /** The execution vertex info. */
   private int executionVertexId;
+
   private byte[] vertexIdExecutionVertexMapBytes;
   private byte[] pythonWorkerContextBytes;
 
   private transient Map<Integer, ExecutionVertex> vertexIdExecutionVertexMap;
 
-  /**
-   * mark current worker context as changed
-   */
+  /** mark current worker context as changed */
   private Boolean isChanged = false;
 
-  /**
-   * The role(source/transform/sink) of current worker in changed sub dag.
-   */
+  /** The role(source/transform/sink) of current worker in changed sub dag. */
   private OperatorType roleInChangedSubDag = OperatorType.TRANSFORM;
 
-  /**
-   * Control messages.
-   */
+  /** Control messages. */
   private ArrayBlockingQueue<ControlMessage> mailbox = new ArrayBlockingQueue(16);
 
   public JobWorkerContext(ImmutableContext immutableContext) {
@@ -56,9 +47,10 @@ public final class JobWorkerContext implements Serializable {
     this.masterActor = immutableContext.getMasterActor();
   }
 
-  public JobWorkerContext(ActorHandle<JobMaster> masterActor,
-                          ExecutionVertex executionVertex,
-                          byte[] vertexIdExecutionVertexMapBytes) {
+  public JobWorkerContext(
+      ActorHandle<JobMaster> masterActor,
+      ExecutionVertex executionVertex,
+      byte[] vertexIdExecutionVertexMapBytes) {
     Preconditions.checkNotNull(masterActor);
     Preconditions.checkNotNull(vertexIdExecutionVertexMapBytes);
     this.masterActor = masterActor;
@@ -70,65 +62,109 @@ public final class JobWorkerContext implements Serializable {
 
   private void buildPythonWorkerContextBytes(ExecutionVertex executionVertex) {
     if (executionVertex.getJobWorkerType() == JobWorkerType.PYTHON_WORKER) {
-      pythonWorkerContextBytes = RemoteCall.PythonJobWorkerContext.newBuilder()
-          .setWorkerId(String.valueOf(executionVertex.getExecutionVertexId()))
-          .setMasterActor(ByteString
-              .copyFrom((((NativeJavaActorHandle) getMasterActor()).toBytes())))
-          .setExecutionVertexContext(
-              new GraphPbBuilder().buildExecutionVertexContext(executionVertex))
-          .setIsChanged(executionVertex.isChangedOrAffected())
-          .build()
-          .toByteArray();
+      pythonWorkerContextBytes =
+          RemoteCall.PythonJobWorkerContext.newBuilder()
+              .setWorkerId(String.valueOf(executionVertex.getExecutionVertexId()))
+              .setMasterActor(
+                  ByteString.copyFrom((((NativeJavaActorHandle) getMasterActor()).toBytes())))
+              .setExecutionVertexContext(
+                  new GraphPbBuilder().buildExecutionVertexContext(executionVertex))
+              .setIsChanged(executionVertex.isChangedOrAffected())
+              .build()
+              .toByteArray();
     }
   }
 
   /**
-   * Q:Why we need to init context in java worker?
-   * A:Because we can skip context serialization in job master to avoid oom.
+   * Q:Why we need to init context in java worker? A:Because we can skip context serialization in
+   * job master to avoid oom.
    */
   public void initContext() {
     if (this.vertexIdExecutionVertexMap == null || this.immutableContext == null) {
       ExecutionVertex executionVertex = resetAndGetExecutionVertex();
       buildExecutionVertex(executionVertex);
-      this.immutableContext = new ImmutableContext(masterActor,
-          getJobConf().get(CommonConfig.JOB_NAME),
-          executionVertex.getExecutionJobVertexName(),
-          executionVertex.getWorkerActorId(),
-          executionVertex.getActorName());
+      this.immutableContext =
+          new ImmutableContext(
+              masterActor,
+              getJobConf().get(CommonConfig.JOB_NAME),
+              executionVertex.getExecutionJobVertexName(),
+              executionVertex.getWorkerActorId(),
+              executionVertex.getActorName());
     }
   }
 
   private ExecutionVertex buildExecutionVertex(ExecutionVertex executionVertex) {
-    executionVertex.getInputEdges().forEach(executionEdge -> {
-      executionEdge.setSource(getVertexIdExecutionVertexMap().get(executionEdge.getSourceVertexId()));
-      executionEdge.setTarget(executionVertex);
-    });
-    executionVertex.getOutputEdges().forEach(executionEdge -> {
-      executionEdge.setSource(executionVertex);
-      executionEdge.setTarget(getVertexIdExecutionVertexMap().get(executionEdge.getTargetVertexId()));
-    });
-    executionVertex.getInputExecutionVertices().forEach(inputVertex -> {
-      inputVertex.getOutputEdges().forEach(outExecutionEdge -> {
-        outExecutionEdge.setSource(getVertexIdExecutionVertexMap().get(outExecutionEdge.getSourceVertexId()));
-        outExecutionEdge.setTarget(getVertexIdExecutionVertexMap().get(outExecutionEdge.getTargetVertexId()));
-      });
-      inputVertex.getInputEdges().forEach(inExecutionEdge -> {
-        inExecutionEdge.setSource(getVertexIdExecutionVertexMap().get(inExecutionEdge.getSourceVertexId()));
-        inExecutionEdge.setTarget(getVertexIdExecutionVertexMap().get(inExecutionEdge.getTargetVertexId()));
-      });
-    });
-    executionVertex.getOutputExecutionVertices().forEach(outputVertex -> {
-      outputVertex.getInputEdges().forEach(inExecutionEdge -> {
-        inExecutionEdge.setSource(getVertexIdExecutionVertexMap().get(inExecutionEdge.getSourceVertexId()));
-        inExecutionEdge.setTarget(getVertexIdExecutionVertexMap().get(inExecutionEdge.getTargetVertexId()));
-      });
+    executionVertex
+        .getInputEdges()
+        .forEach(
+            executionEdge -> {
+              executionEdge.setSource(
+                  getVertexIdExecutionVertexMap().get(executionEdge.getSourceVertexId()));
+              executionEdge.setTarget(executionVertex);
+            });
+    executionVertex
+        .getOutputEdges()
+        .forEach(
+            executionEdge -> {
+              executionEdge.setSource(executionVertex);
+              executionEdge.setTarget(
+                  getVertexIdExecutionVertexMap().get(executionEdge.getTargetVertexId()));
+            });
+    executionVertex
+        .getInputExecutionVertices()
+        .forEach(
+            inputVertex -> {
+              inputVertex
+                  .getOutputEdges()
+                  .forEach(
+                      outExecutionEdge -> {
+                        outExecutionEdge.setSource(
+                            getVertexIdExecutionVertexMap()
+                                .get(outExecutionEdge.getSourceVertexId()));
+                        outExecutionEdge.setTarget(
+                            getVertexIdExecutionVertexMap()
+                                .get(outExecutionEdge.getTargetVertexId()));
+                      });
+              inputVertex
+                  .getInputEdges()
+                  .forEach(
+                      inExecutionEdge -> {
+                        inExecutionEdge.setSource(
+                            getVertexIdExecutionVertexMap()
+                                .get(inExecutionEdge.getSourceVertexId()));
+                        inExecutionEdge.setTarget(
+                            getVertexIdExecutionVertexMap()
+                                .get(inExecutionEdge.getTargetVertexId()));
+                      });
+            });
+    executionVertex
+        .getOutputExecutionVertices()
+        .forEach(
+            outputVertex -> {
+              outputVertex
+                  .getInputEdges()
+                  .forEach(
+                      inExecutionEdge -> {
+                        inExecutionEdge.setSource(
+                            getVertexIdExecutionVertexMap()
+                                .get(inExecutionEdge.getSourceVertexId()));
+                        inExecutionEdge.setTarget(
+                            getVertexIdExecutionVertexMap()
+                                .get(inExecutionEdge.getTargetVertexId()));
+                      });
 
-      outputVertex.getOutputEdges().forEach(outExecutionEdge -> {
-        outExecutionEdge.setSource(getVertexIdExecutionVertexMap().get(outExecutionEdge.getSourceVertexId()));
-        outExecutionEdge.setTarget(getVertexIdExecutionVertexMap().get(outExecutionEdge.getTargetVertexId()));
-      });
-
-    });
+              outputVertex
+                  .getOutputEdges()
+                  .forEach(
+                      outExecutionEdge -> {
+                        outExecutionEdge.setSource(
+                            getVertexIdExecutionVertexMap()
+                                .get(outExecutionEdge.getSourceVertexId()));
+                        outExecutionEdge.setTarget(
+                            getVertexIdExecutionVertexMap()
+                                .get(outExecutionEdge.getTargetVertexId()));
+                      });
+            });
 
     executionVertex.setRoleInChangedSubDag(this.roleInChangedSubDag);
 
@@ -152,13 +188,14 @@ public final class JobWorkerContext implements Serializable {
   }
 
   public Map<Integer, ExecutionVertex> getVertexIdExecutionVertexMap() {
-    Preconditions.checkArgument(vertexIdExecutionVertexMap != null,
-        "Failed to get vertex map for it is empty.");
+    Preconditions.checkArgument(
+        vertexIdExecutionVertexMap != null, "Failed to get vertex map for it is empty.");
     return vertexIdExecutionVertexMap;
   }
 
   public ExecutionVertex resetAndGetExecutionVertex() {
-    Preconditions.checkArgument(vertexIdExecutionVertexMapBytes != null,
+    Preconditions.checkArgument(
+        vertexIdExecutionVertexMapBytes != null,
         "Failed to get vertex map from bytes for it is empty.");
     vertexIdExecutionVertexMap = KryoUtils.readFromByteArray(vertexIdExecutionVertexMapBytes);
     ExecutionVertex executionVertex = vertexIdExecutionVertexMap.get(executionVertexId);
@@ -182,8 +219,7 @@ public final class JobWorkerContext implements Serializable {
     return roleInChangedSubDag;
   }
 
-  public void setRoleInChangedSubDag(
-      OperatorType roleInChangedSubDag) {
+  public void setRoleInChangedSubDag(OperatorType roleInChangedSubDag) {
     this.roleInChangedSubDag = roleInChangedSubDag;
   }
 
@@ -199,8 +235,8 @@ public final class JobWorkerContext implements Serializable {
     if (masterActor != null) {
       return masterActor;
     } else {
-      Preconditions.checkArgument(immutableContext != null,
-          "Failed to get master actor for immutable context is empty.");
+      Preconditions.checkArgument(
+          immutableContext != null, "Failed to get master actor for immutable context is empty.");
       return immutableContext.getMasterActor();
     }
   }
@@ -249,8 +285,7 @@ public final class JobWorkerContext implements Serializable {
     return mailbox;
   }
 
-  public void setMailbox(
-      ArrayBlockingQueue<ControlMessage> mailbox) {
+  public void setMailbox(ArrayBlockingQueue<ControlMessage> mailbox) {
     this.mailbox = mailbox;
   }
 
@@ -261,17 +296,15 @@ public final class JobWorkerContext implements Serializable {
   }
 
   public byte[] getPythonWorkerContextBytes() {
-    Preconditions.checkArgument(pythonWorkerContextBytes != null,
-        "Python worker context bytes is empty.");
+    Preconditions.checkArgument(
+        pythonWorkerContextBytes != null, "Python worker context bytes is empty.");
     return pythonWorkerContextBytes;
   }
 
   @Override
   public String toString() {
     if (immutableContext == null) {
-      return MoreObjects.toStringHelper(this)
-          .add("vertexId", executionVertexId)
-          .toString();
+      return MoreObjects.toStringHelper(this).add("vertexId", executionVertexId).toString();
     }
     return MoreObjects.toStringHelper(this)
         .add("jobName", getJobName())
@@ -286,5 +319,4 @@ public final class JobWorkerContext implements Serializable {
         .add("mailbox", mailbox)
         .toString();
   }
-
 }

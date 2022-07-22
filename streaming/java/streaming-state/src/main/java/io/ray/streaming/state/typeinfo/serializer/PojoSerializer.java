@@ -1,5 +1,7 @@
 package io.ray.streaming.state.typeinfo.serializer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.ray.streaming.state.buffer.DataInputView;
 import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.TypeInfoUtils;
@@ -9,13 +11,11 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Type serializer for Java-beans pojo.
  *
- * The serialization format for the pojo:
- * | is null(boolean) | is subclass(boolean) | field1 value(maybe is pojo) | field2 value | ...|
+ * <p>The serialization format for the pojo: | is null(boolean) | is subclass(boolean) | field1
+ * value(maybe is pojo) | field2 value | ...|
  */
 public class PojoSerializer<T> extends TypeSerializer<T> {
 
@@ -23,30 +23,31 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
   private static final byte NO_SUBCLASS = 2;
   private static final byte IS_SUBCLASS = 4;
 
-  //The POJO type class
+  // The POJO type class
   private final Class<T> clazz;
 
-  //The POJO type class fields.
+  // The POJO type class fields.
   private final Field[] fields;
-  //The POJO type class fields serializer
+  // The POJO type class fields serializer
   private final TypeSerializer<Object>[] fieldSerializers;
 
-  //Cache subclass serializer to avoid repeated creation
+  // Cache subclass serializer to avoid repeated creation
   private final Map<Class<?>, TypeSerializer<?>> subClassSerializerCache;
 
-  //Mark the registered subclass and only need to store the index for the registered subclass.
-  //The purpose can greatly save storage space.
-  //private final LinkedHashMap<Class<?>, Integer> registeredClasses = new LinkedHashMap<>();
-  //private final TypeSerializer<?>[] registereedSerialziers;
+  // Mark the registered subclass and only need to store the index for the registered subclass.
+  // The purpose can greatly save storage space.
+  // private final LinkedHashMap<Class<?>, Integer> registeredClasses = new LinkedHashMap<>();
+  // private final TypeSerializer<?>[] registereedSerialziers;
 
   private transient ClassLoader classLoader;
 
   private TypeSerializerConfig serializerConfig;
 
-  public PojoSerializer(Class<T> clazz,
-                        Field[] fields,
-                        TypeSerializer<?>[] fieldSerializers,
-                        TypeSerializerConfig serializerConfig) {
+  public PojoSerializer(
+      Class<T> clazz,
+      Field[] fields,
+      TypeSerializer<?>[] fieldSerializers,
+      TypeSerializerConfig serializerConfig) {
 
     checkNotNull(clazz);
     checkNotNull(fields);
@@ -70,7 +71,7 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
   @SuppressWarnings("unchecked")
   public void serialize(T record, DataOutputView outputView) throws IOException {
 
-    //write null tag
+    // write null tag
     if (record == null) {
       outputView.writeBoolean(true);
       return;
@@ -79,7 +80,7 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
     }
 
     Class<?> valueClass = record.getClass();
-    //recursive processing of subclass
+    // recursive processing of subclass
     TypeSerializer subClassSerializer = null;
     boolean isSubClass = false;
     if (clazz != valueClass) {
@@ -87,14 +88,14 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
       subClassSerializer = getSubClassSerializer(valueClass);
     }
 
-    //write subclass tag
+    // write subclass tag
     if (isSubClass) {
       outputView.writeBoolean(true);
     } else {
       outputView.writeBoolean(false);
     }
 
-    //write subclass name
+    // write subclass name
     if (isSubClass) {
       outputView.writeUTF(valueClass.getName());
     }
@@ -123,18 +124,18 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
   public T deserialize(DataInputView inputView) throws IOException {
     T result = null;
 
-    //read null tag
+    // read null tag
     boolean isNull = inputView.readBoolean();
     if (isNull) {
       return null;
     }
 
-    //read subclass tag
+    // read subclass tag
     boolean isSubClass = inputView.readBoolean();
     Class<?> subClass;
     TypeSerializer<?> subClassSerializer;
     if (isSubClass) {
-      //1. create result instance
+      // 1. create result instance
       String subClassName = inputView.readUTF();
       try {
         subClass = Class.forName(subClassName);
@@ -158,7 +159,7 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
               Object field = fieldSerializers[i].deserialize(inputView);
               fields[i].set(result, field);
             }
-          } else if (!fieldValueIsNull){
+          } else if (!fieldValueIsNull) {
             fieldSerializers[i].deserialize(inputView);
           }
 
@@ -190,7 +191,7 @@ public class PojoSerializer<T> extends TypeSerializer<T> {
     }
   }
 
-  //set default value
+  // set default value
   private void initInstanceFields(T instance) {
     for (int i = 0; i < fields.length; i++) {
       try {

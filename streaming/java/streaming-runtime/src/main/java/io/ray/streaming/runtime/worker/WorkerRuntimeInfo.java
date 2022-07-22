@@ -5,49 +5,31 @@ import io.ray.streaming.common.utils.EnvUtil;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * Basic process info of job worker.
- */
+/** Basic process info of job worker. */
 public class WorkerRuntimeInfo implements Serializable {
 
-  /**
-   * Is worker healthy.
-   */
+  /** Is worker healthy. */
   private boolean healthy;
 
-  /**
-   * Cluster name.
-   */
+  /** Cluster name. */
   private String clusterName;
 
-  /**
-   * Previous process id.
-   */
+  /** Previous process id. */
   private String previousPid;
 
-  /**
-   * Process id.
-   */
+  /** Process id. */
   private String pid;
 
-  /**
-   * Previous node's hostname which the process is located.
-   */
+  /** Previous node's hostname which the process is located. */
   private String previousHostname;
 
-  /**
-   * Node's hostname which the process is located.
-   */
+  /** Node's hostname which the process is located. */
   private String hostname;
 
-  /**
-   * Previous node's ip address which the process is located.
-   */
+  /** Previous node's ip address which the process is located. */
   private String previousIpAddress;
 
-  /**
-   * Node's ip address which the process is located.
-   */
+  /** Node's ip address which the process is located. */
   private String ipAddress;
 
   public WorkerRuntimeInfo() {

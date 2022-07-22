@@ -28,17 +28,19 @@ public class WorkerLifecycleController {
   private static final Logger LOG = LoggerFactory.getLogger(WorkerLifecycleController.class);
 
   public boolean createWorkers(ExecutionGraph executionGraph) {
-    LOG.info("Use placement group: {} to create workers({}).",
-            executionGraph.getExecutionGroups() == null ? "empty" : executionGraph.getExecutionGroups(),
-            executionGraph.getAllNewbornVertices().size());
+    LOG.info(
+        "Use placement group: {} to create workers({}).",
+        executionGraph.getExecutionGroups() == null ? "empty" : executionGraph.getExecutionGroups(),
+        executionGraph.getAllNewbornVertices().size());
     executionGraph.buildPlacementGroupToAllVertices();
     List<ExecutionVertex> executionVertices = executionGraph.getAllNewbornVertices();
 
-//    // Set worker config
-//    executionVertices.forEach(executionVertex -> {
-//      Map<String, String> conf = setUpWorkerConfig(jobConfig.getWorkerConfigTemplate(), executionVertex);
-//      LOG.info("Worker {} conf is {}.", executionVertex.getExecutionVertexName(), conf);
-//    });
+    //    // Set worker config
+    //    executionVertices.forEach(executionVertex -> {
+    //      Map<String, String> conf = setUpWorkerConfig(jobConfig.getWorkerConfigTemplate(),
+    // executionVertex);
+    //      LOG.info("Worker {} conf is {}.", executionVertex.getExecutionVertexName(), conf);
+    //    });
 
     LOG.info("Begin creating workers, size: {}.", executionVertices.size());
     long now = System.currentTimeMillis();
@@ -208,13 +210,15 @@ public class WorkerLifecycleController {
       return false;
     }
 
-    LOG.info("Start to destroy JobWorker actor directly for vertex: {}.", executionVertex.getExecutionVertexName());
+    LOG.info(
+        "Start to destroy JobWorker actor directly for vertex: {}.",
+        executionVertex.getExecutionVertexName());
     if (!Ray.getRuntimeContext().isSingleProcess()) {
       executionVertex.getActor().kill();
     }
 
-    LOG.info("Destroy JobWorker directly succeeded, actor: {}.", executionVertex.getWorkerActorId());
+    LOG.info(
+        "Destroy JobWorker directly succeeded, actor: {}.", executionVertex.getWorkerActorId());
     return true;
   }
-
 }

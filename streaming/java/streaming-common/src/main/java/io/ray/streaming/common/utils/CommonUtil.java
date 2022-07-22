@@ -13,9 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Common tools.
- */
+/** Common tools. */
 public class CommonUtil {
 
   private static final Logger LOG = LoggerFactory.getLogger(CommonUtil.class);
@@ -39,20 +37,22 @@ public class CommonUtil {
 
   public static Map<String, String> objectMapToStringMap(Map<String, Object> sourceMap) {
     return sourceMap.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> {
-          if (e.getValue() instanceof String) {
-            return (String) e.getValue();
-          } else if (e.getValue() == null) {
-            LOG.warn("Invalid value for key: {}.", e.getKey());
-            return "";
-          } else {
-            return e.getValue().toString();
-          }
-        }));
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                e -> {
+                  if (e.getValue() instanceof String) {
+                    return (String) e.getValue();
+                  } else if (e.getValue() == null) {
+                    LOG.warn("Invalid value for key: {}.", e.getKey());
+                    return "";
+                  } else {
+                    return e.getValue().toString();
+                  }
+                }));
   }
 
-  public static void ignore(Object... args) {
-  }
+  public static void ignore(Object... args) {}
 
   public static String getStackMsg(Exception e) {
     StringBuffer sb = new StringBuffer();
@@ -90,6 +90,7 @@ public class CommonUtil {
 
   /**
    * Print partial barrier content in string format.
+   *
    * @param globalCheckpointId global checkpoint id for partial barrier
    * @param partialCheckpointId partial checkpoint id for partial barrier
    * @return string
@@ -99,9 +100,8 @@ public class CommonUtil {
   }
 
   /**
-   * Judge whether the input time is expired.
-   * true: time < now
-   * false: time >= now
+   * Judge whether the input time is expired. true: time < now false: time >= now
+   *
    * @param time target time in long value
    * @return result
    */

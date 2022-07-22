@@ -1,11 +1,12 @@
 package io.ray.streaming.state.buffer;
 
-import sun.misc.Unsafe;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import sun.misc.Unsafe;
+
 /**
- * The smallest unit of buffer manager. Including on-heap buffer segment and off-heap buffer segment.
+ * The smallest unit of buffer manager. Including on-heap buffer segment and off-heap buffer
+ * segment.
  */
 public abstract class MemorySegment {
 
@@ -25,14 +26,10 @@ public abstract class MemorySegment {
 
   protected long addressLimit;
 
-  /**
-   * The size in bytes of the buffer segment.
-   */
+  /** The size in bytes of the buffer segment. */
   protected final int size;
 
-  /**
-   * On-heap buffer segment.
-   */
+  /** On-heap buffer segment. */
   public MemorySegment(byte[] heapMemory) {
     checkNotNull(heapMemory);
 
@@ -42,9 +39,7 @@ public abstract class MemorySegment {
     this.addressLimit = this.address + this.size;
   }
 
-  /**
-   * Off-heap buffer segment.
-   */
+  /** Off-heap buffer segment. */
   public MemorySegment(long offHeapAddress, int size) {
     if (offHeapAddress <= 0 || size <= 0) {
       throw new IllegalArgumentException("Off-heap address or size  must non negative.");
@@ -65,7 +60,7 @@ public abstract class MemorySegment {
     }
   }
 
-  public  void put(int index, byte[] src) {
+  public void put(int index, byte[] src) {
     put(index, src, 0, src.length);
   }
 
@@ -94,7 +89,7 @@ public abstract class MemorySegment {
 
   public void get(int index, byte[] dst, int offset, int length) {
     final long pos = address + index;
-    if (index >=0 && pos <= addressLimit - length) {
+    if (index >= 0 && pos <= addressLimit - length) {
       final long arrayAddress = BYTE_ARRAY_BASE_OFFSET + offset;
       UNSAFE.copyMemory(heapMemory, pos, dst, arrayAddress, length);
     } else {
@@ -112,7 +107,7 @@ public abstract class MemorySegment {
 
   public void putChar(int index, char value) {
     final long pos = address + index;
-    if (index >=0 && pos <= this.addressLimit - 2) {
+    if (index >= 0 && pos <= this.addressLimit - 2) {
       UNSAFE.putChar(heapMemory, pos, value);
     } else {
       throw new IndexOutOfBoundsException();
@@ -121,7 +116,7 @@ public abstract class MemorySegment {
 
   public char getChar(int index) {
     final long pos = address + index;
-    if (index >=0 && pos <= addressLimit - 2) {
+    if (index >= 0 && pos <= addressLimit - 2) {
       return UNSAFE.getChar(heapMemory, pos);
     } else {
       throw new IndexOutOfBoundsException();
@@ -148,7 +143,7 @@ public abstract class MemorySegment {
 
   public void putInt(int index, int value) {
     final long pos = address + index;
-    if (index >=0 && pos <= addressLimit - 4) {
+    if (index >= 0 && pos <= addressLimit - 4) {
       UNSAFE.putInt(heapMemory, pos, value);
     } else {
       throw new IndexOutOfBoundsException();
@@ -175,7 +170,7 @@ public abstract class MemorySegment {
 
   public long getLong(int index) {
     final long pos = address + index;
-    if (index >=0 && pos <= addressLimit - 8) {
+    if (index >= 0 && pos <= addressLimit - 8) {
       return UNSAFE.getLong(heapMemory, pos);
     } else {
       throw new IndexOutOfBoundsException();
@@ -186,7 +181,7 @@ public abstract class MemorySegment {
     putInt(index, Float.floatToRawIntBits(value));
   }
 
-  public float getFloat(int index)  {
+  public float getFloat(int index) {
     return Float.intBitsToFloat(getInt(index));
   }
 

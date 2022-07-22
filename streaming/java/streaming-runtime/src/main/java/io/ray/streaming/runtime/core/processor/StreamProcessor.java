@@ -8,9 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * StreamingProcessor is a process unit for a operator.
- */
+/** StreamingProcessor is a process unit for a operator. */
 public abstract class StreamProcessor<O extends StreamOperator> implements Processor<O> {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamProcessor.class);
@@ -41,10 +39,10 @@ public abstract class StreamProcessor<O extends StreamOperator> implements Proce
   }
 
   @Override
-  public Serializable saveCheckpoint(long checkpointId){
+  public Serializable saveCheckpoint(long checkpointId) {
     // for now, there's no StateManager to maintain the cp id
     throw new UnsupportedOperationException();
-//    return operator.saveCheckpoint(checkpointId);
+    //    return operator.saveCheckpoint(checkpointId);
   }
 
   @Override
@@ -69,7 +67,6 @@ public abstract class StreamProcessor<O extends StreamOperator> implements Proce
   public void clearLoadingCheckpoint() {
     isLoadingCheckpoint = false;
   }
-
 
   @Override
   public void finish(long checkpointId) throws Exception {

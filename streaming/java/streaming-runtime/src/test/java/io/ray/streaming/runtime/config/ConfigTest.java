@@ -57,7 +57,8 @@ public class ConfigTest {
     byte[] configBytes = fstConf.asByteArray(config);
     StreamingConfig deserializedConfig = (StreamingConfig) fstConf.asObject(configBytes);
 
-    Assert.assertEquals(deserializedConfig.getMasterConfig().commonConfig.jobId(), "default-job-id");
+    Assert.assertEquals(
+        deserializedConfig.getMasterConfig().commonConfig.jobId(), "default-job-id");
     Assert.assertEquals(deserializedConfig.getMap().get(customKey), customValue);
   }
 }

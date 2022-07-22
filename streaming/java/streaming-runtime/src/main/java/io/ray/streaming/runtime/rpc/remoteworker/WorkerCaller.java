@@ -33,8 +33,8 @@ public interface WorkerCaller {
 
   ObjectRef commit(Barrier barrier);
 
-  ObjectRef clearExpiredCp(Long stateCheckpointId, Long queueCheckpointId,
-                           Long lastPartialCheckpointId);
+  ObjectRef clearExpiredCp(
+      Long stateCheckpointId, Long queueCheckpointId, Long lastPartialCheckpointId);
 
   ObjectRef notifyCheckpointTimeout(Long checkpointId);
 

@@ -14,12 +14,14 @@ import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 public class MemoryNonKeyedMapStore<K, V> extends MemoryMapStore<K, V> {
 
   private final int stateKey;
-  public MemoryNonKeyedMapStore(MemoryStateBackend backend,
-                                      String jobName,
-                                      String stateName,
-                                      TypeSerializer typeSerializer,
-                                      MetricGroup metricGroup,
-                                      int stateKey) {
+
+  public MemoryNonKeyedMapStore(
+      MemoryStateBackend backend,
+      String jobName,
+      String stateName,
+      TypeSerializer typeSerializer,
+      MetricGroup metricGroup,
+      int stateKey) {
 
     super(backend, jobName, stateName, typeSerializer, metricGroup);
     this.stateKey = stateKey;

@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for boolean.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class BooleanComparator extends TypeComparator<Boolean> {
 

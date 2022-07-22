@@ -1,8 +1,6 @@
 package io.ray.streaming.runtime.master.joblifecycle;
 
-/**
- * Kee this in sync with `ray.streaming.session.JobStatus`
- */
+/** Kee this in sync with `ray.streaming.session.JobStatus` */
 public enum JobStatus {
 
   // The initial state of a job.

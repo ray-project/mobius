@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for float.
- */
+/** Type serializer for float. */
 public class FloatSerializer extends TypeSerializer<Float> {
 
   public static final FloatSerializer INSTANCE = new FloatSerializer();

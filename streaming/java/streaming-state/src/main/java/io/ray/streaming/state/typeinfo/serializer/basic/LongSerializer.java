@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for long.
- */
+/** Type serializer for long. */
 public class LongSerializer extends TypeSerializer<Long> {
 
   public static final LongSerializer INSTANCE = new LongSerializer();

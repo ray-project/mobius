@@ -44,9 +44,9 @@ public class JobMasterRuntimeContext implements Serializable {
   private volatile ExecutionGraph executionGraph;
 
   /**
-   * The JobMaster ActorHandle can be used to get its actor id,
-   * which can be further used to migrate actor, build downstream
-   * contexts, i.e. {@link io.ray.streaming.runtime.worker.context.JobWorkerContext}, etc.
+   * The JobMaster ActorHandle can be used to get its actor id, which can be further used to migrate
+   * actor, build downstream contexts, i.e. {@link
+   * io.ray.streaming.runtime.worker.context.JobWorkerContext}, etc.
    */
   private ActorHandle jobMasterActor;
 

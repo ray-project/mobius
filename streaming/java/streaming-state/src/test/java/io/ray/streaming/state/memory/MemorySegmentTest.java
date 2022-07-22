@@ -17,7 +17,8 @@ public class MemorySegmentTest {
 
   @Test
   public void testOffHeapMemorySegment() {
-    MemorySegment offHeapMemorySegment = new OffHeapMemorySegment(ByteBuffer.allocateDirect(1024 * 1024));
+    MemorySegment offHeapMemorySegment =
+        new OffHeapMemorySegment(ByteBuffer.allocateDirect(1024 * 1024));
     testMemorySegment(offHeapMemorySegment);
   }
 
@@ -33,7 +34,7 @@ public class MemorySegmentTest {
     Assert.assertEquals(new String(readTestStrBytes), testStr);
 
     memorySegment.putShort(0, (short) 123);
-    Assert.assertEquals(memorySegment.getShort(0), (short)123);
+    Assert.assertEquals(memorySegment.getShort(0), (short) 123);
 
     memorySegment.putInt(0, 123);
     Assert.assertEquals(memorySegment.getInt(0), 123);

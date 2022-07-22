@@ -4,14 +4,10 @@ import java.io.Serializable;
 
 public enum ExecutionJobVertexState implements Serializable {
 
-  /**
-   * Normal state(unchanged).
-   */
+  /** Normal state(unchanged). */
   NORMAL("normal"),
 
-  /**
-   * Changed state.
-   */
+  /** Changed state. */
   CHANGED("changed");
 
   private String value;
@@ -19,5 +15,4 @@ public enum ExecutionJobVertexState implements Serializable {
   ExecutionJobVertexState(String value) {
     this.value = value;
   }
-
 }

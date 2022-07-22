@@ -18,8 +18,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy;
 /**
  * Use kryo for types the RayState serializer cannot handle.
  *
- * NOTE:
- * Thread unsafe.
+ * <p>NOTE: Thread unsafe.
  */
 public class KryoSerializer<T> extends TypeSerializer<T> {
 
@@ -85,13 +84,14 @@ public class KryoSerializer<T> extends TypeSerializer<T> {
     this.type = type;
     this.kryoRegistrationList = registrationList;
 
-    kryoThreadLocalContext = ThreadLocal.withInitial(
-        () -> {
-          Kryo kryo = createKryoInstance();
-          Input input = new Input();
-          Output output = new Output();
-          return new KryoThreadLocalContext(kryo, input, output);
-        });
+    kryoThreadLocalContext =
+        ThreadLocal.withInitial(
+            () -> {
+              Kryo kryo = createKryoInstance();
+              Input input = new Input();
+              Output output = new Output();
+              return new KryoThreadLocalContext(kryo, input, output);
+            });
   }
 
   @Override
@@ -148,7 +148,8 @@ public class KryoSerializer<T> extends TypeSerializer<T> {
 
     kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
     kryo.setReferences(true);
-    kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
+    kryo.setInstantiatorStrategy(
+        new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
 
     Serializer<?> serializer;
     if (kryoRegistrationList != null) {
@@ -157,7 +158,8 @@ public class KryoSerializer<T> extends TypeSerializer<T> {
         if (serializer == null) {
           kryo.register(registration.getRegisteredClass(), kryo.getNextRegistrationId());
         } else {
-          kryo.register(registration.getRegisteredClass(), serializer, kryo.getNextRegistrationId());
+          kryo.register(
+              registration.getRegisteredClass(), serializer, kryo.getNextRegistrationId());
         }
       }
     }

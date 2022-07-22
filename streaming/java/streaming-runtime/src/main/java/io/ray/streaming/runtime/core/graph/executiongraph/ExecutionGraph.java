@@ -39,14 +39,11 @@ import org.slf4j.LoggerFactory;
 /**
  * ExecutionGraph is the physical plan for scheduling。
  *
- * <p>
- * Structure(example):
- * ExecutionJobVertex1 - ExecutionJobEdge - ExecutionJobVertex2 - ExecutionJobEdge - ExecutionJobVertex3
- * |                   |                     |                    |                   |
- * ExecutionEdge_2-1   ExecutionVertex2-1  ExecutionEdge_3-1+3_2 ExecutionVertex3-1
- * ExecutionVertex1-1   ExecutionEdge_2-2   ExecutionVertex2-2  ExecutionEdge_3-1+3_2 ExecutionVertex3-2
- * ExecutionEdge_2-3   ExecutionVertex2-3  ExecutionEdge_3-1+3_2
- * </p>
+ * <p>Structure(example): ExecutionJobVertex1 - ExecutionJobEdge - ExecutionJobVertex2 -
+ * ExecutionJobEdge - ExecutionJobVertex3 | | | | | ExecutionEdge_2-1 ExecutionVertex2-1
+ * ExecutionEdge_3-1+3_2 ExecutionVertex3-1 ExecutionVertex1-1 ExecutionEdge_2-2 ExecutionVertex2-2
+ * ExecutionEdge_3-1+3_2 ExecutionVertex3-2 ExecutionEdge_2-3 ExecutionVertex2-3
+ * ExecutionEdge_3-1+3_2
  */
 public class ExecutionGraph implements Serializable, Cloneable {
 
@@ -58,7 +55,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
   private List<ExecutionJobVertex> verticesInCreationOrder;
   private List<ExecutionJobEdge> executionJobEdges;
   private List<Tuple2<ExecutionJobVertex, ExecutionJobVertex>> reversedTopologyOrderJobVertexPairs =
-          Lists.newLinkedList();
+      Lists.newLinkedList();
   private AtomicInteger lastExecutionVertexIndex = new AtomicInteger(0);
   private final long buildTime = System.currentTimeMillis();
 
@@ -76,34 +73,41 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public void attachExecutionJobVertex() {
     Preconditions.checkArgument(
         jobVertexIdExecutionJobVertexMap != null && !jobVertexIdExecutionJobVertexMap.isEmpty(),
-            "execution job vertices are empty");
-    jobVertexIdExecutionJobVertexMap.values().forEach(executionJobVertex -> {
-      executionJobVertex.connectInputs(
-              getInputEdgesByExecutionJobVertexId(executionJobVertex.getExecutionJobVertexId()));
-      executionJobVertex.connectOutputs(
-              getOutputEdgesByJobVertexId(executionJobVertex.getExecutionJobVertexId()));
-    });
+        "execution job vertices are empty");
+    jobVertexIdExecutionJobVertexMap
+        .values()
+        .forEach(
+            executionJobVertex -> {
+              executionJobVertex.connectInputs(
+                  getInputEdgesByExecutionJobVertexId(
+                      executionJobVertex.getExecutionJobVertexId()));
+              executionJobVertex.connectOutputs(
+                  getOutputEdgesByJobVertexId(executionJobVertex.getExecutionJobVertexId()));
+            });
   }
 
   public List<ExecutionJobEdge> getInputEdgesByExecutionJobVertexId(int executionJobVertexId) {
     return executionJobEdges.stream()
-            .filter(executionJobEdge -> executionJobEdge
-                    .getTarget().getExecutionJobVertexId() == executionJobVertexId)
-            .collect(Collectors.toList());
+        .filter(
+            executionJobEdge ->
+                executionJobEdge.getTarget().getExecutionJobVertexId() == executionJobVertexId)
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionJobEdge> getOutputEdgesByJobVertexId(int jobVertexId) {
     return executionJobEdges.stream()
-            .filter(executionJobEdge -> executionJobEdge
-                    .getSource().getExecutionJobVertexId() == jobVertexId)
-            .collect(Collectors.toList());
+        .filter(
+            executionJobEdge ->
+                executionJobEdge.getSource().getExecutionJobVertexId() == jobVertexId)
+        .collect(Collectors.toList());
   }
 
   public void setJobInformation(JobInformation jobInformation) {
     this.jobInformation = jobInformation;
   }
 
-  public void setJobVertexIdExecutionJobVertexMap(Map<Integer, ExecutionJobVertex> jobVertexIdExecutionJobVertexMap) {
+  public void setJobVertexIdExecutionJobVertexMap(
+      Map<Integer, ExecutionJobVertex> jobVertexIdExecutionJobVertexMap) {
     this.jobVertexIdExecutionJobVertexMap = jobVertexIdExecutionJobVertexMap;
   }
 
@@ -115,8 +119,7 @@ public class ExecutionGraph implements Serializable, Cloneable {
     return executionJobEdges;
   }
 
-  public void setExecutionJobEdges(
-          List<ExecutionJobEdge> executionJobEdges) {
+  public void setExecutionJobEdges(List<ExecutionJobEdge> executionJobEdges) {
     this.executionJobEdges = executionJobEdges;
   }
 
@@ -165,13 +168,12 @@ public class ExecutionGraph implements Serializable, Cloneable {
     return topoLevelOrder;
   }
 
-  public void setQueueActorsMap(
-          Map<String, Set<BaseActorHandle>> queueActorsMap) {
+  public void setQueueActorsMap(Map<String, Set<BaseActorHandle>> queueActorsMap) {
     this.queueActorsMap = queueActorsMap;
   }
 
   public void setActorIdExecutionVertexMap(
-          Map<ActorId, ExecutionVertex> actorIdExecutionVertexMap) {
+      Map<ActorId, ExecutionVertex> actorIdExecutionVertexMap) {
     this.actorIdExecutionVertexMap = actorIdExecutionVertexMap;
   }
 
@@ -184,36 +186,44 @@ public class ExecutionGraph implements Serializable, Cloneable {
   }
 
   public void setExecutionVertexIdExecutionVertexMap(
-          Map<Integer, ExecutionVertex> executionVertexIdExecutionVertexMap) {
+      Map<Integer, ExecutionVertex> executionVertexIdExecutionVertexMap) {
     this.executionVertexIdExecutionVertexMap = executionVertexIdExecutionVertexMap;
   }
 
-
   private List<ExecutionVertex> getExecutionVertices() {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .flatMap(executionJobVertex -> executionJobVertex.getExecutionVertices().stream())
-            .collect(Collectors.toList());
+        .flatMap(executionJobVertex -> executionJobVertex.getExecutionVertices().stream())
+        .collect(Collectors.toList());
   }
 
   @Override
   public ExecutionGraph clone() {
     byte[] executionGraphBytes = Serializer.encode(this);
     ExecutionGraph clonedExecutionGraph = Serializer.decode(executionGraphBytes);
-    Map<Integer, ExecutionVertex> vertexMap = clonedExecutionGraph.getExecutionVertexIdExecutionVertexMap();
+    Map<Integer, ExecutionVertex> vertexMap =
+        clonedExecutionGraph.getExecutionVertexIdExecutionVertexMap();
     if (vertexMap.size() == 0) {
-      getExecutionVertices().forEach(executionVertex -> {
-        vertexMap.put(executionVertex.getExecutionVertexId(), executionVertex);
-      });
+      getExecutionVertices()
+          .forEach(
+              executionVertex -> {
+                vertexMap.put(executionVertex.getExecutionVertexId(), executionVertex);
+              });
     }
     for (ExecutionVertex entry : clonedExecutionGraph.getExecutionVertices()) {
-      entry.getInputEdges().forEach(executionEdge -> {
-        executionEdge.setSource(vertexMap.get(executionEdge.getSourceVertexId()));
-        executionEdge.setTarget(vertexMap.get(executionEdge.getTargetVertexId()));
-      });
-      entry.getOutputEdges().forEach(executionEdge -> {
-        executionEdge.setSource(vertexMap.get(executionEdge.getSourceVertexId()));
-        executionEdge.setTarget(vertexMap.get(executionEdge.getTargetVertexId()));
-      });
+      entry
+          .getInputEdges()
+          .forEach(
+              executionEdge -> {
+                executionEdge.setSource(vertexMap.get(executionEdge.getSourceVertexId()));
+                executionEdge.setTarget(vertexMap.get(executionEdge.getTargetVertexId()));
+              });
+      entry
+          .getOutputEdges()
+          .forEach(
+              executionEdge -> {
+                executionEdge.setSource(vertexMap.get(executionEdge.getSourceVertexId()));
+                executionEdge.setTarget(vertexMap.get(executionEdge.getTargetVertexId()));
+              });
     }
     return clonedExecutionGraph;
   }
@@ -221,16 +231,16 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public List<ExecutionVertex> getAllNewbornVertices() {
     List<ExecutionVertex> executionVertices = new ArrayList<>();
     getVerticesInCreationOrder().stream()
-            .map(ExecutionJobVertex::getNewbornVertices)
-            .forEach(executionVertices::addAll);
+        .map(ExecutionJobVertex::getNewbornVertices)
+        .forEach(executionVertices::addAll);
     return executionVertices;
   }
 
   public List<ExecutionVertex> getAllMoribundVertices() {
     List<ExecutionVertex> executionVertices = new ArrayList<>();
     getVerticesInCreationOrder().stream()
-            .map(ExecutionJobVertex::getMoribundVertices)
-            .forEach(executionVertices::addAll);
+        .map(ExecutionJobVertex::getMoribundVertices)
+        .forEach(executionVertices::addAll);
     return executionVertices;
   }
 
@@ -240,18 +250,18 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public Map<String, ExecutionVertex> genActorIdExecutionVertexMap() {
     return getAllExecutionVertices().stream()
-            .collect(Collectors.toMap(
-                    vertex -> vertex.getWorkerActorId().toString(),
-                    vertex -> vertex,
-                    (v1, v2) -> v1));
+        .collect(
+            Collectors.toMap(
+                vertex -> vertex.getWorkerActorId().toString(), vertex -> vertex, (v1, v2) -> v1));
   }
 
   public Map<String, ExecutionJobVertex> genJobVertexMap() {
     return verticesInCreationOrder.stream()
-            .collect(Collectors.toMap(
-                    executionJobVertex -> executionJobVertex.getJobVertex().getName(),
-                    executionJobVertex -> executionJobVertex,
-                    (v1, v2) -> v1));
+        .collect(
+            Collectors.toMap(
+                executionJobVertex -> executionJobVertex.getJobVertex().getName(),
+                executionJobVertex -> executionJobVertex,
+                (v1, v2) -> v1));
   }
 
   // ----------------------------------------------------------------------
@@ -260,26 +270,26 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public List<ExecutionJobVertex> getSourceJobVertices() {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .filter(ExecutionJobVertex::isSourceVertex)
-            .collect(Collectors.toList());
+        .filter(ExecutionJobVertex::isSourceVertex)
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionJobVertex> getSinkJobVertices() {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .filter(ExecutionJobVertex::isSinkVertex)
-            .collect(Collectors.toList());
+        .filter(ExecutionJobVertex::isSinkVertex)
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionJobVertex> getNonSourceJobVertices() {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .filter(jobVertex -> !jobVertex.isSourceVertex())
-            .collect(Collectors.toList());
+        .filter(jobVertex -> !jobVertex.isSourceVertex())
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionJobVertex> getTransformJobVertices() {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .filter(jobVertex -> !jobVertex.isSourceVertex() && !jobVertex.isSinkVertex())
-            .collect(Collectors.toList());
+        .filter(jobVertex -> !jobVertex.isSourceVertex() && !jobVertex.isSinkVertex())
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionJobVertex> getAllExecutionJobVertices() {
@@ -288,49 +298,50 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public List<ExecutionJobVertex> getChangedExecutionJobVertices() {
     return getAllExecutionJobVertices().stream()
-            .filter(ExecutionJobVertex::isChanged)
-            .collect(Collectors.toList());
+        .filter(ExecutionJobVertex::isChanged)
+        .collect(Collectors.toList());
   }
 
   public List<BaseActorHandle> getActorsByVertexName(String vertexName) {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .filter(executionJobVertex ->
-                vertexName.equals(executionJobVertex.getExecutionJobVertexName()))
-            .map(ExecutionJobVertex::getAllActors)
-            .flatMap(Collection::stream).collect(Collectors.toList());
+        .filter(
+            executionJobVertex -> vertexName.equals(executionJobVertex.getExecutionJobVertexName()))
+        .map(ExecutionJobVertex::getAllActors)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionVertex> getAllExecutionVertices() {
     return getAllExecutionJobVertices().stream()
-            .map(ExecutionJobVertex::getExecutionVertices)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+        .map(ExecutionJobVertex::getExecutionVertices)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
   }
 
   public List<ExecutionEdge> getAllExecutionEdges() {
     return getExecutionJobEdges().stream()
-            .map(ExecutionJobEdge::getExecutionEdges)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+        .map(ExecutionJobEdge::getExecutionEdges)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
   }
 
   public List<WorkerCaller> getWorkerCallersFromJobVertices(
-          List<ExecutionJobVertex> executionJobVertices) {
+      List<ExecutionJobVertex> executionJobVertices) {
     return executionJobVertices.stream()
-            .map(ExecutionJobVertex::getExecutionVertices)
-            .flatMap(Collection::stream)
-            .filter(executionVertex -> !executionVertex.isEmptyWorkerCaller())
-            .map(ExecutionVertex::getWorkerCaller)
-            .collect(Collectors.toList());
+        .map(ExecutionJobVertex::getExecutionVertices)
+        .flatMap(Collection::stream)
+        .filter(executionVertex -> !executionVertex.isEmptyWorkerCaller())
+        .map(ExecutionVertex::getWorkerCaller)
+        .collect(Collectors.toList());
   }
 
   public List<BaseActorHandle> getActorsFromJobVertices(
       List<ExecutionJobVertex> executionJobVertices) {
     return executionJobVertices.stream()
-            .map(ExecutionJobVertex::getExecutionVertices)
-            .flatMap(Collection::stream)
-            .map(ExecutionVertex::getActor)
-            .collect(Collectors.toList());
+        .map(ExecutionJobVertex::getExecutionVertices)
+        .flatMap(Collection::stream)
+        .map(ExecutionVertex::getActor)
+        .collect(Collectors.toList());
   }
 
   public ExecutionVertex getExecutionVertexByActorId(ActorId actorId) {
@@ -339,40 +350,43 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public ExecutionVertex getExecutionVertexById(int execVertexId) {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .map(ExecutionJobVertex::getExecutionVertices)
-            .flatMap(Collection::stream)
-            .filter(executionVertex -> execVertexId == executionVertex.getExecutionVertexId())
-            .findFirst().orElse(null);
+        .map(ExecutionJobVertex::getExecutionVertices)
+        .flatMap(Collection::stream)
+        .filter(executionVertex -> execVertexId == executionVertex.getExecutionVertexId())
+        .findFirst()
+        .orElse(null);
   }
 
   public List<ExecutionVertex> getExecutionVerticesById(List<Integer> execVertexIds) {
-    return execVertexIds.stream()
-            .map(this::getExecutionVertexById)
-            .collect(Collectors.toList());
+    return execVertexIds.stream().map(this::getExecutionVertexById).collect(Collectors.toList());
   }
 
   public ExecutionVertex getExecutionVertexByName(String execVertexName) {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .map(ExecutionJobVertex::getExecutionVertices)
-            .flatMap(Collection::stream)
-            .filter(executionVertex -> execVertexName.equals(executionVertex.getExecutionVertexName()))
-            .findFirst().orElse(null);
+        .map(ExecutionJobVertex::getExecutionVertices)
+        .flatMap(Collection::stream)
+        .filter(executionVertex -> execVertexName.equals(executionVertex.getExecutionVertexName()))
+        .findFirst()
+        .orElse(null);
   }
 
   public List<ExecutionVertex> getExecutionVerticesByName(List<String> execVertexNames) {
     return execVertexNames.stream()
-            .map(this::getExecutionVertexByName)
-            .collect(Collectors.toList());
+        .map(this::getExecutionVertexByName)
+        .collect(Collectors.toList());
   }
 
   public ExecutionJobVertex getExecutionJobVertexByName(String execJobVertexName) {
     return jobVertexIdExecutionJobVertexMap.values().stream()
-            .filter(executionJobVertex ->
+        .filter(
+            executionJobVertex ->
                 execJobVertexName.equals(executionJobVertex.getExecutionJobVertexName()))
-            .findFirst().orElse(null);
+        .findFirst()
+        .orElse(null);
   }
 
-  public List<ExecutionJobVertex> getDownStreamExecutionJobVerticesByName(String execJobVertexName) {
+  public List<ExecutionJobVertex> getDownStreamExecutionJobVerticesByName(
+      String execJobVertexName) {
     ExecutionJobVertex executionJobVertex = getExecutionJobVertexByName(execJobVertexName);
     if (executionJobVertex != null) {
       return executionJobVertex.getOutputExecJobVertices();
@@ -418,8 +432,10 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public Map<ActorId, WorkerCaller> getSourceWorkerCallersMap() {
     final Map<ActorId, WorkerCaller> workerCallersMap = new HashMap<>();
-    getSourceWorkerCallers().forEach(workerCaller ->
-        workerCallersMap.put(workerCaller.getActorHandle().getId(), workerCaller));
+    getSourceWorkerCallers()
+        .forEach(
+            workerCaller ->
+                workerCallersMap.put(workerCaller.getActorHandle().getId(), workerCaller));
     return Collections.unmodifiableMap(workerCallersMap);
   }
 
@@ -431,8 +447,10 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public Map<ActorId, WorkerCaller> getSinkWorkerCallersMap() {
     final Map<ActorId, WorkerCaller> workerCallersMap = new HashMap<>();
-    getSinkWorkerCallers().forEach(
-            workerCaller -> workerCallersMap.put(workerCaller.getActorHandle().getId(), workerCaller));
+    getSinkWorkerCallers()
+        .forEach(
+            workerCaller ->
+                workerCallersMap.put(workerCaller.getActorHandle().getId(), workerCaller));
     return Collections.unmodifiableMap(workerCallersMap);
   }
 
@@ -449,18 +467,18 @@ public class ExecutionGraph implements Serializable, Cloneable {
   }
 
   public List<ActorId> getAllActorsId() {
-    return getAllActors().stream()
-            .map(actor -> actor.getId())
-            .collect(Collectors.toList());
+    return getAllActors().stream().map(actor -> actor.getId()).collect(Collectors.toList());
   }
 
   /**
    * get all down stream actors. for example:
+   *
    * <pre>
    * actorA - actorB - actorD - actorF
    *          \
    *           actorC - actorE
    * </pre>
+   *
    * if para is actorA, we will only return actorB & actorC & actorD & actorE & actorF.
    *
    * @param actor actor
@@ -477,7 +495,8 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
       ExecutionVertex vertex = actorIdExecutionVertexMap.get(qActor.getId());
       if (vertex != null) {
-        Set<BaseActorHandle> outputActors = vertex.getOutputExecutionVertices().stream()
+        Set<BaseActorHandle> outputActors =
+            vertex.getOutputExecutionVertices().stream()
                 .map(outputVertex -> outputVertex.getActor())
                 .collect(Collectors.toSet());
         queue.addAll(outputActors);
@@ -494,30 +513,32 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public Set<String> getQueuesByActor(BaseActorHandle actor) {
     return queueActorsMap.entrySet().stream()
-            .filter(entry -> entry.getValue().contains(actor))
-            .map(entry -> entry.getKey())
-            .collect(Collectors.toSet());
+        .filter(entry -> entry.getValue().contains(actor))
+        .map(entry -> entry.getKey())
+        .collect(Collectors.toSet());
   }
 
   public String getQueueNameByActor(BaseActorHandle actor1, BaseActorHandle actor2) {
     // only for test, very slow, could be optimized
     final String[] res = new String[1];
-    queueActorsMap.forEach((queue, actorSet) -> {
-      if (actorSet.contains(actor1) && actorSet.contains(actor2)) {
-        res[0] = queue;
-      }
-    });
+    queueActorsMap.forEach(
+        (queue, actorSet) -> {
+          if (actorSet.contains(actor1) && actorSet.contains(actor2)) {
+            res[0] = queue;
+          }
+        });
     return res[0];
   }
 
   public BaseActorHandle getAnotherActor(BaseActorHandle qActor, String queueName) {
     Set<BaseActorHandle> set = getActorsByQueueName(queueName);
     final BaseActorHandle[] res = new BaseActorHandle[1];
-    set.forEach(actor -> {
-      if (!actor.equals(qActor)) {
-        res[0] = actor;
-      }
-    });
+    set.forEach(
+        actor -> {
+          if (!actor.equals(qActor)) {
+            res[0] = actor;
+          }
+        });
     return res[0];
   }
 
@@ -527,20 +548,19 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public Optional<WorkerCaller> getWorkerCallerById(ActorId actorId) {
     return getAllWorkerCallers().stream()
-            .filter(workerCaller -> workerCaller.getActorHandle().getId().equals(actorId)).findFirst();
+        .filter(workerCaller -> workerCaller.getActorHandle().getId().equals(actorId))
+        .findFirst();
   }
 
   public Optional<BaseActorHandle> getActorById(ActorId actorId) {
-    return getAllActors().stream()
-            .filter(actor -> actor.getId().equals(actorId))
-            .findFirst();
+    return getAllActors().stream().filter(actor -> actor.getId().equals(actorId)).findFirst();
   }
 
   public Set<String> getActorName(Set<ActorId> actorIds) {
     return getAllExecutionVertices().stream()
-            .filter(executionVertex -> actorIds.contains(executionVertex.getWorkerActorId()))
-            .map(executionVertex -> executionVertex.getActorName())
-            .collect(Collectors.toSet());
+        .filter(executionVertex -> actorIds.contains(executionVertex.getWorkerActorId()))
+        .map(executionVertex -> executionVertex.getActorName())
+        .collect(Collectors.toSet());
   }
 
   public String getActorName(ActorId actorId) {
@@ -553,67 +573,74 @@ public class ExecutionGraph implements Serializable, Cloneable {
     return result.iterator().next();
   }
 
-//  public Map<String, String> getActorTags(ActorId actorId) {
-//    Map<String, String> actorTags = new HashMap<>();
-//    // TODO: delete origin tags
-//    actorTags.put("actor_id", actorId.toString());
-//    actorTags.put(ScopeFormat.REMOTE_WORKER_ID, actorId.toString());
-//    Optional<BaseActorHandle> rayActor = getActorById(actorId);
-//    if (rayActor.isPresent()) {
-//      ExecutionVertex executionVertex = getExecutionVertexByActorId(actorId);
-//      actorTags.put("op_name", executionVertex.getExecutionJobVertexName());
-//      actorTags.put("op_index", String.valueOf(executionVertex.getExecutionJobVertexId()));
-//      // TODO: delete origin tags
-//      actorTags.put(ScopeFormat.REMOTE_OP_NAME, executionVertex.getExecutionJobVertexName());
-//      actorTags.put(ScopeFormat.REMOTE_OP_INDEX,
-//              String.valueOf(executionVertex.getExecutionJobVertexId()));
-//    }
-//    return actorTags;
-//  }
-//
-//  public Map<String, String> getActorTags(BaseActorHandle actor) {
-//    return getActorTags(actor.getId());
-//  }
+  //  public Map<String, String> getActorTags(ActorId actorId) {
+  //    Map<String, String> actorTags = new HashMap<>();
+  //    // TODO: delete origin tags
+  //    actorTags.put("actor_id", actorId.toString());
+  //    actorTags.put(ScopeFormat.REMOTE_WORKER_ID, actorId.toString());
+  //    Optional<BaseActorHandle> rayActor = getActorById(actorId);
+  //    if (rayActor.isPresent()) {
+  //      ExecutionVertex executionVertex = getExecutionVertexByActorId(actorId);
+  //      actorTags.put("op_name", executionVertex.getExecutionJobVertexName());
+  //      actorTags.put("op_index", String.valueOf(executionVertex.getExecutionJobVertexId()));
+  //      // TODO: delete origin tags
+  //      actorTags.put(ScopeFormat.REMOTE_OP_NAME, executionVertex.getExecutionJobVertexName());
+  //      actorTags.put(ScopeFormat.REMOTE_OP_INDEX,
+  //              String.valueOf(executionVertex.getExecutionJobVertexId()));
+  //    }
+  //    return actorTags;
+  //  }
+  //
+  //  public Map<String, String> getActorTags(BaseActorHandle actor) {
+  //    return getActorTags(actor.getId());
+  //  }
 
   public List<WorkerCaller> getSubDagSourceWorkerCallers() {
     List<WorkerCaller> workerCallers = new ArrayList<>();
-    this.getAllExecutionVertices().forEach(v -> {
-      if ((v.getRoleInChangedSubDag() == OperatorType.SOURCE)
-              || (v.getRoleInChangedSubDag() == OperatorType.SOURCE_AND_SINK)) {
-        workerCallers.add(v.getWorkerCaller());
-      }
-    });
+    this.getAllExecutionVertices()
+        .forEach(
+            v -> {
+              if ((v.getRoleInChangedSubDag() == OperatorType.SOURCE)
+                  || (v.getRoleInChangedSubDag() == OperatorType.SOURCE_AND_SINK)) {
+                workerCallers.add(v.getWorkerCaller());
+              }
+            });
     return workerCallers;
   }
 
   public List<BaseActorHandle> getSubDagSources() {
     List<BaseActorHandle> subDagSources = new ArrayList<>();
-    this.getAllExecutionVertices().forEach(v -> {
-      if ((v.getRoleInChangedSubDag() == OperatorType.SOURCE)
-              || (v.getRoleInChangedSubDag() == OperatorType.SOURCE_AND_SINK)) {
-        subDagSources.add(v.getActor());
-      }
-    });
+    this.getAllExecutionVertices()
+        .forEach(
+            v -> {
+              if ((v.getRoleInChangedSubDag() == OperatorType.SOURCE)
+                  || (v.getRoleInChangedSubDag() == OperatorType.SOURCE_AND_SINK)) {
+                subDagSources.add(v.getActor());
+              }
+            });
     return subDagSources;
   }
 
   public List<BaseActorHandle> getSubDagSinks() {
     List<BaseActorHandle> subDagSinks = new ArrayList<>();
-    this.getAllExecutionVertices().forEach(v -> {
-      if ((v.getRoleInChangedSubDag() == OperatorType.SINK)
-              || (v.getRoleInChangedSubDag() == OperatorType.SOURCE_AND_SINK)) {
-        subDagSinks.add(v.getActor());
-      }
-    });
+    this.getAllExecutionVertices()
+        .forEach(
+            v -> {
+              if ((v.getRoleInChangedSubDag() == OperatorType.SINK)
+                  || (v.getRoleInChangedSubDag() == OperatorType.SOURCE_AND_SINK)) {
+                subDagSinks.add(v.getActor());
+              }
+            });
     return subDagSinks;
   }
 
-  public List<Tuple2<ExecutionJobVertex, ExecutionJobVertex>> getReversedTopologyOrderJobVertexPairs() {
+  public List<Tuple2<ExecutionJobVertex, ExecutionJobVertex>>
+      getReversedTopologyOrderJobVertexPairs() {
     return reversedTopologyOrderJobVertexPairs;
   }
 
   public void setReversedTopologyOrderJobVertexPairs(
-          List<Tuple2<ExecutionJobVertex, ExecutionJobVertex>> reversedTopologyOrderJobVertexPairs) {
+      List<Tuple2<ExecutionJobVertex, ExecutionJobVertex>> reversedTopologyOrderJobVertexPairs) {
     this.reversedTopologyOrderJobVertexPairs = reversedTopologyOrderJobVertexPairs;
   }
 
@@ -643,27 +670,31 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public String getDigest() {
     GraphBuilder graphBuilder = new GraphBuilder();
 
-    getAllExecutionVertices().forEach(curVertex -> {
-      // current
-      actorIdExecutionVertexMap.put(curVertex.getWorkerActorId(), curVertex);
+    getAllExecutionVertices()
+        .forEach(
+            curVertex -> {
+              // current
+              actorIdExecutionVertexMap.put(curVertex.getWorkerActorId(), curVertex);
 
-      // input
-      List<ExecutionEdge> inputEdges = curVertex.getInputEdges();
-      inputEdges.stream().filter(ExecutionEdge::isAlive).forEach(inputEdge -> {
-        ExecutionVertex inputVertex = inputEdge.getSource();
-        graphBuilder.append(
-                inputVertex.getExecutionVertexName(),
-                curVertex.getExecutionVertexName(),
-                inputEdge.getExecutionEdgeName()
-        );
-      });
+              // input
+              List<ExecutionEdge> inputEdges = curVertex.getInputEdges();
+              inputEdges.stream()
+                  .filter(ExecutionEdge::isAlive)
+                  .forEach(
+                      inputEdge -> {
+                        ExecutionVertex inputVertex = inputEdge.getSource();
+                        graphBuilder.append(
+                            inputVertex.getExecutionVertexName(),
+                            curVertex.getExecutionVertexName(),
+                            inputEdge.getExecutionEdgeName());
+                      });
 
-      // independent execution vertices
-      if (curVertex.getInputChannelIdList().isEmpty() &&
-              curVertex.getOutputChannelIdList().isEmpty()) {
-        graphBuilder.append(curVertex.getExecutionVertexName());
-      }
-    });
+              // independent execution vertices
+              if (curVertex.getInputChannelIdList().isEmpty()
+                  && curVertex.getOutputChannelIdList().isEmpty()) {
+                graphBuilder.append(curVertex.getExecutionVertexName());
+              }
+            });
 
     return graphBuilder.build();
   }
@@ -674,22 +705,22 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public List<IndependentExecutionVertex> getSpecifiedTypeIndependentActors(String actorRoleType) {
     return independentVertices.stream()
-            .filter(actor -> actor.getRoleName() == ActorRoleType.valueOfNameOrDesc(actorRoleType))
-            .collect(Collectors.toList());
+        .filter(actor -> actor.getRoleName() == ActorRoleType.valueOfNameOrDesc(actorRoleType))
+        .collect(Collectors.toList());
   }
 
-  public List<IndependentExecutionVertex> getSpecifiedTypeIndependentActors(ActorRoleType actorRoleType) {
+  public List<IndependentExecutionVertex> getSpecifiedTypeIndependentActors(
+      ActorRoleType actorRoleType) {
     return independentVertices.stream()
-            .filter(actor -> actor.getRoleName() == actorRoleType)
-            .collect(Collectors.toList());
+        .filter(actor -> actor.getRoleName() == actorRoleType)
+        .collect(Collectors.toList());
   }
 
   public void clearIndependentActors() {
     independentVertices.clear();
   }
 
-  public void addIndependentVertices(
-          List<? extends IndependentExecutionVertex> independentActors) {
+  public void addIndependentVertices(List<? extends IndependentExecutionVertex> independentActors) {
     this.independentVertices.addAll(independentActors);
   }
 
@@ -711,8 +742,9 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
   public ExecutionGroup getExecutionGroupById(int groupId) {
     return executionGroups.stream()
-            .filter(executionGroup -> executionGroup.getGroupId() == groupId)
-            .findFirst().orElse(null);
+        .filter(executionGroup -> executionGroup.getGroupId() == groupId)
+        .findFirst()
+        .orElse(null);
   }
 
   public void setExecutionGroups(List<ExecutionGroup> executionGroups) {
@@ -722,12 +754,17 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public void buildPlacementGroupToAllVertices() {
     if (executionGroups != null) {
       executionGroups.stream()
-              .sorted(Comparator.comparing(ExecutionGroup::getGroupId))
-              .forEach(executionGroup -> {
+          .sorted(Comparator.comparing(ExecutionGroup::getGroupId))
+          .forEach(
+              executionGroup -> {
                 executionGroup.buildPlacementGroup();
-                executionGroup.getBundles().forEach(executionBundle -> {
-                  getExecutionVertexById(executionBundle.getId()).setExecutionBundle(executionBundle);
-                });
+                executionGroup
+                    .getBundles()
+                    .forEach(
+                        executionBundle -> {
+                          getExecutionVertexById(executionBundle.getId())
+                              .setExecutionBundle(executionBundle);
+                        });
               });
     }
   }
@@ -735,21 +772,21 @@ public class ExecutionGraph implements Serializable, Cloneable {
   public void refreshExecutionGroups() {
     if (executionGroups != null) {
       executionGroups.forEach(ExecutionGroup::refresh);
-      executionGroups.removeIf(executionGroup -> executionGroup.getResourceState() == ResourceState.TO_RELEASE);
+      executionGroups.removeIf(
+          executionGroup -> executionGroup.getResourceState() == ResourceState.TO_RELEASE);
     }
     LOG.info("Execution groups after refresh: {}.", executionGroups);
   }
 
-
   /**
-   * 1. Remove PlacementGroup, if any, for each ExecutionGroup
-   * 2. Set ExecutionBundle of each {@link ExecutionVertex} to null. (not in this version)
+   * 1. Remove PlacementGroup, if any, for each ExecutionGroup 2. Set ExecutionBundle of each {@link
+   * ExecutionVertex} to null. (not in this version)
    */
   public void removePlacementGroupToAllVertices() {
     if (executionGroups != null) {
       executionGroups.stream()
-              .filter(group -> group.getPlacementGroup() != null)
-              .forEach(ExecutionGroup::removePlacementGroup);
+          .filter(group -> group.getPlacementGroup() != null)
+          .forEach(ExecutionGroup::removePlacementGroup);
     }
     getAllExecutionVertices().forEach(executionVertex -> executionVertex.setExecutionBundle(null));
     executionGroups = null;
@@ -759,9 +796,9 @@ public class ExecutionGraph implements Serializable, Cloneable {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-            .add("digraph", digraph)
-            .add("independentVertices", independentVertices)
-            .toString();
+        .add("digraph", digraph)
+        .add("independentVertices", independentVertices)
+        .toString();
   }
 
   @Override

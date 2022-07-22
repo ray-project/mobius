@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Use Ray to implement RuntimeContext.
- * Different from the {@link io.ray.streaming.runtime.worker.context.JobWorkerContext} that describes
- * system runtime control related information, such as jobName, actorName, vertexMap, OperatorType, etc.
- * this {@link StreamingTaskRuntimeContext} describes computing related information,
- * such as {@link #taskParallelism}, {@link #lastCheckpointId}, {@link #stateManager}, etc.
+ * Use Ray to implement RuntimeContext. Different from the {@link
+ * io.ray.streaming.runtime.worker.context.JobWorkerContext} that describes system runtime control
+ * related information, such as jobName, actorName, vertexMap, OperatorType, etc. this {@link
+ * StreamingTaskRuntimeContext} describes computing related information, such as {@link
+ * #taskParallelism}, {@link #lastCheckpointId}, {@link #stateManager}, etc.
  */
 public class StreamingTaskRuntimeContext implements InternalRuntimeContext {
 
@@ -33,9 +33,7 @@ public class StreamingTaskRuntimeContext implements InternalRuntimeContext {
   private long lastCheckpointId;
   private MetricGroup metricGroup;
 
-  /**
-   * Ray state.
-   */
+  /** Ray state. */
   protected transient StateManager stateManager;
 
   public StreamingTaskRuntimeContext(ExecutionVertex executionVertex, long checkpointId) {
@@ -52,7 +50,7 @@ public class StreamingTaskRuntimeContext implements InternalRuntimeContext {
   }
 
   private Map<String, String> getMetricGroupConfig() {
-    Map<String, String>  metricGroupConfig = new HashMap<>();
+    Map<String, String> metricGroupConfig = new HashMap<>();
     metricGroupConfig.putAll(jobConfig);
     metricGroupConfig.putAll(opConfig);
     return metricGroupConfig;
@@ -128,14 +126,12 @@ public class StreamingTaskRuntimeContext implements InternalRuntimeContext {
   }
 
   @Override
-  public <K, V> MapState<K, V> getMapState(
-      MapStateDescriptor<K, V> stateDescriptor) {
+  public <K, V> MapState<K, V> getMapState(MapStateDescriptor<K, V> stateDescriptor) {
     return this.stateManager.getMapState(stateDescriptor);
   }
 
   @Override
-  public <K, V> MapState<K, V> getNonKeyedMapState(
-      MapStateDescriptor<K, V> stateDescriptor) {
+  public <K, V> MapState<K, V> getNonKeyedMapState(MapStateDescriptor<K, V> stateDescriptor) {
     return this.stateManager.getNonKeyedMapState(stateDescriptor);
   }
 

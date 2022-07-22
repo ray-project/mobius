@@ -19,7 +19,6 @@
 package io.ray.streaming.state.api.desc;
 
 import io.ray.streaming.state.api.StateType;
-import io.ray.streaming.state.api.state.MapState;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

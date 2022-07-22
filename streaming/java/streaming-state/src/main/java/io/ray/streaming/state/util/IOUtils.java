@@ -10,7 +10,7 @@ public class IOUtils {
         closeable.close();
       }
     } catch (Throwable ignored) {
-      //ignore exception
+      // ignore exception
     }
   }
 

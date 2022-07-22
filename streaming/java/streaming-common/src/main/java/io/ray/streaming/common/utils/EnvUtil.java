@@ -250,7 +250,7 @@ public class EnvUtil {
       Runtime.getRuntime().exec("kill -9 " + pid);
     }
   }
-  
+
   public static String getJobID() {
     String jobID = System.getenv("RAY_JOB_ID");
     return jobID == null ? "default" : jobID;

@@ -1,8 +1,8 @@
 package io.ray.streaming.runtime.core.processor;
 
 import io.ray.streaming.common.enums.OperatorInputType;
-import io.ray.streaming.operator.OneInputOperator;
 import io.ray.streaming.operator.ISourceOperator;
+import io.ray.streaming.operator.OneInputOperator;
 import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.operator.TwoInputOperator;
 import org.slf4j.Logger;

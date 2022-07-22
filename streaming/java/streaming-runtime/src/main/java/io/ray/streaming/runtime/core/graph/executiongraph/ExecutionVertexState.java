@@ -2,44 +2,28 @@ package io.ray.streaming.runtime.core.graph.executiongraph;
 
 import java.io.Serializable;
 
-/**
- * execution vertex state enum
- */
+/** execution vertex state enum */
 public enum ExecutionVertexState implements Serializable {
 
-  /**
-   * The added worker.
-   */
+  /** The added worker. */
   TO_ADD(0, "TO_ADD"),
 
-  /**
-   * Other workers belong to the operator if operator add workers.
-   */
+  /** Other workers belong to the operator if operator add workers. */
   TO_ADD_RELATED(1, "TO_ADD_RELATED"),
 
-  /**
-   * The deleted workers.
-   */
+  /** The deleted workers. */
   TO_DEL(2, "TO_DEL"),
 
-  /**
-   * Other workers belong to the operator if operator delete workers.
-   */
+  /** Other workers belong to the operator if operator delete workers. */
   TO_DEL_RELATED(3, "TO_DEL_RELATED"),
 
-  /**
-   * Related workers.(Sub source and sink)
-   */
+  /** Related workers.(Sub source and sink) */
   TO_UPDATE(4, "TO_UPDATE"),
 
-  /**
-   * Unchanged workers.
-   */
+  /** Unchanged workers. */
   RUNNING(5, "RUNNING"),
 
-  /**
-   * Unknown status.
-   */
+  /** Unknown status. */
   UNKNOWN(6, "UNKNOWN");
 
   public final int code;

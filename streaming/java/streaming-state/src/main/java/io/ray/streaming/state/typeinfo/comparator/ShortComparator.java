@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for short.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class ShortComparator extends TypeComparator<Short> {
 

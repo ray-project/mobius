@@ -8,10 +8,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import sun.misc.Unsafe;
 
-/**
- * TODO
- * This class is temporary and will be replaced by buffer manager.
- */
+/** TODO This class is temporary and will be replaced by buffer manager. */
 public class DataOutputView implements DataOutput {
 
   private static final Unsafe UNSAFE = UnsafeUtil.UNSAFE;
@@ -38,7 +35,7 @@ public class DataOutputView implements DataOutput {
     if (this.position >= this.buffer.length) {
       resize(1);
     }
-    //Deal with negative number and ensure that the binary high bits are filled with 0.
+    // Deal with negative number and ensure that the binary high bits are filled with 0.
     this.buffer[this.position++] = (byte) (b & 0xff);
   }
 
@@ -76,20 +73,20 @@ public class DataOutputView implements DataOutput {
   @Override
   public void writeShort(int v) throws IOException {
     if (this.position >= this.buffer.length - 1) {
-      //shot is 2 bytes
+      // shot is 2 bytes
       resize(2);
     }
 
-    //high 8 bit
+    // high 8 bit
     this.buffer[this.position++] = (byte) ((v >>> 8) & 0xff);
-    //low 8 bit
+    // low 8 bit
     this.buffer[this.position++] = (byte) (v & 0xff);
   }
 
   @Override
   public void writeChar(int v) throws IOException {
     if (this.position >= this.buffer.length - 1) {
-      //char is 2 bytes
+      // char is 2 bytes
       resize(2);
     }
     this.buffer[this.position++] = (byte) (v >> 8);
@@ -110,7 +107,7 @@ public class DataOutputView implements DataOutput {
   @Override
   public void writeInt(int v) throws IOException {
     if (this.position >= this.buffer.length - 3) {
-      //int is 4 bytes.
+      // int is 4 bytes.
       resize(4);
     }
     if (LITTLE_ENDIAN) {
@@ -173,15 +170,14 @@ public class DataOutputView implements DataOutput {
 
     if (utflen > 65535) {
       throw new UTFDataFormatException("Encoded string is too long: " + utflen);
-    }
-    else if (this.position > this.buffer.length - utflen - 2) {
+    } else if (this.position > this.buffer.length - utflen - 2) {
       resize(utflen + 2);
     }
 
     byte[] byteArray = this.buffer;
     int count = this.position;
 
-    //write length
+    // write length
     byteArray[count++] = (byte) ((utflen >>> 8) & 0xFF);
     byteArray[count++] = (byte) (utflen & 0xFF);
 
@@ -201,7 +197,7 @@ public class DataOutputView implements DataOutput {
 
       } else if (c > 0x07FF) {
         byteArray[count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
-        byteArray[count++] = (byte) (0x80 | ((c >>  6) & 0x3F));
+        byteArray[count++] = (byte) (0x80 | ((c >> 6) & 0x3F));
         byteArray[count++] = (byte) (0x80 | (c & 0x3F));
       } else {
         byteArray[count++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
@@ -221,7 +217,8 @@ public class DataOutputView implements DataOutput {
   }
 
   private void resize(int minCapacityAdd) throws IOException {
-    //if the expansion size is less than 2 times the original size, the default expansion is 2 times.
+    // if the expansion size is less than 2 times the original size, the default expansion is 2
+    // times.
     int newLen = Math.max(this.buffer.length * 2, this.buffer.length + minCapacityAdd);
     byte[] newBuffer;
     try {
@@ -232,13 +229,21 @@ public class DataOutputView implements DataOutput {
         try {
           newBuffer = new byte[newLen];
         } catch (OutOfMemoryError ee) {
-          throw new IOException("Failed to serialize element. Serialized size(" + newLen + "bytes) exceeds available JVM heap space.", ee);
+          throw new IOException(
+              "Failed to serialize element. Serialized size("
+                  + newLen
+                  + "bytes) exceeds available JVM heap space.",
+              ee);
         }
       } else {
-        throw new IOException("Failed to serialize element. Serialized size(" + newLen + "bytes) exceeds available JVM heap space.", e);
+        throw new IOException(
+            "Failed to serialize element. Serialized size("
+                + newLen
+                + "bytes) exceeds available JVM heap space.",
+            e);
       }
     }
-    //copy to new array.
+    // copy to new array.
     System.arraycopy(this.buffer, 0, newBuffer, 0, this.position);
     this.buffer = newBuffer;
   }

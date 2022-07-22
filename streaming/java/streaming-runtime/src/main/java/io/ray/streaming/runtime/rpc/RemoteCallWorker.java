@@ -103,10 +103,11 @@ public class RemoteCallWorker {
   // Checkpoint(Global + Partial) Methods Start
   // =========================================================================
 
-  public static ObjectRef<Boolean> triggerCheckpoint(WorkerCaller workerCaller,
-      Barrier barrier) {
-    LOG.info("Start to trigger checkpoint for actor: {}, checkpointId: {}.",
-        workerCaller.getActorHandle().getId(), barrier.getId());
+  public static ObjectRef<Boolean> triggerCheckpoint(WorkerCaller workerCaller, Barrier barrier) {
+    LOG.info(
+        "Start to trigger checkpoint for actor: {}, checkpointId: {}.",
+        workerCaller.getActorHandle().getId(),
+        barrier.getId());
     return workerCaller.commit(barrier);
   }
 
@@ -120,7 +121,7 @@ public class RemoteCallWorker {
     Set<ObjectRef<Boolean>> objectRefSet = new HashSet<>(waitResult.getReady());
     List<Boolean> results = new ArrayList<>();
 
-    for(ObjectRef<Boolean> ref : objectRefSet) {
+    for (ObjectRef<Boolean> ref : objectRefSet) {
       if (objectRefSet.contains(ref)) {
         try {
           results.add(ref.get());

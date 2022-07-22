@@ -1,14 +1,12 @@
 package io.ray.streaming.state.typeinfo;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.ray.streaming.state.typeinfo.serializer.EnumSerializer;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializerConfig;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-/**
- * Type information for {@link Enum}.
- */
+/** Type information for {@link Enum}. */
 public class EnumTypeInfo<T extends Enum> extends TypeInformation<T> {
 
   private final Class<T> typeClass;

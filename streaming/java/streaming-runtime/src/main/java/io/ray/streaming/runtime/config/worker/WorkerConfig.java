@@ -8,31 +8,31 @@ public interface WorkerConfig extends Config {
   String WORKER_OP_NAME_INTERNAL = "opName";
   String WORKER_PARALLELISM_INTERNAL = "worker_parallelism";
   String WORKER_PARALLELISM_INDEX_INTERNAL = "worker_parallelism_index";
-//  String WORKER_NAME_INTERNAL = QueueConfigKeys.STREAMING_WORKER_NAME;
+  //  String WORKER_NAME_INTERNAL = QueueConfigKeys.STREAMING_WORKER_NAME;
   String WORKER_ACTOR_NAME_INTERNAL = "StreamingWorkerActorName";
-//  String OPERATOR_TYPE_INTERNAL = QueueConfigKeys.OPERATOR_TYPE;
-//  String OPERATOR_NAME_INTERNAL = QueueConfigKeys.STREAMING_OP_NAME;
+  //  String OPERATOR_TYPE_INTERNAL = QueueConfigKeys.OPERATOR_TYPE;
+  //  String OPERATOR_NAME_INTERNAL = QueueConfigKeys.STREAMING_OP_NAME;
   // just use CommonConfig.JOB_NAME
-//  String JOB_NAME_INTERNAL = QueueConfigKeys.STREAMING_JOB_NAME;
-//  String RELIABILITY_LEVEL_INTERNAL = QueueConfigKeys.RELIABILITY_LEVEL;
-//  String INDIVIDUAL_CONFIG = QueueConfigKeys.STREAMING_INDIVIDUAL_CONF;
+  //  String JOB_NAME_INTERNAL = QueueConfigKeys.STREAMING_JOB_NAME;
+  //  String RELIABILITY_LEVEL_INTERNAL = QueueConfigKeys.RELIABILITY_LEVEL;
+  //  String INDIVIDUAL_CONFIG = QueueConfigKeys.STREAMING_INDIVIDUAL_CONF;
   String STATE_VERSION = "streaming.state.version";
 
   /**
-   * The following key must be equal with StreamingConstants in python
-   * package: python.streaming.runtime.core.constant
-   * py: streaming_constants.py
+   * The following key must be equal with StreamingConstants in python package:
+   * python.streaming.runtime.core.constant py: streaming_constants.py
    */
   String PY_CP_MODE = "save_checkpoint_mode";
+
   String PY_CP_MODE_PY = "save_checkpoint_mode_py";
   String PY_CP_STATE_BACKEND_TYPE = "cp_state_backend_type";
   String PY_CP_MEMORY_BACKEND = "cp_state_backend_memory";
-  //pangu
+  // pangu
   String PY_CP_PANGU_BACKEND = "cp_state_backend_pangu";
   String PY_CP_PANGU_CLUSTER_NAME = "cp_pangu_cluster_name";
   String PY_CP_PANGU_ROOT_DIR = "cp_pangu_root_dir";
   String PY_CP_PANGU_USER_MYSQL_URL = "cp_pangu_user_mysql_url";
-  //dfs
+  // dfs
   String PY_CP_DFS_BACKEND = "cp_state_backend_dfs";
   String PY_CP_DFS_CLUSTER_NAME = "cp_dfs_cluster_name";
   String PY_CP_DFS_ROOT_DIR = "cp_dfs_root_dir";
@@ -59,21 +59,21 @@ public interface WorkerConfig extends Config {
   @Key(value = WORKER_ID_INTERNAL)
   String workerId();
 
-//  @DefaultValue(value = "default-worker-name")
-//  @Key(value = WORKER_NAME_INTERNAL)
-//  String workerName();
-//
-//  @DefaultValue(value = "SOURCE")
-//  @Key(value = OPERATOR_TYPE_INTERNAL)
-//  String operatorType();
-//
-//  @DefaultValue(value = "default-operator-name")
-//  @Key(value = OPERATOR_NAME_INTERNAL)
-//  String operatorName();
-//
-//  @DefaultValue(value = "")
-//  @Key(value = INDIVIDUAL_CONFIG)
-//  String individualConfig();
+  //  @DefaultValue(value = "default-worker-name")
+  //  @Key(value = WORKER_NAME_INTERNAL)
+  //  String workerName();
+  //
+  //  @DefaultValue(value = "SOURCE")
+  //  @Key(value = OPERATOR_TYPE_INTERNAL)
+  //  String operatorType();
+  //
+  //  @DefaultValue(value = "default-operator-name")
+  //  @Key(value = OPERATOR_NAME_INTERNAL)
+  //  String operatorName();
+  //
+  //  @DefaultValue(value = "")
+  //  @Key(value = INDIVIDUAL_CONFIG)
+  //  String individualConfig();
 
   @DefaultValue(value = "")
   @Key(value = STATE_VERSION)
@@ -88,8 +88,8 @@ public interface WorkerConfig extends Config {
   int dynamicRebalanceBatchSize();
 
   /**
-   * If set to true, worker will override the new context for the
-   * last successful checkpoint's context when update context is finished.
+   * If set to true, worker will override the new context for the last successful checkpoint's
+   * context when update context is finished.
    *
    * @return true: override context when update context
    */

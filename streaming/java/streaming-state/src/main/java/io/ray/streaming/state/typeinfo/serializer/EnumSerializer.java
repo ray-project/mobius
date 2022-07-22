@@ -1,30 +1,25 @@
 package io.ray.streaming.state.typeinfo.serializer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.ray.streaming.state.buffer.DataInputView;
 import io.ray.streaming.state.buffer.DataOutputView;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Type serializer for {@link Enum}.
  *
- * The serialization format for the Enum:
- * | enum ordinal|
+ * <p>The serialization format for the Enum: | enum ordinal|
  */
 public class EnumSerializer<T extends Enum<T>> extends TypeSerializer<T> {
 
   private final Class<T> enumClass;
 
-  /**
-   * Enum element to ordinal map
-   */
+  /** Enum element to ordinal map */
   private Map<T, Integer> valueToOrdinal;
-  /**
-   * Enum values
-   */
+  /** Enum values */
   private T[] values;
 
   public EnumSerializer(Class<T> enumClass) {

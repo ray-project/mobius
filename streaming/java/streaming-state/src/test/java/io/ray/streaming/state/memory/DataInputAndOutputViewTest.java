@@ -13,7 +13,7 @@ public class DataInputAndOutputViewTest {
   String testStrBytes = "hello";
   String testChars = "world";
   String testUtf = "hello world";
-  byte[] testBytes = {0, 1, 2 ,3};
+  byte[] testBytes = {0, 1, 2, 3};
 
   @Test
   public void testDataOutputView() throws IOException {
@@ -60,12 +60,12 @@ public class DataInputAndOutputViewTest {
     Assert.assertEquals(outputView.getPosition(), length);
 
     outputView.writeUTF(testUtf);
-    //because write str length
-    length += testUtf.length()  + 2;
+    // because write str length
+    length += testUtf.length() + 2;
     Assert.assertEquals(outputView.getPosition(), length);
 
     outputView.write(testBytes);
-    length+= testBytes.length;
+    length += testBytes.length;
     Assert.assertEquals(outputView.getPosition(), length);
 
     testByteArray = outputView.getCopyOfBuffer();

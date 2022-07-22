@@ -1,5 +1,7 @@
 package io.ray.streaming.state.typeinfo;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.MoreObjects;
 import io.ray.streaming.state.typeinfo.comparator.BooleanComparator;
 import io.ray.streaming.state.typeinfo.comparator.ByteComparator;
@@ -25,11 +27,7 @@ import io.ray.streaming.state.typeinfo.serializer.basic.StringSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-/**
- * Type information for primitive types(byte,int, long, double, ...) and String.
- */
+/** Type information for primitive types(byte,int, long, double, ...) and String. */
 public class BasicTypeInfo<T> extends TypeInformation<T> {
 
   private static final BasicTypeInfo<Byte> BYTE_TYPE_INFO =
@@ -79,9 +77,10 @@ public class BasicTypeInfo<T> extends TypeInformation<T> {
 
   private final Class<? extends TypeComparator<T>> comparatorClass;
 
-  protected BasicTypeInfo(Class<T> clazz,
-                          TypeSerializer<T> serializer,
-                          Class<? extends TypeComparator<T>> comparatorClass) {
+  protected BasicTypeInfo(
+      Class<T> clazz,
+      TypeSerializer<T> serializer,
+      Class<? extends TypeComparator<T>> comparatorClass) {
     this.clazz = checkNotNull(clazz);
     this.serializer = checkNotNull(serializer);
     this.comparatorClass = comparatorClass;

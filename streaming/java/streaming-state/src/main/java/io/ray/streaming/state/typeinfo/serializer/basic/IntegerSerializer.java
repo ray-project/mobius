@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for int.
- */
+/** Type serializer for int. */
 public class IntegerSerializer extends TypeSerializer<Integer> {
 
   public static final IntegerSerializer INSTANCE = new IntegerSerializer();

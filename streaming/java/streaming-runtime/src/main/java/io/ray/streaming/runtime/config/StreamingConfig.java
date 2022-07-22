@@ -22,15 +22,16 @@ public class StreamingConfig implements Serializable {
   }
 
   /**
-   * Incrementally update and reload config among which the root key "training_python_conf", if contains, needs to
-   * be parsed separately because it is expressed in the format of nest config string.
-   * Theoretically, controlling resource unit is invalid, this is just a temp solution.
+   * Incrementally update and reload config among which the root key "training_python_conf", if
+   * contains, needs to be parsed separately because it is expressed in the format of nest config
+   * string. Theoretically, controlling resource unit is invalid, this is just a temp solution.
    *
    * @param newConf the new config map that only contains required config
    */
-  public void updateConfig(Map<String, String> newConf){
+  public void updateConfig(Map<String, String> newConf) {
     // All the config must be stored into userConfig in order to be effect after reboot !!
-    // Because all the other properties, no matter the Owner properties and configMap, are set to transient!
+    // Because all the other properties, no matter the Owner properties and configMap, are set to
+    // transient!
     userConfig.putAll(newConf);
     reload();
   }

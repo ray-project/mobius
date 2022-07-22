@@ -63,11 +63,9 @@ public class ExecutionVertex implements Serializable {
   private BaseActorHandle workerActor; // deprecated
 
   /**
-   * For remote call of different type workers, like:
-   * `JavaWorker`
-   * `DynamicPyWorker`
-   * `PythonWorker` i.e. python tide worker
-   *  Here we use workerCaller to replace workerActor to make remote call more convenient.
+   * For remote call of different type workers, like: `JavaWorker` `DynamicPyWorker` `PythonWorker`
+   * i.e. python tide worker Here we use workerCaller to replace workerActor to make remote call
+   * more convenient.
    */
   private WorkerCaller workerCaller;
 
@@ -202,8 +200,8 @@ public class ExecutionVertex implements Serializable {
 
   public boolean isToUpdate() {
     return getState() == ExecutionVertexState.TO_ADD_RELATED
-            || getState() == ExecutionVertexState.TO_DEL_RELATED
-            || getState() == ExecutionVertexState.TO_UPDATE;
+        || getState() == ExecutionVertexState.TO_DEL_RELATED
+        || getState() == ExecutionVertexState.TO_UPDATE;
   }
 
   public boolean isToDelete() {
@@ -252,15 +250,11 @@ public class ExecutionVertex implements Serializable {
   }
 
   public List<ExecutionVertex> getInputExecutionVertices() {
-    return inputEdges.stream()
-        .map(ExecutionEdge::getSource)
-        .collect(Collectors.toList());
+    return inputEdges.stream().map(ExecutionEdge::getSource).collect(Collectors.toList());
   }
 
   public List<ExecutionVertex> getOutputExecutionVertices() {
-    return outputEdges.stream()
-        .map(ExecutionEdge::getTarget)
-        .collect(Collectors.toList());
+    return outputEdges.stream().map(ExecutionEdge::getTarget).collect(Collectors.toList());
   }
 
   public ActorId getWorkerActorId() {
@@ -359,6 +353,7 @@ public class ExecutionVertex implements Serializable {
 
   /**
    * Gets the job worker type according to the language and process.
+   *
    * @return JobWorkerType
    */
   public JobWorkerType getJobWorkerType() {
@@ -380,9 +375,7 @@ public class ExecutionVertex implements Serializable {
     for (ExecutionEdge edge : inputEdges) {
       String channelId =
           ChannelId.genIdStr(
-              edge.getSource().getExecutionVertexId(),
-              getExecutionVertexId(),
-              getBuildTime());
+              edge.getSource().getExecutionVertexId(), getExecutionVertexId(), getBuildTime());
       inputChannelIdList.add(channelId);
       channelIdInputActorMap.put(channelId, edge.getSource().getActor());
       exeVertexChannelMap.put(edge.getSource().getExecutionVertexId(), channelId);
@@ -392,9 +385,7 @@ public class ExecutionVertex implements Serializable {
     for (ExecutionEdge edge : outputEdges) {
       String channelId =
           ChannelId.genIdStr(
-              getExecutionVertexId(),
-              edge.getTarget().getExecutionVertexId(),
-              getBuildTime());
+              getExecutionVertexId(), edge.getTarget().getExecutionVertexId(), getBuildTime());
       outputChannelIdList.add(channelId);
       channelIdOutputActorMap.put(channelId, edge.getTarget().getActor());
       exeVertexChannelMap.put(edge.getTarget().getExecutionVertexId(), channelId);
@@ -439,14 +430,24 @@ public class ExecutionVertex implements Serializable {
 
   @Override
   public String toString() {
-    return "ExecutionVertex{" +
-        "executionVertexId=" + executionVertexId +
-        ", executionJobVertexName='" + executionJobVertexName + '\'' +
-        ", resource=" + resource +
-        ", state=" + state +
-        ", actorId='" + getWorkerActorId() + '\'' +
-        ", roleInChangedSubDag=" + roleInChangedSubDag +
-        ", pid='" + pid + '\'' +
-        '}';
+    return "ExecutionVertex{"
+        + "executionVertexId="
+        + executionVertexId
+        + ", executionJobVertexName='"
+        + executionJobVertexName
+        + '\''
+        + ", resource="
+        + resource
+        + ", state="
+        + state
+        + ", actorId='"
+        + getWorkerActorId()
+        + '\''
+        + ", roleInChangedSubDag="
+        + roleInChangedSubDag
+        + ", pid='"
+        + pid
+        + '\''
+        + '}';
   }
 }

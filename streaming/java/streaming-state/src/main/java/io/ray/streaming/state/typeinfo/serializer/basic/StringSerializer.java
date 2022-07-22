@@ -5,9 +5,7 @@ import io.ray.streaming.state.buffer.DataOutputView;
 import io.ray.streaming.state.typeinfo.serializer.TypeSerializer;
 import java.io.IOException;
 
-/**
- * Type serializer for string.
- */
+/** Type serializer for string. */
 public class StringSerializer extends TypeSerializer<String> {
 
   private static final int HIGH_BIT = 0x1 << 7;
@@ -30,19 +28,19 @@ public class StringSerializer extends TypeSerializer<String> {
     if (str != null) {
       int strLen = str.length();
 
-      //because zero indicates str is null, so add 1 to the length to indicate the length of str.
+      // because zero indicates str is null, so add 1 to the length to indicate the length of str.
       int lenToWrite = strLen + 1;
       if (lenToWrite < 0) {
         throw new IllegalArgumentException("String is too long");
       }
 
-      //The maximum write of byte is 127
+      // The maximum write of byte is 127
       while (lenToWrite >= HIGH_BIT) {
-        //Write 7 bits each time, the 8th bit is forced to 1
+        // Write 7 bits each time, the 8th bit is forced to 1
         outputView.write(lenToWrite | HIGH_BIT);
         lenToWrite >>>= 7;
       }
-      //Write the part less than 128.
+      // Write the part less than 128.
       outputView.write(lenToWrite);
 
       for (int i = 0; i < str.length(); i++) {
@@ -61,7 +59,7 @@ public class StringSerializer extends TypeSerializer<String> {
   public String readString(DataInputView inputView) throws IOException {
     int len = inputView.readUnsignedByte();
 
-    //Zero means the str is null
+    // Zero means the str is null
     if (len == 0) {
       return null;
     }
@@ -77,7 +75,7 @@ public class StringSerializer extends TypeSerializer<String> {
       len |= current << shift;
     }
 
-    //because write len add 1
+    // because write len add 1
     len -= 1;
 
     final char[] data = new char[len];

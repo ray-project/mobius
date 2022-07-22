@@ -2,64 +2,38 @@ package io.ray.streaming.runtime.master.scheduler;
 
 import com.google.common.base.MoreObjects;
 
-/**
- * Actor Role.
- */
+/** Actor Role. */
 public enum ActorRoleType {
 
-  /**
-   * Unknown.
-   */
+  /** Unknown. */
   UNKNOWN("Unknown", -1),
 
-  /**
-   * Master actor.
-   */
+  /** Master actor. */
   JOB_MASTER("JobMaster", 1),
 
-  /**
-   * Worker actor.
-   */
+  /** Worker actor. */
   JOB_WORKER("JobWorker", 2),
 
-  /**
-   * Broker actor for queryable state.
-   */
+  /** Broker actor for queryable state. */
   BROKER("Broker", 3),
 
-  /**
-   * Shuffle manager actor for queryable state.
-   */
+  /** Shuffle manager actor for queryable state. */
   SHUFFLE_MANAGER("ShuffleManager", 4),
 
-  /**
-   * Dsc server for streaming call.
-   */
+  /** Dsc server for streaming call. */
   DSC_SERVER("DSCServer", 5),
 
-  /**
-   * Parameter server for training worker.
-   */
+  /** Parameter server for training worker. */
   PARAMETER_SERVER("ParameterServer", 6),
 
-  /**
-   * Evaluator for training worker.
-   */
+  /** Evaluator for training worker. */
   EVALUATOR("Evaluator", 7),
 
-  /**
-   * To optimize training worker by interacting with easy-dl.
-   */
-
+  /** To optimize training worker by interacting with easy-dl. */
   OPTIMIZER("Optimizer", 8),
 
-
-  /**
-   * Normal Independent operator
-   */
-
+  /** Normal Independent operator */
   INDEPENDENT_OPERATOR("IndependentOperator", 9);
-
 
   private String desc;
   private int index;
@@ -79,11 +53,11 @@ public enum ActorRoleType {
       return ActorRoleType.valueOf(type);
     } catch (IllegalArgumentException e) {
       // get value by desc
-     for (ActorRoleType actorRoleType : ActorRoleType.class.getEnumConstants()) {
-       if (actorRoleType.getDesc().equals(type)) {
-         return actorRoleType;
-       }
-     }
+      for (ActorRoleType actorRoleType : ActorRoleType.class.getEnumConstants()) {
+        if (actorRoleType.getDesc().equals(type)) {
+          return actorRoleType;
+        }
+      }
     }
     return ActorRoleType.UNKNOWN;
   }

@@ -35,7 +35,6 @@ public class GraphManagerImpl implements GraphManager {
     // setup structure
     ExecutionGraph executionGraph = setupStructure(jobGraph);
 
-
     // setup max parallelism
     int maxParallelism =
         jobGraph.getJobVertices().stream()
@@ -45,9 +44,8 @@ public class GraphManagerImpl implements GraphManager {
     executionGraph.setMaxParallelism(maxParallelism);
 
     // setup job information
-    JobInformation jobInformation = new JobInformation(
-        jobGraph.getJobName(),
-        jobGraph.getJobConfig());
+    JobInformation jobInformation =
+        new JobInformation(jobGraph.getJobName(), jobGraph.getJobConfig());
     executionGraph.setJobInformation(jobInformation);
 
     LOG.info("Build execution graph success.");

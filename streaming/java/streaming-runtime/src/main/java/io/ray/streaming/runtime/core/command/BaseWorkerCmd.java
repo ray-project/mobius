@@ -8,16 +8,15 @@ public abstract class BaseWorkerCmd implements Serializable {
   public ActorId fromActorId;
   public Long timestamp;
 
-  public BaseWorkerCmd() {
-  }
+  public BaseWorkerCmd() {}
 
   protected BaseWorkerCmd(ActorId actorId) {
     this.fromActorId = actorId;
     this.timestamp = System.currentTimeMillis();
   }
+
   protected BaseWorkerCmd(ActorId actorId, Long timestamp) {
     this.fromActorId = actorId;
     this.timestamp = timestamp;
   }
-
 }

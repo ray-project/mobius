@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for double.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class DoubleComparator extends TypeComparator<Double> {
 

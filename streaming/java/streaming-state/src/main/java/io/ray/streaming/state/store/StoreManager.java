@@ -1,6 +1,5 @@
 package io.ray.streaming.state.store;
 
-
 import io.ray.streaming.state.RollbackSnapshotResult;
 import io.ray.streaming.state.SnapshotResult;
 import io.ray.streaming.state.api.desc.ListStateDescriptor;
@@ -13,29 +12,19 @@ import java.util.concurrent.CompletableFuture;
 
 public interface StoreManager extends Store {
 
-  /**
-   * Build a key-value type state storage backend.
-   */
+  /** Build a key-value type state storage backend. */
   <K, V> MapState<K, V> buildMapStore(MapStateDescriptor<K, V> descriptor);
 
-  /**
-   * Build a key-value type(nonKeyed) state storage backend.
-   */
+  /** Build a key-value type(nonKeyed) state storage backend. */
   <K, V> MapState<K, V> buildNonKeyedMapStore(MapStateDescriptor<K, V> descriptor);
 
-  /**
-   * Build a value type state storage backend.
-   */
+  /** Build a value type state storage backend. */
   <V> ValueState<V> buildValueStore(ValueStateDescriptor<V> descriptor);
 
-  /**
-   * Build a value type(nonKeyed) state storage backend.
-   */
+  /** Build a value type(nonKeyed) state storage backend. */
   <V> ValueState<V> buildNonKeyedValueStore(ValueStateDescriptor<V> descriptor);
 
-  /**
-   * Build a list type state storage backend.
-   */
+  /** Build a list type state storage backend. */
   default <V> ListState<V> buildNonKeyedListStore(ListStateDescriptor<V> descriptor) {
     throw new UnsupportedOperationException();
   }
@@ -46,14 +35,10 @@ public interface StoreManager extends Store {
    */
   CompletableFuture<SnapshotResult> snapshot(long snapshotId);
 
-  /**
-   * Rollback to the specified state snapshot.
-   */
+  /** Rollback to the specified state snapshot. */
   CompletableFuture<RollbackSnapshotResult> rollbackSnapshot(long snapshotId);
 
-  /**
-   * Delete the specified snapshot data.
-   */
+  /** Delete the specified snapshot data. */
   boolean deleteSnapshot(long snapshotId);
 
   void setCurrentKey(Object key);

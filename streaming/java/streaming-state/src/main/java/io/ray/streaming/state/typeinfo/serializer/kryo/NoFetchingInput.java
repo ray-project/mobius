@@ -7,12 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class NoFetchingInput extends Input {
-  public NoFetchingInput(InputStream inputStream){
+  public NoFetchingInput(InputStream inputStream) {
     super(inputStream, 8);
   }
 
   @Override
-  public boolean eof(){
+  public boolean eof() {
     throw new UnsupportedOperationException("NoFetchingInput does not support EOF.");
   }
 
@@ -34,23 +34,23 @@ public class NoFetchingInput extends Input {
 
   @Override
   protected int require(int required) throws KryoException {
-    if(required > capacity) {
-      throw new KryoException("Buffer too small: capacity: " + capacity + ", " +
-          "required: " + required);
+    if (required > capacity) {
+      throw new KryoException(
+          "Buffer too small: capacity: " + capacity + ", " + "required: " + required);
     }
 
     position = 0;
     int bytesRead = 0;
     int count;
-    while(true){
+    while (true) {
       count = fill(buffer, bytesRead, required - bytesRead);
 
-      if(count == -1){
+      if (count == -1) {
         throw new KryoException(new EOFException("No more bytes left."));
       }
 
       bytesRead += count;
-      if(bytesRead == required){
+      if (bytesRead == required) {
         break;
       }
     }
@@ -60,50 +60,50 @@ public class NoFetchingInput extends Input {
 
   @Override
   public int read(byte[] bytes, int offset, int count) throws KryoException {
-    if(bytes == null){
+    if (bytes == null) {
       throw new IllegalArgumentException("bytes cannot be null.");
     }
 
     try {
       return inputStream.read(bytes, offset, count);
-    }catch(IOException ex){
+    } catch (IOException ex) {
       throw new KryoException(ex);
     }
   }
 
   @Override
   public void skip(int count) throws KryoException {
-    try{
+    try {
       inputStream.skip(count);
-    }catch(IOException ex){
+    } catch (IOException ex) {
       throw new KryoException(ex);
     }
   }
 
   @Override
   public void readBytes(byte[] bytes, int offset, int count) throws KryoException {
-    if(bytes == null){
+    if (bytes == null) {
       throw new IllegalArgumentException("bytes cannot be null.");
     }
 
-    try{
+    try {
       int bytesRead = 0;
       int c;
 
-      while(true){
-        c = inputStream.read(bytes, offset+bytesRead, count-bytesRead);
+      while (true) {
+        c = inputStream.read(bytes, offset + bytesRead, count - bytesRead);
 
-        if(c == -1){
+        if (c == -1) {
           throw new KryoException(new EOFException("No more bytes left."));
         }
 
         bytesRead += c;
 
-        if(bytesRead == count){
+        if (bytesRead == count) {
           break;
         }
       }
-    }catch(IOException ex){
+    } catch (IOException ex) {
       throw new KryoException(ex);
     }
   }

@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * StateManager is the entrance to the state, through the StateManager instance can get
- * ValueState, ListState, KeyValueState,KeyMapState, etc.
+ * StateManager is the entrance to the state, through the StateManager instance can get ValueState,
+ * ListState, KeyValueState,KeyMapState, etc.
  */
 public class StateManager extends AbstractStateManager implements Serializable {
 
@@ -25,41 +25,49 @@ public class StateManager extends AbstractStateManager implements Serializable {
 
   private Map<String, State> stateMap = new HashMap<>();
 
-  public StateManager(final Map<String, String> config,
-                      final MetricGroup metricGroup) {
+  public StateManager(final Map<String, String> config, final MetricGroup metricGroup) {
     this("default", "default", 1, 0, config, metricGroup);
   }
 
-  public StateManager(final String jobName,
-                      final String stateName,
-                      final Map<String, String> config,
-                      final MetricGroup metricGroup) {
+  public StateManager(
+      final String jobName,
+      final String stateName,
+      final Map<String, String> config,
+      final MetricGroup metricGroup) {
 
     this(jobName, stateName, 1, 0, config, metricGroup);
   }
 
-  public StateManager(final String jobName,
-                      final String stateName,
-                      final int taskParallelism,
-                      final int taskIndex,
-                      final Map<String, String> config,
-                      final MetricGroup metricGroup) {
+  public StateManager(
+      final String jobName,
+      final String stateName,
+      final int taskParallelism,
+      final int taskIndex,
+      final Map<String, String> config,
+      final MetricGroup metricGroup) {
 
     this(jobName, stateName, taskParallelism, taskIndex, config, null, metricGroup);
   }
 
-  public StateManager(final String jobName,
-                      final String stateName,
-                      final int taskParallelism,
-                      final int taskIndex,
-                      final Map<String, String> config,
-                      final TypeSerializerConfig serializerConfig,
-                      final MetricGroup metricGroup) {
+  public StateManager(
+      final String jobName,
+      final String stateName,
+      final int taskParallelism,
+      final int taskIndex,
+      final Map<String, String> config,
+      final TypeSerializerConfig serializerConfig,
+      final MetricGroup metricGroup) {
     super(jobName, stateName, taskParallelism, taskIndex, config, serializerConfig, metricGroup);
 
-    LOG.info("StateManager init success, jobName: {}, stateName: {}, taskParallelism: {}, " +
-            "taskIndex: {}, maxParallelism: {}, state config: {}.",
-            jobName, operatorName, taskParallelism, taskIndex, maxShard, config);
+    LOG.info(
+        "StateManager init success, jobName: {}, stateName: {}, taskParallelism: {}, "
+            + "taskIndex: {}, maxParallelism: {}, state config: {}.",
+        jobName,
+        operatorName,
+        taskParallelism,
+        taskIndex,
+        maxShard,
+        config);
   }
 
   @Override
@@ -68,7 +76,7 @@ public class StateManager extends AbstractStateManager implements Serializable {
     if (stateMap.containsKey(stateDescriptor.getStateName())) {
       return (MapState<K, V>) stateMap.get(stateDescriptor.getStateName());
     }
-    //laze create store backend.
+    // laze create store backend.
     buildStoreManager();
     MapState<K, V> state = storeManager.buildMapStore(stateDescriptor);
     stateMap.put(stateDescriptor.getStateName(), state);
@@ -77,11 +85,12 @@ public class StateManager extends AbstractStateManager implements Serializable {
 
   @Override
   public <K, V> MapState<K, V> getNonKeyedMapState(MapStateDescriptor<K, V> stateDescriptor) {
-    LOG.info("Get nonkeyed key value state, descriptor: {}, state map: {}.", stateDescriptor, stateMap);
+    LOG.info(
+        "Get nonkeyed key value state, descriptor: {}, state map: {}.", stateDescriptor, stateMap);
     if (stateMap.containsKey(stateDescriptor.getStateName())) {
       return (MapState<K, V>) stateMap.get(stateDescriptor.getStateName());
     }
-    //laze create store backend.
+    // laze create store backend.
     buildStoreManager();
     MapState<K, V> state = storeManager.buildNonKeyedMapStore(stateDescriptor);
     stateMap.put(stateDescriptor.getStateName(), state);
@@ -121,7 +130,7 @@ public class StateManager extends AbstractStateManager implements Serializable {
       return (ListState<V>) stateMap.get(stateDescriptor.getStateName());
     }
 
-    //laze create store backend.
+    // laze create store backend.
     buildStoreManager();
 
     ListState<V> state = storeManager.buildNonKeyedListStore(stateDescriptor);

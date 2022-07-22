@@ -16,44 +16,33 @@ import java.util.Map;
 import java.util.Objects;
 import org.aeonbits.owner.ConfigFactory;
 
-/**
- * Relation of {@link ExecutionVertex} and bundle.
- */
+/** Relation of {@link ExecutionVertex} and bundle. */
 public class ExecutionBundle implements Serializable {
 
   public static final String MEM_KEY_FOR_GCS_SCHEDULING = "buffer";
-  public static final double MEM_DEFAULT = ConfigFactory.create(ResourceConfig.class).workerMemMbRequired();
+  public static final double MEM_DEFAULT =
+      ConfigFactory.create(ResourceConfig.class).workerMemMbRequired();
 
-  /**
-   * Bundle id. Use execution vertex's id directly.
-   */
+  /** Bundle id. Use execution vertex's id directly. */
   private final int id;
 
-  /**
-   * Resources required for bundle.
-   */
+  /** Resources required for bundle. */
   private Map<String, Double> resources;
 
-  /**
-   * Group who belongs to.
-   */
+  /** Group who belongs to. */
   private int groupId = -1;
 
-  /**
-   * Index in group.
-   */
+  /** Index in group. */
   private int index = -1;
 
-  /**
-   * Ray bundle and placement group instance.
-   */
+  /** Ray bundle and placement group instance. */
   private Bundle bundle;
+
   private PlacementGroup placementGroup;
 
   /**
-   * State of the current execution bundle.
-   * IN_USE: bundle exist in placement group
-   * TO_RELEASE: bundle is removed from placement group
+   * State of the current execution bundle. IN_USE: bundle exist in placement group TO_RELEASE:
+   * bundle is removed from placement group
    */
   private ResourceState resourceState = ResourceState.UNKNOWN;
 
@@ -104,7 +93,7 @@ public class ExecutionBundle implements Serializable {
   public Map<String, Double> getResources(Map<String, String> jobConf) {
     // get default buffer value first
     double memValue;
-    if(jobConf == null || !jobConf.containsKey(ResourceConfig.WORKER_MEM)) {
+    if (jobConf == null || !jobConf.containsKey(ResourceConfig.WORKER_MEM)) {
       memValue = MEM_DEFAULT;
     } else {
       memValue = Double.parseDouble(jobConf.get(ResourceConfig.WORKER_MEM));
@@ -115,8 +104,10 @@ public class ExecutionBundle implements Serializable {
       memValue = resources.get(ResourceKey.MEM.name());
     }
 
-    // replace mem value because: 'Resource 'buffer' must be specified in bundles if gcs scheduler enabled.'
-    resources.put(MEM_KEY_FOR_GCS_SCHEDULING, (double) ResourceUtil.getMemoryMbFromMemoryValue(memValue));
+    // replace mem value because: 'Resource 'buffer' must be specified in bundles if gcs scheduler
+    // enabled.'
+    resources.put(
+        MEM_KEY_FOR_GCS_SCHEDULING, (double) ResourceUtil.getMemoryMbFromMemoryValue(memValue));
 
     return new HashMap<>(resources);
   }
@@ -176,5 +167,4 @@ public class ExecutionBundle implements Serializable {
         .add("groupIndex", groupId + "-" + index)
         .toString();
   }
-
 }

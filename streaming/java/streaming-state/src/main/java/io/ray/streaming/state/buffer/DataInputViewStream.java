@@ -24,7 +24,7 @@ public class DataInputViewStream extends InputStream {
   @Override
   public long skip(long n) throws IOException {
     long toSkipRemaining = n;
-    while(toSkipRemaining > Integer.MAX_VALUE) {
+    while (toSkipRemaining > Integer.MAX_VALUE) {
       int skippedBytes = inputView.skipBytes(Integer.MAX_VALUE);
 
       if (skippedBytes == 0) {

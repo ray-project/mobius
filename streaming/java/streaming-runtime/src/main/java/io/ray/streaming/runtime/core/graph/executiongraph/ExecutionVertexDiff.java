@@ -8,8 +8,9 @@ public class ExecutionVertexDiff {
   private List<ExecutionVertex> aliveExecutionVertices;
   private List<ExecutionVertex> moribundExecutionVertices;
 
-  public ExecutionVertexDiff(List<ExecutionVertex> aliveExecutionVertices,
-                             List<ExecutionVertex> moribundExecutionVertices) {
+  public ExecutionVertexDiff(
+      List<ExecutionVertex> aliveExecutionVertices,
+      List<ExecutionVertex> moribundExecutionVertices) {
     this.aliveExecutionVertices = aliveExecutionVertices;
     this.moribundExecutionVertices = moribundExecutionVertices;
   }

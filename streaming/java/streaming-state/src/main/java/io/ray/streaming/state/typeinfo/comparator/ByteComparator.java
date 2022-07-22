@@ -3,7 +3,7 @@ package io.ray.streaming.state.typeinfo.comparator;
 /**
  * Type comparator for byte.
  *
- * TODO implement
+ * <p>TODO implement
  */
 public class ByteComparator extends TypeComparator<Byte> {
 
