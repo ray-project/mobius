@@ -1,4 +1,3 @@
-/** Alipay.com Inc. Copyright (c) 2004-2019 All Rights Reserved. */
 package io.ray.streaming.runtime.config.converter;
 
 import io.ray.streaming.common.utils.TestHelper;

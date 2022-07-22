@@ -36,8 +36,13 @@ public class TypeInfoUtils {
   /**
    * Type - Row types and basic type (Class), such as: int,Integer,Enum,array(int[]) - Parameterized
    * types(ParameterizedType), such as:Collection,Map - Generic Array types(GenericArrayType), such
-   * as: T[] - Type variables(TypeVariable), such as: T in List<T> - Wildcard type(WildcardType),
-   * such as: List<T extends Number>, Set<T super Integer>.
+   * as: T[] - Type variables(TypeVariable), such as: T in List&lt;T> - Wildcard type(WildcardType),
+   * such as: List&lt;T extends Number>, Set&lt;T super Integer>.
+   *
+   * @param type target type
+   * @param typeHierarchy type extend linage
+   * @param <T> The type that TypeInfo present
+   * @return TypeInfo
    */
   private static <T> TypeInformation<T> createTypeInfoWithTypeHierarchy(
       Type type, List<Type> typeHierarchy) {
@@ -301,10 +306,10 @@ public class TypeInfoUtils {
   /**
    * Traverses the type hierarchy
    *
-   * @param typeHierarchy
-   * @param type
-   * @param stopClass
-   * @return
+   * @param typeHierarchy The complete type hierarchy
+   * @param type the start type at the hierarchy
+   * @param stopClass the stop type
+   * @return final type
    */
   private static Type getTypeHierarchy(List<Type> typeHierarchy, Type type, Class<?> stopClass) {
     while (!(isClassType(type) && typeConvertToClass(type).equals(stopClass))) {

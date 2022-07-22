@@ -59,7 +59,7 @@ public interface MapState<K, V> extends KeyedState {
    * Return whether there exists given mapping.
    *
    * @param key The key of the key-value.
-   * @return
+   * @return whether the map state contains this state or not
    */
   boolean contains(K key) throws Exception;
 

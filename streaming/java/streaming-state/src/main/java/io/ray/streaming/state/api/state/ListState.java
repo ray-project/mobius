@@ -9,7 +9,7 @@ public interface ListState<T> extends State {
    * Appends the specified element to the end of this list.
    *
    * @param ele element to be appended to this list
-   * @throws Exception
+   * @throws Exception NPE, Overflow
    */
   void add(T ele) throws Exception;
 
@@ -18,7 +18,7 @@ public interface ListState<T> extends State {
    * that they are returned by the specified collection's iterator.
    *
    * @param list list containing elements to be added to this list
-   * @throws Exception
+   * @throws Exception NPE, Overflow
    */
   void addAll(List<T> list) throws Exception;
 
@@ -58,7 +58,7 @@ public interface ListState<T> extends State {
    *
    * @param index the index of the element to be set
    * @param ele element to be appended to this list
-   * @throws Exception
+   * @throws Exception NPE, Overflow
    */
   void set(int index, T ele) throws Exception;
 }

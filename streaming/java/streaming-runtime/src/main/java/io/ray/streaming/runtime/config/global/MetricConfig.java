@@ -111,7 +111,8 @@ public interface MetricConfig extends Config, Mutable {
   /** Last three scopes are remote worker's */
   @Key(METRICS_SCOPE_WORKER_REMOTE_CALL)
   @DefaultValue(
-      "<host>.jobworker.<job_name>.<op_name>.<worker_id>.<pid>.<remote_op_name>.<remote_worker_id>.<remote_worker_name>")
+      "<host>.jobworker.<job_name>.<op_name>.<worker_id>.<pid>"
+          + ".<remote_op_name>.<remote_worker_id>.<remote_worker_name>")
   String metricsScopeWorkerRemoteCall();
 
   @Key(METRICS_SCOPE_QUEUE)

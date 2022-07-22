@@ -186,7 +186,9 @@ public class DataInputView implements DataInput {
     byte[] byteArray = new byte[utfLen];
     char[] charArray = new char[utfLen];
 
-    int c, char2, char3;
+    int c;
+    int char2;
+    int char3;
     int count = 0;
     int charArrayCount = 0;
 

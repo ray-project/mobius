@@ -15,13 +15,28 @@ public class LocalMetricGroup implements MetricGroup {
   }
 
   @Override
+  public Meter getMeter(String meterName, Map<String, String> tags) {
+    return getMeter(meterName);
+  }
+
+  @Override
   public Counter getCounter(String counterName) {
     return new LocalCounter();
   }
 
   @Override
+  public Counter getCounter(String counterName, Map<String, String> tags) {
+    return getCounter(counterName);
+  }
+
+  @Override
   public Histogram getHistogram(String histogramName) {
     return new LocalHistogram();
+  }
+
+  @Override
+  public Histogram getHistogram(String histogramName, Map<String, String> tags) {
+    return getHistogram(histogramName);
   }
 
   @Override
@@ -32,20 +47,5 @@ public class LocalMetricGroup implements MetricGroup {
   @Override
   public Gauge getGauge(String gaugeName, Map<String, String> tags) {
     return getGauge(gaugeName);
-  }
-
-  @Override
-  public Meter getMeter(String meterName, Map<String, String> tags) {
-    return getMeter(meterName);
-  }
-
-  @Override
-  public Counter getCounter(String counterName, Map<String, String> tags) {
-    return getCounter(counterName);
-  }
-
-  @Override
-  public Histogram getHistogram(String histogramName, Map<String, String> tags) {
-    return getHistogram(histogramName);
   }
 }

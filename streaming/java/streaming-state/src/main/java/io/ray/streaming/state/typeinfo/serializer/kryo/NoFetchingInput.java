@@ -23,6 +23,19 @@ public class NoFetchingInput extends Input {
   }
 
   @Override
+  public int read(byte[] bytes, int offset, int count) throws KryoException {
+    if (bytes == null) {
+      throw new IllegalArgumentException("bytes cannot be null.");
+    }
+
+    try {
+      return inputStream.read(bytes, offset, count);
+    } catch (IOException ex) {
+      throw new KryoException(ex);
+    }
+  }
+
+  @Override
   public boolean canReadInt() throws KryoException {
     throw new UnsupportedOperationException("NoFetchingInput cannot prefetch data.");
   }
@@ -56,19 +69,6 @@ public class NoFetchingInput extends Input {
     }
     limit = required;
     return required;
-  }
-
-  @Override
-  public int read(byte[] bytes, int offset, int count) throws KryoException {
-    if (bytes == null) {
-      throw new IllegalArgumentException("bytes cannot be null.");
-    }
-
-    try {
-      return inputStream.read(bytes, offset, count);
-    } catch (IOException ex) {
-      throw new KryoException(ex);
-    }
   }
 
   @Override

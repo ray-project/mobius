@@ -2,7 +2,7 @@ package io.ray.streaming.runtime.util;
 
 public class GraphBuilder {
 
-  private final String LINE_SEPARATOR = System.getProperty("line.separator");
+  private static final String LINE_SEPARATOR = System.getProperty("line.separator");
   private StringBuilder dagBuilder = new StringBuilder();
 
   public GraphBuilder() {

@@ -38,20 +38,20 @@ public class LoggerFactory {
   }
 
   public static Logger getLogger(Class clazz) {
-    ILoggerFactory iLoggerFactory = org.slf4j.LoggerFactory.getILoggerFactory();
+    ILoggerFactory loggerFactory = org.slf4j.LoggerFactory.getILoggerFactory();
 
-    if (LOGGER_FACTORY_LOG4J.equals(iLoggerFactory.getClass().getName())) {
+    if (LOGGER_FACTORY_LOG4J.equals(loggerFactory.getClass().getName())) {
       // log4j
       Log4jUtils.initLog4jLogger(
           clazz, getLogFileName(), getMaxBackupIndex(), getMaxFileSize(), getLogLevel());
-    } else if (LOGGER_FACTORY_LOG4J2.equals(iLoggerFactory.getClass().getName())) {
+    } else if (LOGGER_FACTORY_LOG4J2.equals(loggerFactory.getClass().getName())) {
       // log4j2
       Log4j2Utils.initLog4j2Logger(
           clazz, getLogFileName(), getMaxBackupIndex(), getMaxFileSize(), getLogLevel());
     } else {
-      throw new RuntimeException("Unsupported logger factory " + iLoggerFactory + "!");
+      throw new RuntimeException("Unsupported logger factory " + loggerFactory + "!");
     }
-    return iLoggerFactory.getLogger(clazz.getName());
+    return loggerFactory.getLogger(clazz.getName());
   }
 
   //  public static void updateLogLevel(String logLevel) {

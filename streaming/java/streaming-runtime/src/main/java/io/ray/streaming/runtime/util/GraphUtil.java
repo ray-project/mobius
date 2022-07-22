@@ -333,20 +333,6 @@ public class GraphUtil {
         vertexMap.get(opName).add(executionVertex.getExecutionVertexId());
       }
     }
-    /* TODO(paer): group independent vertices
-    if (!(independentVertices == null || independentVertices.isEmpty())) {
-      for (IndependentExecutionVertex vertex : independentVertices) {
-        // Desc or name ? RescalingInfo says "ParameterServer" which is the "Desc" rather than the "name"
-        String name = vertex.getRoleName().getDesc();
-        if (vertexMap.containsKey(name)){
-          vertexMap.get(name).add(vertex.getIndex());
-        } else {
-          vertexMap.put(name, ImmutableSet.of(vertex.getIndex()));
-        }
-      }
-    }
-    */
-
     return vertexMap;
   }
 }

@@ -8,9 +8,9 @@ public class MetricPluginUtils {
   /**
    * build full metric name with all tag entries.
    *
-   * @param metricName
-   * @param tags
-   * @return
+   * @param metricName main name
+   * @param tags tags of the metric
+   * @return full metric name with metric name and tags bounded
    */
   public static String getMetricNameWithTags(String metricName, Map<String, String> tags) {
     StringBuilder sb = new StringBuilder();
@@ -24,11 +24,12 @@ public class MetricPluginUtils {
   }
 
   /**
-   * build mixed tags in local priority first.
+   * Build mixed tags in local priority first.
+   * A local tag will override the global tag if it has the same key.
    *
-   * @param localTags
-   * @param globalTags
-   * @return
+   * @param localTags local tags
+   * @param globalTags global tags
+   * @return mixed result
    */
   public static Map<String, String> buildMixedTags(
       final Map<String, String> localTags, final Map<String, String> globalTags) {

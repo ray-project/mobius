@@ -1,5 +1,9 @@
 package io.ray.streaming.common.serializer;
 
+import io.ray.streaming.common.serializer.proxy.FSTSerializer;
+import io.ray.streaming.common.serializer.proxy.KryoSerializer;
+import io.ray.streaming.common.serializer.proxy.SerializerProxy;
+
 public class Serializer {
   public static String SERIALIZER_TYPE_KEY = "STREAMING_SERIALIZER";
   private static final byte OTHER_TYPE_ID = 0;

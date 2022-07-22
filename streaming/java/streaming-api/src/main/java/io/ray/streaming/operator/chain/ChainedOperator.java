@@ -101,8 +101,8 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
    * To mark operator has been finished within this checkpoint, which indicate all of sync-like
    * actions will be done in this function in orderless.
    *
-   * @param checkpointId
-   * @throws Exception
+   * @param checkpointId the number that identify each checkpoint
+   * @throws Exception None
    */
   @Override
   public void finish(long checkpointId) throws Exception {

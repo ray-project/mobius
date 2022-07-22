@@ -70,21 +70,6 @@ public class RayMetricGroup implements MetricGroup {
   }
 
   @Override
-  public Meter getMeter(String meterName) {
-    return getMeter(meterName, new HashMap<>());
-  }
-
-  @Override
-  public Counter getCounter(String counterName) {
-    return getCounter(counterName, new HashMap<>());
-  }
-
-  @Override
-  public Histogram getHistogram(String histogramName) {
-    return getHistogram(histogramName, new HashMap<>());
-  }
-
-  @Override
   public Gauge getGauge(String gaugeName, Map<String, String> tags) {
     String metricNameWithTags = MetricPluginUtils.getMetricNameWithTags(gaugeName, tags);
     if (asmGaugeMap.containsKey(metricNameWithTags)) {
@@ -97,6 +82,11 @@ public class RayMetricGroup implements MetricGroup {
       asmGaugeMap.put(metricNameWithTags, asmMeter);
       return asmMeter;
     }
+  }
+
+  @Override
+  public Meter getMeter(String meterName) {
+    return getMeter(meterName, new HashMap<>());
   }
 
   @Override
@@ -115,6 +105,11 @@ public class RayMetricGroup implements MetricGroup {
   }
 
   @Override
+  public Counter getCounter(String counterName) {
+    return getCounter(counterName, new HashMap<>());
+  }
+
+  @Override
   public Counter getCounter(String counterName, Map<String, String> tags) {
     String metricNameWithTags = MetricPluginUtils.getMetricNameWithTags(counterName, tags);
     if (asmCounterMap.containsKey(metricNameWithTags)) {
@@ -127,6 +122,11 @@ public class RayMetricGroup implements MetricGroup {
       asmCounterMap.put(metricNameWithTags, counter);
       return counter;
     }
+  }
+
+  @Override
+  public Histogram getHistogram(String histogramName) {
+    return getHistogram(histogramName, new HashMap<>());
   }
 
   @Override

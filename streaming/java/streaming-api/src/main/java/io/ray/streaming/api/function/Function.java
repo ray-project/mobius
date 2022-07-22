@@ -8,8 +8,8 @@ public interface Function extends Serializable {
   /**
    * Mark this checkpoint has been finished.
    *
-   * @param checkpointId
-   * @throws Exception
+   * @param checkpointId the number that identify each checkpoint
+   * @throws Exception None
    */
   default void finish(long checkpointId) throws Exception {}
 
@@ -45,8 +45,8 @@ public interface Function extends Serializable {
   /**
    * Delete user-defined checkpoint by checkpoint id.
    *
-   * @param checkpointId
-   * @throws Exception
+   * @param checkpointId used to identify the cp that needs to be deleted
+   * @throws Exception None
    */
   default void deleteCheckpoint(long checkpointId) throws Exception {}
 

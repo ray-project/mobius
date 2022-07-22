@@ -9,17 +9,17 @@ public interface MetricGroup extends Serializable {
 
   Gauge getGauge(String gaugeName);
 
-  Meter getMeter(String meterName);
-
-  Counter getCounter(String counterName);
-
-  Histogram getHistogram(String histogramName);
-
   Gauge getGauge(String gaugeName, Map<String, String> tags);
+
+  Meter getMeter(String meterName);
 
   Meter getMeter(String meterName, Map<String, String> tags);
 
+  Counter getCounter(String counterName);
+
   Counter getCounter(String counterName, Map<String, String> tags);
+
+  Histogram getHistogram(String histogramName);
 
   Histogram getHistogram(String histogramName, Map<String, String> tags);
 }

@@ -196,6 +196,23 @@ public class JobSchedulerImpl implements JobScheduler {
   }
 
   /**
+   * Destroy job(all instances).
+   *
+   * @return destroying action result
+   */
+  public boolean destroyJob() {
+    LOG.info("Destroy all workers.");
+    preActionBeforeDestroying();
+
+    // remove all actors
+    boolean workerDestroyResult =
+        workerLifecycleController.destroyWorkers(
+            graphManager.getExecutionGraph().getAllExecutionVertices());
+
+    return workerDestroyResult;
+  }
+
+  /**
    * Run the job after all actors has been allocated
    *
    * @param executionGraph the scheduled execution graph
@@ -335,23 +352,6 @@ public class JobSchedulerImpl implements JobScheduler {
 
   private void preActionBeforeDestroying() {
     // TODO
-  }
-
-  /**
-   * Destroy job(all instances).
-   *
-   * @return destroying action result
-   */
-  public boolean destroyJob() {
-    LOG.info("Destroy all workers.");
-    preActionBeforeDestroying();
-
-    // remove all actors
-    boolean workerDestroyResult =
-        workerLifecycleController.destroyWorkers(
-            graphManager.getExecutionGraph().getAllExecutionVertices());
-
-    return workerDestroyResult;
   }
 
   /**

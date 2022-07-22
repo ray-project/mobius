@@ -22,6 +22,11 @@ public class DataInputViewStream extends InputStream {
   }
 
   @Override
+  public int read(byte[] b, int off, int len) throws IOException {
+    return inputView.read(b, off, len);
+  }
+
+  @Override
   public long skip(long n) throws IOException {
     long toSkipRemaining = n;
     while (toSkipRemaining > Integer.MAX_VALUE) {
@@ -34,10 +39,5 @@ public class DataInputViewStream extends InputStream {
       toSkipRemaining -= skippedBytes;
     }
     return n - (toSkipRemaining - inputView.skipBytes((int) toSkipRemaining));
-  }
-
-  @Override
-  public int read(byte[] b, int off, int len) throws IOException {
-    return inputView.read(b, off, len);
   }
 }

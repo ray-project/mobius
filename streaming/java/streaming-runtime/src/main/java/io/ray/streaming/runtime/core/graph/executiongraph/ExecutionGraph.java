@@ -168,6 +168,10 @@ public class ExecutionGraph implements Serializable, Cloneable {
     return topoLevelOrder;
   }
 
+  public int getTopoLevelOrder(BaseActorHandle actor) {
+    return topoLevelOrder.get(actor);
+  }
+
   public void setQueueActorsMap(Map<String, Set<BaseActorHandle>> queueActorsMap) {
     this.queueActorsMap = queueActorsMap;
   }
@@ -491,9 +495,9 @@ public class ExecutionGraph implements Serializable, Cloneable {
 
     Set<BaseActorHandle> actorSet = new HashSet<>();
     while (!queue.isEmpty()) {
-      BaseActorHandle qActor = queue.poll();
+      BaseActorHandle queueActor = queue.poll();
 
-      ExecutionVertex vertex = actorIdExecutionVertexMap.get(qActor.getId());
+      ExecutionVertex vertex = actorIdExecutionVertexMap.get(queueActor.getId());
       if (vertex != null) {
         Set<BaseActorHandle> outputActors =
             vertex.getOutputExecutionVertices().stream()
@@ -530,20 +534,16 @@ public class ExecutionGraph implements Serializable, Cloneable {
     return res[0];
   }
 
-  public BaseActorHandle getAnotherActor(BaseActorHandle qActor, String queueName) {
+  public BaseActorHandle getAnotherActor(BaseActorHandle curActor, String queueName) {
     Set<BaseActorHandle> set = getActorsByQueueName(queueName);
     final BaseActorHandle[] res = new BaseActorHandle[1];
     set.forEach(
         actor -> {
-          if (!actor.equals(qActor)) {
+          if (!actor.equals(curActor)) {
             res[0] = actor;
           }
         });
     return res[0];
-  }
-
-  public int getTopoLevelOrder(BaseActorHandle actor) {
-    return topoLevelOrder.get(actor);
   }
 
   public Optional<WorkerCaller> getWorkerCallerById(ActorId actorId) {
