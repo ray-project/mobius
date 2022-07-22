@@ -19,7 +19,7 @@ public class BaseIndependentOperatorDescriptorTest {
     Assert.assertTrue(independentOperatorDescriptor.isJavaType());
     Assert.assertEquals(independentOperatorDescriptor.getClassName(), className);
     Assert.assertTrue(independentOperatorDescriptor.getModuleName().isEmpty());
-//    Assert.assertTrue(independentOperatorDescriptor.getConstructorName().isEmpty());
+    //    Assert.assertTrue(independentOperatorDescriptor.getConstructorName().isEmpty());
     Assert.assertEquals(independentOperatorDescriptor.getParallelism(), 1);
     Assert.assertNotNull(independentOperatorDescriptor.getResource());
     Assert.assertNotNull(independentOperatorDescriptor.getConfig());
@@ -28,14 +28,14 @@ public class BaseIndependentOperatorDescriptorTest {
     Assert.assertFalse(independentOperatorDescriptor.isLazyScheduling());
     Assert.assertFalse(independentOperatorDescriptor.asJson().isEmpty());
     Assert.assertTrue(independentOperatorDescriptor.asJson().contains(className));
-//    Assert.assertFalse(independentOperatorDescriptor.isHealthCheckable());
+    //    Assert.assertFalse(independentOperatorDescriptor.isHealthCheckable());
 
     independentOperatorDescriptor =
         new IndependentOperatorDescriptor(className, moduleName, Language.PYTHON);
     Assert.assertTrue(independentOperatorDescriptor.isPythonType());
     Assert.assertEquals(independentOperatorDescriptor.getClassName(), className);
     Assert.assertFalse(independentOperatorDescriptor.getModuleName().isEmpty());
-//    Assert.assertTrue(independentOperatorDescriptor.getConstructorName().isEmpty());
+    //    Assert.assertTrue(independentOperatorDescriptor.getConstructorName().isEmpty());
     Assert.assertEquals(independentOperatorDescriptor.getParallelism(), 1);
     Assert.assertNotNull(independentOperatorDescriptor.getResource());
     Assert.assertNotNull(independentOperatorDescriptor.getConfig());

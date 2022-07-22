@@ -65,4 +65,3 @@ public class ReduceOperator<K, T> extends AbstractStreamOperator<ReduceFunction<
     return typeInfo;
   }
 }
-

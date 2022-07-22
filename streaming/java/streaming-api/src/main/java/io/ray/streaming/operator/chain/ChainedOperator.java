@@ -29,6 +29,7 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
   private static final Logger LOG = LoggerFactory.getLogger(ChainedOperator.class);
   /** Chained operators */
   protected final List<StreamOperator> operators;
+
   protected final StreamOperator headOperator;
   protected Set<StreamOperator> tailOperators;
   private final List<Map<String, String>> opConfigs;

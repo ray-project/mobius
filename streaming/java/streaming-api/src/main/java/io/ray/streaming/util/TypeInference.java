@@ -35,8 +35,8 @@ import org.apache.arrow.vector.types.pojo.FieldType;
 import org.apache.arrow.vector.types.pojo.Schema;
 
 /**
- * NOTICE: This is a tmp impl that is copied from io.ant.fury,
- * for the sake of open source. Will be replaced one day.
+ * NOTICE: This is a tmp impl that is copied from io.ant.fury, for the sake of open source. Will be
+ * replaced one day.
  */
 public class TypeInference {
 
@@ -70,11 +70,14 @@ public class TypeInference {
   /* =============== End copied from io.ray.fury.codegen.TypeUtils End */
 
   /**
-   * bean fields should all be in SUPPORTED_TYPES, enum, array/ITERABLE_TYPE/MAP_TYPE type, bean type.
-   * <p>If bean fields is ITERABLE_TYPE/MAP_TYPE, the type should be super class(inclusive) of List/Set/Map,
-   * or else should be a no arg constructor.</p>
+   * bean fields should all be in SUPPORTED_TYPES, enum, array/ITERABLE_TYPE/MAP_TYPE type, bean
+   * type.
+   *
+   * <p>If bean fields is ITERABLE_TYPE/MAP_TYPE, the type should be super class(inclusive) of
+   * List/Set/Map, or else should be a no arg constructor.
    */
   private static Set<TypeToken<?>> SUPPORTED_TYPES = new HashSet<>();
+
   static {
     SUPPORTED_TYPES.add(PRIMITIVE_BYTE_TYPE);
     SUPPORTED_TYPES.add(PRIMITIVE_BOOLEAN_TYPE);
@@ -131,14 +134,11 @@ public class TypeInference {
     }
   }
 
-
-
-  /**
-   * @return element type of a iterable
-   */
+  /** @return element type of a iterable */
   public static TypeToken<?> getElementType(TypeToken<?> typeToken) {
     @SuppressWarnings("unchecked")
-    TypeToken<?> supertype = ((TypeToken<? extends Iterable<?>>) typeToken).getSupertype(Iterable.class);
+    TypeToken<?> supertype =
+        ((TypeToken<? extends Iterable<?>>) typeToken).getSupertype(Iterable.class);
     return supertype.resolveType(ITERATOR_RETURN_TYPE).resolveType(NEXT_RETURN_TYPE);
   }
 
@@ -152,8 +152,7 @@ public class TypeInference {
    */
   public static Schema inferSchema(TypeToken<?> typeToken) {
     Field field = inferField(typeToken);
-    Preconditions.checkArgument(
-        field.getType().getTypeID() == ArrowType.ArrowTypeID.Struct);
+    Preconditions.checkArgument(field.getType().getTypeID() == ArrowType.ArrowTypeID.Struct);
     return new Schema(field.getChildren());
   }
 
@@ -162,8 +161,8 @@ public class TypeInference {
   }
 
   /**
-   * When type is both iterable and bean, we take it as iterable in row-format.
-   * Note circular references in bean class is not allowed.
+   * When type is both iterable and bean, we take it as iterable in row-format. Note circular
+   * references in bean class is not allowed.
    *
    * @return DataType of a typeToken
    */
@@ -181,10 +180,11 @@ public class TypeInference {
     } else if (rawType == long.class) {
       return field(name, notNullFieldType(new ArrowType.Int(64, true)));
     } else if (rawType == float.class) {
-      return field(name, notNullFieldType(new ArrowType.FloatingPoint(
-          FloatingPointPrecision.SINGLE)));
+      return field(
+          name, notNullFieldType(new ArrowType.FloatingPoint(FloatingPointPrecision.SINGLE)));
     } else if (rawType == double.class) {
-      return field(name, notNullFieldType(new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)));
+      return field(
+          name, notNullFieldType(new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)));
     } else if (rawType == Boolean.class) {
       return field(name, FieldType.nullable((ArrowType.Bool.INSTANCE)));
     } else if (rawType == Byte.class) {
@@ -196,15 +196,15 @@ public class TypeInference {
     } else if (rawType == Long.class) {
       return field(name, FieldType.nullable((new ArrowType.Int(64, true))));
     } else if (rawType == Float.class) {
-      return field(name, FieldType.nullable(new ArrowType.FloatingPoint(FloatingPointPrecision.SINGLE)));
+      return field(
+          name, FieldType.nullable(new ArrowType.FloatingPoint(FloatingPointPrecision.SINGLE)));
     } else if (rawType == Double.class) {
-      return field(name, FieldType.nullable(new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)));
+      return field(
+          name, FieldType.nullable(new ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)));
     } else if (rawType == java.math.BigDecimal.class) {
-      return field(name, FieldType.nullable(new ArrowType.Decimal(
-          MAX_PRECISION, MAX_SCALE)));
+      return field(name, FieldType.nullable(new ArrowType.Decimal(MAX_PRECISION, MAX_SCALE)));
     } else if (rawType == java.math.BigInteger.class) {
-      return field(name, FieldType.nullable(new ArrowType.Decimal(
-          MAX_PRECISION, 0)));
+      return field(name, FieldType.nullable(new ArrowType.Decimal(MAX_PRECISION, 0)));
     } else if (rawType == java.time.LocalDate.class) {
       return field(name, FieldType.nullable(new ArrowType.Date(DateUnit.DAY)));
     } else if (rawType == java.sql.Date.class) {
@@ -218,8 +218,9 @@ public class TypeInference {
     } else if (rawType.isEnum()) {
       return field(name, FieldType.nullable(ArrowType.Utf8.INSTANCE));
     } else if (rawType.isArray()) { // array
-      Field f = inferField(ARRAY_ITEM_NAME,
-          Objects.requireNonNull(typeToken.getComponentType()), seenTypeSet);
+      Field f =
+          inferField(
+              ARRAY_ITEM_NAME, Objects.requireNonNull(typeToken.getComponentType()), seenTypeSet);
       return arrayField(name, f);
     } else if (ITERABLE_TYPE.isSupertypeOf(typeToken)) { // iterable
       // when type is both iterable and bean, we take it as iterable in row-format
@@ -229,37 +230,42 @@ public class TypeInference {
       Tuple2<TypeToken<?>, TypeToken<?>> kvType = getMapKeyValueType(typeToken);
       Field keyField = inferField(MapVector.KEY_NAME, kvType.f0, seenTypeSet);
       // Map's keys must be non-nullable
-      FieldType keyFieldType = new FieldType(
-          false, keyField.getType(), keyField.getDictionary(), keyField.getMetadata());
+      FieldType keyFieldType =
+          new FieldType(
+              false, keyField.getType(), keyField.getDictionary(), keyField.getMetadata());
       keyField = new Field(keyField.getName(), keyFieldType, keyField.getChildren());
       Field valueField = inferField(MapVector.VALUE_NAME, kvType.f1, seenTypeSet);
       return mapField(name, keyField, valueField);
     } else if (isBean(rawType)) { // bean field
       if (seenTypeSet.contains(rawType)) {
-        String msg = String.format("circular references in bean class is not allowed, but got " +
-            "%s in %s", rawType, seenTypeSet);
+        String msg =
+            String.format(
+                "circular references in bean class is not allowed, but got " + "%s in %s",
+                rawType, seenTypeSet);
         throw new UnsupportedOperationException(msg);
       }
-      List<Field> fields = Descriptor.getDescriptors(rawType)
-          .stream()
-          .map(descriptor -> {
-            LinkedHashSet<Class<?>> newSeenTypeSet = new LinkedHashSet<>(seenTypeSet);
-            newSeenTypeSet.add(rawType);
-            String n = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, descriptor.getName());
-            return inferField(n, descriptor.getTypeToken(), newSeenTypeSet);
-          })
-          .collect(Collectors.toList());
+      List<Field> fields =
+          Descriptor.getDescriptors(rawType).stream()
+              .map(
+                  descriptor -> {
+                    LinkedHashSet<Class<?>> newSeenTypeSet = new LinkedHashSet<>(seenTypeSet);
+                    newSeenTypeSet.add(rawType);
+                    String n =
+                        CaseFormat.LOWER_CAMEL.to(
+                            CaseFormat.LOWER_UNDERSCORE, descriptor.getName());
+                    return inferField(n, descriptor.getTypeToken(), newSeenTypeSet);
+                  })
+              .collect(Collectors.toList());
       return structField(name, true, fields);
     } else {
       throw new UnsupportedOperationException(
-          String.format("Unsupported type %s for field %s, seen type set is %s",
+          String.format(
+              "Unsupported type %s for field %s, seen type set is %s",
               typeToken, name, seenTypeSet));
     }
   }
 
-  /**
-   * @return key/value type of a map
-   */
+  /** @return key/value type of a map */
   private static Tuple2<TypeToken<?>, TypeToken<?>> getMapKeyValueType(TypeToken<?> typeToken) {
     @SuppressWarnings("unchecked")
     TypeToken<?> supertype = ((TypeToken<? extends Map<?, ?>>) typeToken).getSupertype(Map.class);
@@ -270,16 +276,12 @@ public class TypeInference {
 
   /* ============= Belows are all copied from io.ray.fury.types.DataTypes  =============== */
 
-  /**
-   * @see #isBean(com.google.common.reflect.TypeToken)
-   */
+  /** @see #isBean(com.google.common.reflect.TypeToken) */
   public static boolean isBean(Class<?> clz) {
     return isBean(TypeToken.of(clz));
   }
 
-  /**
-   * @see #isBean(com.google.common.reflect.TypeToken)
-   */
+  /** @see #isBean(com.google.common.reflect.TypeToken) */
   public static boolean isBean(java.lang.reflect.Type type) {
     return isBean(TypeToken.of(type));
   }
@@ -307,20 +309,22 @@ public class TypeInference {
         return false;
       }
 
-      boolean maybe = !SUPPORTED_TYPES.contains(typeToken)
-          && !typeToken.isArray()
-          && !cls.isEnum()
-          && !ITERABLE_TYPE.isSupertypeOf(typeToken)
-          && !MAP_TYPE.isSupertypeOf(typeToken);
+      boolean maybe =
+          !SUPPORTED_TYPES.contains(typeToken)
+              && !typeToken.isArray()
+              && !cls.isEnum()
+              && !ITERABLE_TYPE.isSupertypeOf(typeToken)
+              && !MAP_TYPE.isSupertypeOf(typeToken);
       if (maybe) {
         return Descriptor.getDescriptors(cls).stream()
-            .allMatch(d -> {
-              TypeToken<?> t = d.getTypeToken();
-              // do field modifiers and getter/setter validation here, not in getDescriptors.
-              // If Modifier.isFinal(d.getModifiers()), use reflection
-              // private field that doesn't have getter/setter will be handled by reflection.
-              return isSupported(t, newTypePath) || isBean(t, newTypePath);
-            });
+            .allMatch(
+                d -> {
+                  TypeToken<?> t = d.getTypeToken();
+                  // do field modifiers and getter/setter validation here, not in getDescriptors.
+                  // If Modifier.isFinal(d.getModifiers()), use reflection
+                  // private field that doesn't have getter/setter will be handled by reflection.
+                  return isSupported(t, newTypePath) || isBean(t, newTypePath);
+                });
       } else {
         return false;
       }
@@ -329,20 +333,20 @@ public class TypeInference {
     }
   }
 
-  /**
-   * Check if <code>typeToken</code> is supported by row-format
-   */
+  /** Check if <code>typeToken</code> is supported by row-format */
   private static boolean isSupported(TypeToken<?> typeToken) {
     return isSupported(typeToken, new LinkedHashSet<>());
   }
 
-  private static boolean isSupported(TypeToken<?> typeToken, LinkedHashSet<TypeToken> walkedTypePath) {
+  private static boolean isSupported(
+      TypeToken<?> typeToken, LinkedHashSet<TypeToken> walkedTypePath) {
     Class<?> cls = typeToken.getRawType();
     if (!Modifier.isPublic(cls.getModifiers())) {
       return false;
     }
     if (cls == Object.class) {
-      // return true for typeToken that point to un-specialized generic type, take it as a black box.
+      // return true for typeToken that point to un-specialized generic type, take it as a black
+      // box.
       return true;
     }
     if (SUPPORTED_TYPES.contains(typeToken)) {
@@ -366,7 +370,8 @@ public class TypeInference {
       return isSupported(mapKeyValueType.f0) && isSupported(mapKeyValueType.f1);
     } else {
       if (walkedTypePath.contains(typeToken)) {
-        throw new UnsupportedOperationException("cyclic type is not supported. walkedTypePath: " + walkedTypePath);
+        throw new UnsupportedOperationException(
+            "cyclic type is not supported. walkedTypePath: " + walkedTypePath);
       } else {
         LinkedHashSet<TypeToken> newTypePath = new LinkedHashSet<>(walkedTypePath);
         newTypePath.add(typeToken);
@@ -375,25 +380,22 @@ public class TypeInference {
     }
   }
 
-
   /* ========================= field utils ========================= */
   private static Field field(String name, FieldType fieldType) {
     return new Field(name, fieldType, null);
   }
 
-  public static Field field(
-      String name, boolean nullable, ArrowType type, Field... children) {
+  public static Field field(String name, boolean nullable, ArrowType type, Field... children) {
     return new Field(name, new FieldType(nullable, type, null), Arrays.asList(children));
   }
 
-  public static Field field(
-      String name, boolean nullable, ArrowType type, List<Field> children) {
+  public static Field field(String name, boolean nullable, ArrowType type, List<Field> children) {
     return new Field(name, new FieldType(nullable, type, null), children);
   }
 
   private static Field arrayField(String name, Field valueField) {
-    return new Field(name, FieldType.nullable(ArrowType.List.INSTANCE),
-        Collections.singletonList(valueField));
+    return new Field(
+        name, FieldType.nullable(ArrowType.List.INSTANCE), Collections.singletonList(valueField));
   }
 
   public static Field structField(boolean nullable, Field... fields) {
@@ -409,13 +411,11 @@ public class TypeInference {
   }
 
   /**
-   * Map data is nested data where each value is a variable number of
-   * key-item pairs.  Maps can be recursively nested, for example
-   * map(utf8, map(utf8, int32)). see more about MapType in type.h
+   * Map data is nested data where each value is a variable number of key-item pairs. Maps can be
+   * recursively nested, for example map(utf8, map(utf8, int32)). see more about MapType in type.h
    */
   public static Field mapField(String name, Field keyField, Field itemField) {
-    Preconditions.checkArgument(!keyField.isNullable(),
-        "Map's keys must be non-nullable");
+    Preconditions.checkArgument(!keyField.isNullable(), "Map's keys must be non-nullable");
     // Map's key-item pairs must be non-nullable structs
     Field valueField = structField(false, keyField, itemField);
     return field(name, true, new ArrowType.Map(false), valueField);
@@ -424,5 +424,4 @@ public class TypeInference {
   private static FieldType notNullFieldType(ArrowType type) {
     return new FieldType(false, type, null);
   }
-
 }

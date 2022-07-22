@@ -5,7 +5,6 @@ import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.api.partition.impl.KeyPartition;
 import io.ray.streaming.operator.AbstractStreamOperator;
-import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.operator.impl.ReduceOperator;
 import io.ray.streaming.python.stream.PythonDataStream;
 import io.ray.streaming.python.stream.PythonKeyDataStream;

@@ -242,7 +242,7 @@ public class JobGraph implements Serializable {
     visited.add(curVertex);
     stack.push(curVertex);
     for (ListIterator<JobEdge> iterator =
-        getOutputEdgesByJobVertexId(curVertex.getVertexId()).listIterator();
+            getOutputEdgesByJobVertexId(curVertex.getVertexId()).listIterator();
         iterator.hasNext(); ) {
 
       JobEdge edge = iterator.next();

@@ -84,8 +84,8 @@ public class JobGraphOptimizer {
   }
 
   /**
-   * Divide the original DAG into multiple operator groups,
-   * each group's operators will be chained as one ChainedOperator.
+   * Divide the original DAG into multiple operator groups, each group's operators will be chained
+   * as one ChainedOperator.
    *
    * @param headVertexId The head vertex id of this chainedOperator.
    * @param srcVertex The source vertex of this edge.
@@ -248,8 +248,8 @@ public class JobGraphOptimizer {
       PythonPartitionFunction pythonPartition = (PythonPartitionFunction) partition;
       return !pythonPartition.isConstructedFromBinary()
           && pythonPartition
-          .getFunctionName()
-          .equals(PythonPartitionFunction.FORWARD_PARTITION_CLASS);
+              .getFunctionName()
+              .equals(PythonPartitionFunction.FORWARD_PARTITION_CLASS);
     }
   }
 
@@ -259,8 +259,8 @@ public class JobGraphOptimizer {
       PythonPartitionFunction pythonPartition = (PythonPartitionFunction) partition;
       if (!pythonPartition.isConstructedFromBinary()
           && pythonPartition
-          .getFunctionName()
-          .equals(PythonPartitionFunction.FORWARD_PARTITION_CLASS)) {
+              .getFunctionName()
+              .equals(PythonPartitionFunction.FORWARD_PARTITION_CLASS)) {
         return PythonPartitionFunction.RoundRobinPartition;
       } else {
         return partition;

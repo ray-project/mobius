@@ -1,5 +1,7 @@
 package io.ray.streaming.api.stream;
 
+import static org.testng.Assert.assertEquals;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -18,8 +20,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 @SuppressWarnings("unchecked")
 public class StreamTest {
@@ -99,42 +99,42 @@ public class StreamTest {
     UnionStream unionStream = new UnionStream(dataStream, new ArrayList<>());
     Assert.assertEquals(unionStream.getType(), new TypeInfo<A>() {});
   }
-//
-//  @Test
-//  public void testArrowStream() {
-//    DataStream dataStream =
-//        (DataStream)
-//            new DataStream(StreamingContext.buildContext(), new MapOperator(value -> null))
-//                .withType(new TypeInfo(A.class));
-//    {
-//      DataStream arrowStream = dataStream.toArrowStream(10, 1000);
-//      Assert.assertTrue(arrowStream.getOperator() instanceof ArrowOperator);
-//      ArrowOperator operator = (ArrowOperator) arrowStream.getOperator();
-//      Assert.assertEquals(operator.getBatchSize(), 10);
-//      Assert.assertEquals(operator.getTimeoutMilliseconds(), 1000);
-//    }
-//    PythonDataStream pythonDataStream = dataStream.asPythonStream();
-//    PythonDataStream arrowStream = pythonDataStream.toArrowStream(10, 1000);
-//    {
-//      PythonOperator operator = (PythonOperator) arrowStream.getOperator();
-//      Assert.assertEquals(
-//          operator.getModuleName(), PythonOperator.OPERATOR_MODULE, "ArrowOperator");
-//    }
-//    {
-//      PythonDataStream pandasStream = pythonDataStream.toPandasStream(10, 1000);
-//      PythonOperator operator = (PythonOperator) (pandasStream.getInputStream().getOperator());
-//      Assert.assertEquals(
-//          operator.getModuleName(), PythonOperator.OPERATOR_MODULE, "ArrowOperator");
-//    }
-//    {
-//      PythonDataStream pandasStream = arrowStream.toPandasStream();
-//      PythonOperator operator = (PythonOperator) (pandasStream.getInputStream().getOperator());
-//      Assert.assertEquals(
-//          operator.getModuleName(), PythonOperator.OPERATOR_MODULE, "ArrowOperator");
-//      PythonOperator operator2 = (PythonOperator) pandasStream.getOperator();
-//      Assert.assertEquals(operator2.getFunction().getFunctionName(), "ArrowToPandasFunction");
-//    }
-//  }
+  //
+  //  @Test
+  //  public void testArrowStream() {
+  //    DataStream dataStream =
+  //        (DataStream)
+  //            new DataStream(StreamingContext.buildContext(), new MapOperator(value -> null))
+  //                .withType(new TypeInfo(A.class));
+  //    {
+  //      DataStream arrowStream = dataStream.toArrowStream(10, 1000);
+  //      Assert.assertTrue(arrowStream.getOperator() instanceof ArrowOperator);
+  //      ArrowOperator operator = (ArrowOperator) arrowStream.getOperator();
+  //      Assert.assertEquals(operator.getBatchSize(), 10);
+  //      Assert.assertEquals(operator.getTimeoutMilliseconds(), 1000);
+  //    }
+  //    PythonDataStream pythonDataStream = dataStream.asPythonStream();
+  //    PythonDataStream arrowStream = pythonDataStream.toArrowStream(10, 1000);
+  //    {
+  //      PythonOperator operator = (PythonOperator) arrowStream.getOperator();
+  //      Assert.assertEquals(
+  //          operator.getModuleName(), PythonOperator.OPERATOR_MODULE, "ArrowOperator");
+  //    }
+  //    {
+  //      PythonDataStream pandasStream = pythonDataStream.toPandasStream(10, 1000);
+  //      PythonOperator operator = (PythonOperator) (pandasStream.getInputStream().getOperator());
+  //      Assert.assertEquals(
+  //          operator.getModuleName(), PythonOperator.OPERATOR_MODULE, "ArrowOperator");
+  //    }
+  //    {
+  //      PythonDataStream pandasStream = arrowStream.toPandasStream();
+  //      PythonOperator operator = (PythonOperator) (pandasStream.getInputStream().getOperator());
+  //      Assert.assertEquals(
+  //          operator.getModuleName(), PythonOperator.OPERATOR_MODULE, "ArrowOperator");
+  //      PythonOperator operator2 = (PythonOperator) pandasStream.getOperator();
+  //      Assert.assertEquals(operator2.getFunction().getFunctionName(), "ArrowToPandasFunction");
+  //    }
+  //  }
 
   @Test
   public void testStreamContextWithIndependentOperators() {

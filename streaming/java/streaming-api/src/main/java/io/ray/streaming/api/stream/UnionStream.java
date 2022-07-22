@@ -111,4 +111,3 @@ public class UnionStream<T> extends DataStream<T> {
     return this;
   }
 }
-

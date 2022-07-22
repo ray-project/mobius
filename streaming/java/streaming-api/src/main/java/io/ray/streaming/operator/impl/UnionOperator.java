@@ -50,4 +50,3 @@ public class UnionOperator<T> extends AbstractStreamOperator<Function>
     return inputOperator.getSchema();
   }
 }
-

@@ -5,15 +5,16 @@ import org.nustaq.serialization.FSTConfiguration;
 
 /**
  * use for loading different serializer
- *
  */
 public abstract class SerializerProxy {
+
   public abstract byte[] encode(Object obj);
 
   public abstract Object decode(byte[] obj);
 }
 
-class KryoSerializer extends SerializerProxy{
+class KryoSerializer extends SerializerProxy {
+
   public KryoSerializer() {
   }
 
@@ -28,7 +29,8 @@ class KryoSerializer extends SerializerProxy{
   }
 }
 
-class FSTSerializer extends SerializerProxy{
+class FSTSerializer extends SerializerProxy {
+
   private final FSTConfiguration serializer;
 
   public FSTSerializer() {

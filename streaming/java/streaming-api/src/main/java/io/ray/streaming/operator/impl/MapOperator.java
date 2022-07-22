@@ -31,4 +31,3 @@ public class MapOperator<T, R> extends AbstractStreamOperator<MapFunction<T, R>>
     return inputTypeInfo;
   }
 }
-

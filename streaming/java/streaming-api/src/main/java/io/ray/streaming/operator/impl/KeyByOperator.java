@@ -1,13 +1,11 @@
 package io.ray.streaming.operator.impl;
 
-import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.KeyFunction;
 import io.ray.streaming.api.function.impl.MapFunction;
 import io.ray.streaming.message.KeyRecord;
 import io.ray.streaming.message.Record;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.OneInputOperator;
-import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;
 import java.lang.reflect.Type;

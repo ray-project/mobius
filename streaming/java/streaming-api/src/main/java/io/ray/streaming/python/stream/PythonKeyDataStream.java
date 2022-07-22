@@ -7,7 +7,6 @@ import io.ray.streaming.operator.ChainStrategy;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonFunction.FunctionInterface;
 import io.ray.streaming.python.PythonOperator;
-import io.ray.streaming.python.PythonPartition;
 
 /** Represents a python DataStream returned by a key-by operation. */
 @SuppressWarnings("unchecked")

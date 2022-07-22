@@ -9,7 +9,6 @@ import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
-import io.ray.streaming.python.PythonPartition;
 import io.ray.streaming.util.TypeInference;
 import io.ray.streaming.util.TypeInfo;
 import io.ray.streaming.util.TypeUtils;
@@ -46,7 +45,9 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
   }
 
   public Stream(
-      StreamingContext streamingContext, AbstractStreamOperator streamOperator, Partition<T> partition) {
+      StreamingContext streamingContext,
+      AbstractStreamOperator streamOperator,
+      Partition<T> partition) {
     this(streamingContext, null, streamOperator, partition);
   }
 

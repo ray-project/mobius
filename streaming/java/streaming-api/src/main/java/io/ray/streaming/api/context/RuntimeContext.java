@@ -101,8 +101,7 @@ public interface RuntimeContext {
    * @param <V> type of state's value
    * @return state
    */
-  <K, V> MapState<K, V> getNonKeyedMapState(
-      MapStateDescriptor<K, V> stateDescriptor);
+  <K, V> MapState<K, V> getNonKeyedMapState(MapStateDescriptor<K, V> stateDescriptor);
 
   /**
    * Get the current checkpoint of the runtime.
@@ -118,4 +117,3 @@ public interface RuntimeContext {
    */
   MetricGroup getMetric();
 }
-

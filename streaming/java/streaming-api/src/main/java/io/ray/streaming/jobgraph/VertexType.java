@@ -8,4 +8,3 @@ public enum VertexType {
   union, // simply group all input elements, 2 inputs, 1 output,
   join // group input elements with a specified method, 2 inputs, 1 output
 }
-

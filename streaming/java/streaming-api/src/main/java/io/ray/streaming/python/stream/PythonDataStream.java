@@ -9,7 +9,6 @@ import io.ray.streaming.api.stream.Stream;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonFunction.FunctionInterface;
 import io.ray.streaming.python.PythonOperator;
-import io.ray.streaming.python.PythonPartition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

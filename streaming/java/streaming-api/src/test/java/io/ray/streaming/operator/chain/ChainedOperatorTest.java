@@ -1,5 +1,8 @@
 package io.ray.streaming.operator.chain;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 import com.google.common.collect.ImmutableList;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
@@ -13,9 +16,6 @@ import io.ray.streaming.util.TypeInfo;
 import java.util.Arrays;
 import java.util.HashMap;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class ChainedOperatorTest {
 

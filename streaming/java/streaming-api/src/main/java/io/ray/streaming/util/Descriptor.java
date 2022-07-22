@@ -1,5 +1,6 @@
 package io.ray.streaming.util;
 
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -18,26 +19,23 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import static org.apache.commons.lang3.StringUtils.capitalize;
-
 /**
- * NOTICE: This is a tmp impl that is copied from io.ray.fury.util.Descriptor,
- * for the sake of open source. Will be replaced one day.
+ * NOTICE: This is a tmp impl that is copied from io.ray.fury.util.Descriptor, for the sake of open
+ * source. Will be replaced one day.
  */
 @SuppressWarnings("UnstableApiUsage")
 public class Descriptor {
-  private static final Map<Class<?>, SortedMap<Field, Descriptor>> descriptorCache = new HashMap<>();
-  private static final Map<Class<?>, Map<String, List<Field>>> duplicateNameFieldsCache = new HashMap<>();
+  private static final Map<Class<?>, SortedMap<Field, Descriptor>> descriptorCache =
+      new HashMap<>();
+  private static final Map<Class<?>, Map<String, List<Field>>> duplicateNameFieldsCache =
+      new HashMap<>();
 
   private final Field field;
   private final Method readMethod;
   private final Method writeMethod;
   private final TypeToken<?> typeToken;
 
-  public Descriptor(Field field,
-      TypeToken<?> typeToken,
-      Method readMethod,
-      Method writeMethod) {
+  public Descriptor(Field field, TypeToken<?> typeToken, Method readMethod, Method writeMethod) {
     this.field = field;
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
@@ -45,25 +43,27 @@ public class Descriptor {
   }
 
   /**
-   * @return descriptors non-transient/non-static fields of class.
-   *     If super class and sub class have same field, use sub class field.
+   * @return descriptors non-transient/non-static fields of class. If super class and sub class have
+   *     same field, use sub class field.
    */
   public static List<Descriptor> getDescriptors(Class<?> clz) {
     SortedMap<Field, Descriptor> allDescriptorsMap = getAllDescriptorsMap(clz);
     Map<String, List<Field>> duplicateNameFields = getDuplicateNameFields(clz);
-    Preconditions.checkArgument(duplicateNameFields.size() == 0,
+    Preconditions.checkArgument(
+        duplicateNameFields.size() == 0,
         String.format("%s has duplicate fields %s", clz, duplicateNameFields));
     return new ArrayList<>(allDescriptorsMap.values());
   }
 
   /**
-   * @return descriptors map non-transient/non-static fields of class. Super class and sub class
-   *     are not allowed to have duplicate name field.
+   * @return descriptors map non-transient/non-static fields of class. Super class and sub class are
+   *     not allowed to have duplicate name field.
    */
   public static SortedMap<String, Descriptor> getDescriptorsMap(Class<?> clz) {
     SortedMap<Field, Descriptor> allDescriptorsMap = getAllDescriptorsMap(clz);
     Map<String, List<Field>> duplicateNameFields = getDuplicateNameFields(clz);
-    Preconditions.checkArgument(duplicateNameFields.size() == 0,
+    Preconditions.checkArgument(
+        duplicateNameFields.size() == 0,
         String.format("%s has duplicate fields %s", clz, duplicateNameFields));
     TreeMap<String, Descriptor> map = new TreeMap<>();
     allDescriptorsMap.forEach((k, v) -> map.put(k.getName(), v));
@@ -75,37 +75,41 @@ public class Descriptor {
   }
 
   public static synchronized Map<String, List<Field>> getDuplicateNameFields(Class<?> clz) {
-    return duplicateNameFieldsCache.computeIfAbsent(clz, k -> {
-      SortedMap<Field, Descriptor> allDescriptorsMap = getAllDescriptorsMap(clz);
-      Map<String, List<Field>> duplicateNameFields = new HashMap<>();
-      for (Field field : allDescriptorsMap.keySet()) {
-        duplicateNameFields.compute(field.getName(), (fieldName, fields) -> {
-          if (fields == null) {
-            fields = new ArrayList<>();
+    return duplicateNameFieldsCache.computeIfAbsent(
+        clz,
+        k -> {
+          SortedMap<Field, Descriptor> allDescriptorsMap = getAllDescriptorsMap(clz);
+          Map<String, List<Field>> duplicateNameFields = new HashMap<>();
+          for (Field field : allDescriptorsMap.keySet()) {
+            duplicateNameFields.compute(
+                field.getName(),
+                (fieldName, fields) -> {
+                  if (fields == null) {
+                    fields = new ArrayList<>();
+                  }
+                  fields.add(field);
+                  return fields;
+                });
           }
-          fields.add(field);
-          return fields;
+          duplicateNameFields =
+              Maps.filterValues(
+                  duplicateNameFields, fields -> Objects.requireNonNull(fields).size() > 1);
+          return duplicateNameFields;
         });
-      }
-      duplicateNameFields = Maps.filterValues(duplicateNameFields,
-          fields -> Objects.requireNonNull(fields).size() > 1);
-      return duplicateNameFields;
-    });
   }
 
   /**
-   * Return all non-transient/non-static fields of {@code clz} in a deterministic order
-   * with field name first and declaring class second. Super class and sub class can have same name
-   * field.
+   * Return all non-transient/non-static fields of {@code clz} in a deterministic order with field
+   * name first and declaring class second. Super class and sub class can have same name field.
    */
   public static Set<Field> getFields(Class<?> clz) {
     return getAllDescriptorsMap(clz).keySet();
   }
 
   /**
-   * @return descriptors map non-transient/non-static fields of class in a deterministic order
-   *     with field name first and declaring class second.
-   *     Super class and sub class can have same name field.
+   * @return descriptors map non-transient/non-static fields of class in a deterministic order with
+   *     field name first and declaring class second. Super class and sub class can have same name
+   *     field.
    */
   private static synchronized SortedMap<Field, Descriptor> getAllDescriptorsMap(Class<?> clz) {
     SortedMap<Field, Descriptor> map = descriptorCache.get(clz);
@@ -141,14 +145,16 @@ public class Descriptor {
     }
 
     // use TreeMap to sort to fix field order
-    TreeMap<Field, Descriptor> descriptorMap = new TreeMap<>(((f1, f2) -> {
-      int compare = f1.getName().compareTo(f2.getName());
-      if (compare == 0) { // class and super classes have same name field
-        return f1.getDeclaringClass().getName().compareTo(f2.getDeclaringClass().getName());
-      } else {
-        return compare;
-      }
-    }));
+    TreeMap<Field, Descriptor> descriptorMap =
+        new TreeMap<>(
+            ((f1, f2) -> {
+              int compare = f1.getName().compareTo(f2.getName());
+              if (compare == 0) { // class and super classes have same name field
+                return f1.getDeclaringClass().getName().compareTo(f2.getDeclaringClass().getName());
+              } else {
+                return compare;
+              }
+            }));
     for (Field field : fieldList) {
       Class<?> fieldDeclaringClass = field.getDeclaringClass();
       String fieldName = field.getName();
@@ -160,16 +166,20 @@ public class Descriptor {
         getter = methodMap.get(Tuple2.of(fieldDeclaringClass, "get" + cap));
       }
       if (getter != null) {
-        if (getter.getParameterCount() != 0 ||
-            !getter.getGenericReturnType().getTypeName()
+        if (getter.getParameterCount() != 0
+            || !getter
+                .getGenericReturnType()
+                .getTypeName()
                 .equals(field.getGenericType().getTypeName())) {
           getter = null;
         }
       }
       Method setter = methodMap.get(Tuple2.of(fieldDeclaringClass, "set" + cap));
       if (setter != null) {
-        if (setter.getParameterCount() != 1 ||
-            !setter.getGenericParameterTypes()[0].getTypeName()
+        if (setter.getParameterCount() != 1
+            || !setter
+                .getGenericParameterTypes()[0]
+                .getTypeName()
                 .equals(field.getGenericType().getTypeName())) {
           setter = null;
         }
@@ -216,4 +226,3 @@ public class Descriptor {
     return sb.toString();
   }
 }
-

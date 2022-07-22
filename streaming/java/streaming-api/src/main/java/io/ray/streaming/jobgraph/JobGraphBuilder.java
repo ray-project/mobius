@@ -73,14 +73,17 @@ public class JobGraphBuilder {
     int dynamicDivisionNum = stream.getDynamicDivisionNum();
     JobVertex jobVertex;
     if (stream instanceof StreamSink) {
-      jobVertex = new JobVertex(vertexId, parallelism, dynamicDivisionNum, VertexType.sink, streamOperator);
+      jobVertex =
+          new JobVertex(vertexId, parallelism, dynamicDivisionNum, VertexType.sink, streamOperator);
       Stream parentStream = stream.getInputStream();
       int inputVertexId = parentStream.getId();
       JobEdge jobEdge = new JobEdge(inputVertexId, vertexId, parentStream.getPartition());
       this.jobGraph.addEdgeIfNotExist(jobEdge);
       processStream(parentStream);
     } else if (stream instanceof StreamSource) {
-      jobVertex = new JobVertex(vertexId, parallelism, dynamicDivisionNum, VertexType.source, streamOperator);
+      jobVertex =
+          new JobVertex(
+              vertexId, parallelism, dynamicDivisionNum, VertexType.source, streamOperator);
     } else if (stream instanceof DataStream || stream instanceof PythonDataStream) {
       if (stream instanceof JoinStream) {
         jobVertex =

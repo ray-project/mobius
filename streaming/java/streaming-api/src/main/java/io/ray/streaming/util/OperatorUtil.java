@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 public class OperatorUtil {
 
   /**
-   * Find all tail operators of the given operator set.
-   * The tail operator contains:
-   *  1. The operator that does not have any succeeding operators;
-   *  2. The operator whose succeeding operators are all outsiders, i.e. not in the given set.
+   * Find all tail operators of the given operator set. The tail operator contains: 1. The operator
+   * that does not have any succeeding operators; 2. The operator whose succeeding operators are all
+   * outsiders, i.e. not in the given set.
+   *
    * @param operators The given operator set
    * @return The tail operators of the given set
    */
