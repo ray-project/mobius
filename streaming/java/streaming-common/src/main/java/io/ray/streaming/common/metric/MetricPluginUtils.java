@@ -24,8 +24,8 @@ public class MetricPluginUtils {
   }
 
   /**
-   * Build mixed tags in local priority first.
-   * A local tag will override the global tag if it has the same key.
+   * Build mixed tags in local priority first. A local tag will override the global tag if it has
+   * the same key.
    *
    * @param localTags local tags
    * @param globalTags global tags
