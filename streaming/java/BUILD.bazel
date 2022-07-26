@@ -77,6 +77,7 @@ define_java_module(
     name = "streaming-common",
     define_test_lib = True,
     test_deps = [
+            "@com_github_ray_project_ray//java:io_ray_ray_runtime",
             ":io_ray_ray_streaming-common",
             "@maven//:com_google_guava_guava",
             "@maven//:org_apache_logging_log4j_log4j_api",
@@ -92,13 +93,13 @@ define_java_module(
         ],
     visibility = ["//visibility:public"],
     deps = [
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         "@maven//:com_google_guava_guava",
         "@maven//:org_apache_logging_log4j_log4j_api",
         "@maven//:org_apache_logging_log4j_log4j_core",
         "@maven//:org_apache_logging_log4j_log4j_slf4j_impl",
         "@maven//:org_slf4j_slf4j_api",
         "@maven//:org_testng_testng",
-        "@ray_streaming_maven//:io_ray_ray_runtime",
         "@ray_streaming_maven//:com_esotericsoftware_kryo",
         "@ray_streaming_maven//:com_esotericsoftware_minlog_minlog",
         "@ray_streaming_maven//:com_esotericsoftware_reflectasm_reflectasm",
