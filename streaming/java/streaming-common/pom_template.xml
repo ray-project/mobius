@@ -17,12 +17,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.ray</groupId>
-            <artifactId>ray-runtime</artifactId>
-            <version>${ray.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>
         </dependency>

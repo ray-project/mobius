@@ -24,11 +24,6 @@
     </dependency>
     <dependency>
       <groupId>io.ray</groupId>
-      <artifactId>ray-runtime</artifactId>
-      <version>${ray.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.ray</groupId>
       <artifactId>streaming-common</artifactId>
       <version>${streaming.version}</version>
     </dependency>

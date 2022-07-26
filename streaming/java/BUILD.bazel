@@ -98,6 +98,7 @@ define_java_module(
         "@maven//:org_apache_logging_log4j_log4j_slf4j_impl",
         "@maven//:org_slf4j_slf4j_api",
         "@maven//:org_testng_testng",
+        "@ray_streaming_maven//:io_ray_ray_runtime",
         "@ray_streaming_maven//:com_esotericsoftware_kryo",
         "@ray_streaming_maven//:com_esotericsoftware_minlog_minlog",
         "@ray_streaming_maven//:com_esotericsoftware_reflectasm_reflectasm",

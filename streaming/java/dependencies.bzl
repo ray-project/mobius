@@ -5,6 +5,7 @@ def gen_streaming_java_deps():
     maven_install(
         name = "ray_streaming_maven",
         artifacts = [
+            "io.ray:ray-runtime:1.13.0",
             "com.esotericsoftware:kryo:4.0.0",
             "com.esotericsoftware.minlog:minlog:1.2",
             "com.esotericsoftware.reflectasm:reflectasm:1.07",
