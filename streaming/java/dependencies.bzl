@@ -21,9 +21,10 @@ def gen_streaming_java_deps():
             "org.mockito:mockito-all:1.10.19",
             "org.apache.commons:commons-lang3:3.3.2",
             "org.mockito:mockito-all:1.10.19",
-	          "org.powermock:powermock-module-testng:1.6.6",
-	          "org.powermock:powermock-api-mockito:1.6.6",
+            "org.powermock:powermock-module-testng:1.6.6",
+            "org.powermock:powermock-api-mockito:1.6.6",
             "commons-collections:commons-collections:3.2.2",
+            "joda-time:joda-time:2.10.14",
             maven.artifact(
                 group = "org.apache.arrow",
                 artifact = "arrow-vector",
@@ -31,6 +32,14 @@ def gen_streaming_java_deps():
                 exclusions = [
                     "io.netty:netty-buffer",
                     "io.netty:netty-common",
+                ]
+            ),
+            maven.artifact(
+                group = "de.ruedigermoeller",
+                artifact = "fst",
+                version = "2.5.7",
+                exclusions = [
+                    "com.fasterxml.jackson.core:jackson-core",
                 ]
             ),
         ],

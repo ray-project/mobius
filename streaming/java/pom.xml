@@ -60,7 +60,6 @@
     <ray.version>1.13.0</ray.version>
     <streaming.version>0.0.1</streaming.version>
     <mockito.version>1.10.19</mockito.version>
-    <fst.version>2.57</fst.version>
   </properties>
 
   <modules>
@@ -107,17 +106,6 @@
           <exclusion>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>de.ruedigermoeller</groupId>
-        <artifactId>fst</artifactId>
-        <version>${fst.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
