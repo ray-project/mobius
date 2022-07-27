@@ -22,9 +22,9 @@ function zip_and_upload_log() {
 pushd "$ROOT_DIR"
 echo "Check java code format."
 # check google java style
-mvn -T16 -q spotless:check
+mvn -T16 -q clean spotless:check
 # check naming and others
-mvn -T16 -q checkstyle:check
+mvn -T16 -q clean checkstyle:check
 popd
 
 echo "Build ray streaming"
