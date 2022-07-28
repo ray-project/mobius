@@ -20,6 +20,8 @@ function zip_and_upload_log() {
 }
 
 pushd "$ROOT_DIR"
+echo "mvn clean package"
+mvn -T16 -q clean package
 echo "Check java code format."
 # check google java style
 mvn -T16 -q clean spotless:check
