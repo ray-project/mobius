@@ -20,17 +20,16 @@ function zip_and_upload_log() {
 }
 
 pushd "$ROOT_DIR"
-echo "mvn clean package"
-mvn -T16 -q clean package
+
+echo "Build ray streaming"
+bazel build @com_github_ray_streaming//java:all
+
 echo "Check java code format."
 # check google java style
 mvn -T16 -q clean spotless:check
 # check naming and others
 mvn -T16 -q clean checkstyle:check
 popd
-
-echo "Build ray streaming"
-bazel build @com_github_ray_streaming//java:all
 
 echo "Running streaming tests."
 suppress_output java -cp "$ROOT_DIR"/../bazel-bin/java/all_streaming_tests_deploy.jar\
