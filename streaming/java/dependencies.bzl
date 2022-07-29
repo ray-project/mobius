@@ -37,7 +37,7 @@ def gen_streaming_java_deps():
             maven.artifact(
                 group = "de.ruedigermoeller",
                 artifact = "fst",
-                version = "2.5.7",
+                version = "2.56",
                 exclusions = [
                     "com.fasterxml.jackson.core:jackson-core",
                 ]
