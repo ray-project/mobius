@@ -97,6 +97,9 @@ define_java_module(
         "@ray_streaming_maven//:io_ray_ray_runtime",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:joda_time_joda_time",
+        "@ray_streaming_maven//:commons_io_commons_io",
+        "@ray_streaming_maven//:net_java_dev_jna_jna",
+        "@ray_streaming_maven//:org_objenesis_objenesis",
         ],
     visibility = ["//visibility:public"],
     deps = [
@@ -117,6 +120,9 @@ define_java_module(
         "@ray_streaming_maven//:org_aeonbits_owner_owner",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:joda_time_joda_time",
+        "@ray_streaming_maven//:commons_io_commons_io",
+        "@ray_streaming_maven//:net_java_dev_jna_jna",
+        "@ray_streaming_maven//:org_objenesis_objenesis",
     ],
 )
 
