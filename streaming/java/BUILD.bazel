@@ -147,6 +147,7 @@ define_java_module(
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:org_mockito_mockito_all",
         "@ray_streaming_maven//:org_aeonbits_owner_owner",
+        "@ray_streaming_maven//:org_objenesis_objenesis",
     ],
     visibility = ["//visibility:public"],
     deps = [
@@ -163,6 +164,7 @@ define_java_module(
         "@ray_streaming_maven//:de_javakaffee_kryo_serializers",
         "@ray_streaming_maven//:org_apache_commons_commons_lang3",
         "@ray_streaming_maven//:org_aeonbits_owner_owner",
+        "@ray_streaming_maven//:org_objenesis_objenesis",
     ],
 )
 
