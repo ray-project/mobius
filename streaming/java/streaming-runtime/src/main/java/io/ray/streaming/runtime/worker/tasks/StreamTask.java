@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,7 +201,8 @@ public abstract class StreamTask implements Runnable {
         opGroupedActor.put(opName, new ArrayList<>());
       }
       opGroupedChannelId.get(opName).add(executionVertex.getOutputChannelIdList().get(i));
-      opGroupedActor.get(opName).add(executionVertex.getChannelIdOutputActorMap().get(i));
+      opGroupedActor.get(opName).add(
+          new ArrayList<>(executionVertex.getChannelIdOutputActorMap().values()).get(i));
       opPartitionMap.put(opName, edge.getPartition());
     }
     opPartitionMap

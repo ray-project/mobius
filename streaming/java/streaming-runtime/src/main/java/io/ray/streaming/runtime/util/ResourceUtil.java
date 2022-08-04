@@ -1,7 +1,5 @@
 package io.ray.streaming.runtime.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sun.management.OperatingSystemMXBean;
@@ -19,10 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,79 +248,6 @@ public class ResourceUtil {
    */
   public static boolean isMemoryMbValue(long value) {
     return value >= MEMORY_MB_MIN_VALUE;
-  }
-
-  /**
-   * Extract "-Xmx" param from jvm options and convert it into buffer mb value.
-   *
-   * @param jvmOptions jvm options in string format
-   * @param operatorName operator's name (ExecutionJobVertex name)
-   * @return buffer in mb
-   */
-  public static double calculateMemoryMbFromJvmOptsStr(String jvmOptions, String operatorName) {
-    // jvm opts empty check
-    if (StringUtils.isEmpty(jvmOptions)) {
-      LOG.info("Empty jvm options for operator: {}. Skip buffer override.", operatorName);
-      return 0D;
-    }
-
-    // jvm opts json string check
-    JSONObject vertexJvmOptsJson;
-    try {
-      vertexJvmOptsJson = JSON.parseObject(jvmOptions);
-      for (String configOperatorName : vertexJvmOptsJson.keySet()) {
-        if (operatorName.startsWith(configOperatorName)) {
-          operatorName = configOperatorName;
-          break;
-        }
-      }
-
-      jvmOptions = (String) vertexJvmOptsJson.get(operatorName);
-      if (StringUtils.isEmpty(jvmOptions)) {
-        return 0D;
-      }
-
-    } catch (Exception e) {
-      if (jvmOptions.trim().contains("{") || jvmOptions.trim().contains("}")) {
-        LOG.error(
-            "Jvm options [{}] contain '{ or }' but not in json format, set empty directly.",
-            jvmOptions);
-        return 0D;
-      } else {
-        LOG.info("Jvm options [{}] not in json format, use directly.", jvmOptions);
-      }
-    }
-
-    String patternStr = "-Xmx[1-9]{1}[0-9]*[m,g]";
-    Pattern pattern = Pattern.compile(patternStr);
-    Matcher matcher = pattern.matcher(jvmOptions);
-    if (!matcher.find()) {
-      return 0D;
-    }
-
-    String jvmMem = matcher.group();
-    return convertJvmXmxMem(jvmMem);
-  }
-
-  public static double convertJvmXmxMem(String jvmMem) {
-    return convertJvmXmxMemWithOverhead(jvmMem, 0);
-  }
-
-  public static double convertJvmXmxMemWithOverhead(String jvmMem, int memOverhead) {
-    double resourceMemWithGb;
-    if (jvmMem.endsWith("m")) {
-      int jvmMemWithMb =
-          Integer.parseInt(jvmMem.substring(jvmMem.lastIndexOf("x") + 1, jvmMem.lastIndexOf("m")))
-              + memOverhead;
-      return jvmMemWithMb;
-    } else if (jvmMem.endsWith("g")) {
-      resourceMemWithGb =
-          Double.parseDouble(jvmMem.substring(jvmMem.lastIndexOf("x") + 1, jvmMem.lastIndexOf("g")))
-              + (memOverhead == 0 ? 0 : 1);
-      return resourceMemWithGb * 1024;
-    } else {
-      throw new IllegalArgumentException("Unsupported unit for -Xmx");
-    }
   }
 
   /**

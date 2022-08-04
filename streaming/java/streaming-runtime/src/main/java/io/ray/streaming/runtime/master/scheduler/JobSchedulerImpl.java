@@ -524,24 +524,6 @@ public class JobSchedulerImpl implements JobScheduler {
             resources.putAll(operatorResourcesFromOpConfig);
           }
 
-          // --------------------------------
-          // override mem if jvm opts is set
-          // --------------------------------
-          Double memoryMbFromJvmOpts =
-              ResourceUtil.calculateMemoryMbFromJvmOptsStr(
-                  executionJobVertex.getOpConfig().getOrDefault(JvmConfig.JVM_OPTS, ""),
-                  operatorName);
-
-          // override mem resource with jvm result
-          Double currentMemoryMb = resources.get(ResourceKey.MEM.name());
-          if (memoryMbFromJvmOpts > 0 && memoryMbFromJvmOpts > currentMemoryMb) {
-            LOG.info(
-                "Override buffer mb with: {} for operator: {} by jvm options.",
-                memoryMbFromJvmOpts,
-                operatorName);
-            resources.put(ResourceKey.MEM.name(), memoryMbFromJvmOpts);
-          }
-
           // update resource for all it's vertices
           LOG.info("Operator resources are: {}.", resources);
           executionJobVertex.updateResources(resources);
