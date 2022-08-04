@@ -7,7 +7,6 @@ import io.ray.api.options.PlacementGroupCreationOptions;
 import io.ray.api.placementgroup.PlacementGroup;
 import io.ray.api.placementgroup.PlacementStrategy;
 import io.ray.streaming.runtime.core.resource.ResourceState;
-import io.ray.streaming.runtime.util.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Placement group info, including name, bundles and strategy. */
 public class ExecutionGroup implements Serializable {
