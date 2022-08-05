@@ -1,7 +1,6 @@
 package io.ray.streaming.runtime.master.scheduler;
 
 import io.ray.api.ActorHandle;
-import io.ray.streaming.common.config.JvmConfig;
 import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.common.enums.ResourceKey;
 import io.ray.streaming.common.serializer.KryoUtils;
