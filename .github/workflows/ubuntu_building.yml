@@ -11,6 +11,8 @@ env:
   OSS_BUCKET: ray-mobius-us
   OSS_ID: ${{ secrets.OSS_ID }}
   OSS_KEY: ${{ secrets.OSS_KEY }}
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
 
 jobs:
   streaming-ubuntu-pipeline:
@@ -43,6 +45,7 @@ jobs:
            . py3/bin/activate
            pip install pytest
            sh -c "bash scripts/install-ray.sh"
+           pip install "protobuf<4"
         
     - name: Streaming python test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
