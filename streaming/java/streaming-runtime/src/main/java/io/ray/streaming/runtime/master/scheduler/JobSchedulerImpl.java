@@ -43,9 +43,9 @@ public class JobSchedulerImpl implements JobScheduler {
     this.jobMaster = jobMaster;
     this.graphManager = jobMaster.getGraphManager();
     this.resourceManager = jobMaster.getResourceManager();
+    this.jobConfig = jobMaster.getRuntimeContext().getConfig();
     this.placementGroupAssignStrategy = initPlacementGroupAssignStrategy();
     this.workerLifecycleController = new WorkerLifecycleController();
-    this.jobConfig = jobMaster.getRuntimeContext().getConfig();
 
     LOG.info("Scheduler initiated.");
   }
