@@ -10,9 +10,11 @@ import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobEdge;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobVertex;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.master.context.JobMasterRuntimeContext;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -68,6 +70,7 @@ public class GraphManagerImpl implements GraphManager {
               jobVertex, jobConfig, executionGraph.getLastExecutionVertexIndex(), buildTime));
     }
 
+    List<ExecutionJobEdge> exeJobEdgeList = new ArrayList<>();
     // for each job edge, connect all source exeVertices and target exeVertices
     jobGraph
         .getJobEdges()
@@ -77,10 +80,13 @@ public class GraphManagerImpl implements GraphManager {
               ExecutionJobVertex target = exeJobVertexMap.get(jobEdge.getTargetVertexId());
 
               ExecutionJobEdge executionJobEdge = new ExecutionJobEdge(source, target, jobEdge);
+              exeJobEdgeList.add(executionJobEdge);
 
+              // attach execution job edge
               source.getOutputEdges().add(executionJobEdge);
               target.getInputEdges().add(executionJobEdge);
 
+              // attach execution edge
               source
                   .getExecutionVertices()
                   .forEach(
@@ -105,8 +111,10 @@ public class GraphManagerImpl implements GraphManager {
             });
 
     // set execution job vertex into execution graph
+    executionGraph.setExecutionJobEdges(exeJobEdgeList);
     executionGraph.setJobVertexIdExecutionJobVertexMap(exeJobVertexMap);
     executionGraph.setExecutionVertexIdExecutionVertexMap(executionVertexMap);
+    executionGraph.setVerticesInCreationOrder(new ArrayList<>(exeJobVertexMap.values()));
 
     return executionGraph;
   }
