@@ -217,6 +217,8 @@ define_java_module(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        "@com_github_ray_project_ray//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         ":io_ray_ray_streaming-common",
         ":io_ray_ray_streaming-api",
         ":io_ray_ray_streaming-state",
@@ -224,7 +226,7 @@ define_java_module(
         "@maven//:com_google_protobuf_protobuf_java",
         "@maven//:commons_io_commons_io",
         "@maven//:de_ruedigermoeller_fst",
-	    "@maven//:net_java_dev_jna_jna",
+	      "@maven//:net_java_dev_jna_jna",
         "@maven//:org_apache_commons_commons_lang3",
         "@maven//:org_apache_logging_log4j_log4j_api",
         "@maven//:org_apache_logging_log4j_log4j_core",
@@ -235,8 +237,6 @@ define_java_module(
         "@ray_streaming_maven//:com_google_code_findbugs_jsr305",
         "@ray_streaming_maven//:com_google_code_gson_gson",
         "@ray_streaming_maven//:commons_collections_commons_collections",
-        "@ray_streaming_maven//:io_ray_ray_api",
-        "@ray_streaming_maven//:io_ray_ray_runtime",
         "@ray_streaming_maven//:org_aeonbits_owner_owner",
     ],
 )
