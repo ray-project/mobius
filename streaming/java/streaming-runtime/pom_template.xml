@@ -34,6 +34,18 @@
   </profiles>
 
   <dependencies>
+    <dependency>
+      <groupId>io.ray</groupId>
+      <artifactId>ray-api</artifactId>
+      <version>${ray.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.ray</groupId>
+      <artifactId>ray-runtime</artifactId>
+      <version>${ray.version}</version>
+      <scope>provided</scope>
+    </dependency>
     {generated_bzl_deps}
     <dependency>
       <groupId>io.ray</groupId>
