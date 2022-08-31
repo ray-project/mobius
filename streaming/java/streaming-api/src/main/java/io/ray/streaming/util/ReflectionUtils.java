@@ -1,10 +1,6 @@
 package io.ray.streaming.util;
 
 import com.google.common.base.Preconditions;
-import io.ray.api.function.RayFunc1;
-import io.ray.api.function.RayFuncVoid1;
-import io.ray.runtime.util.LambdaUtils;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,18 +89,5 @@ public class ReflectionUtils {
   public static boolean isLambda(Class clz) {
     Preconditions.checkNotNull(clz);
     return clz.getName().indexOf('/') >= 0;
-  }
-
-  public static <T0, R> String getMethodName(RayFunc1<T0, R> function) {
-    return getMethodNameInternal(function);
-  }
-
-  public static <T> String getMethodName(RayFuncVoid1<T> function) {
-    return getMethodNameInternal(function);
-  }
-
-  public static String getMethodNameInternal(Serializable function) {
-    Preconditions.checkArgument(isLambda(function.getClass()));
-    return LambdaUtils.getSerializedLambda(function).getImplMethodName();
   }
 }
