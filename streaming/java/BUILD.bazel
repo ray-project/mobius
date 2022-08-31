@@ -203,7 +203,6 @@ define_java_module(
         "@ray_streaming_maven//:org_mockito_mockito_all",
         "@ray_streaming_maven//:org_powermock_powermock_api_mockito",
         "@ray_streaming_maven//:org_powermock_powermock_module_testng",
-
     ],
     visibility = ["//visibility:public"],
     deps = [
