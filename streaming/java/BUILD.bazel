@@ -62,6 +62,7 @@ define_java_module(
         ":io_ray_ray_streaming-common",
         ":io_ray_ray_streaming-state",
         "@com_github_ray_project_ray//java:io_ray_ray_api",
+        "@com_github_ray_project_ray//java:io_ray_ray_runtime",
         "@ray_streaming_maven//:com_google_guava_guava",
         "@maven//:org_apache_logging_log4j_log4j_api",
         "@maven//:org_apache_logging_log4j_log4j_core",
