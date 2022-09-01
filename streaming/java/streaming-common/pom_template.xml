@@ -28,6 +28,11 @@
             <version>${ray.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>de.ruedigermoeller</groupId>
+            <artifactId>fst</artifactId>
+            <scope>provided</scope>
+        </dependency>
         {generated_bzl_deps}
     </dependencies>
 

@@ -5,6 +5,8 @@ def gen_streaming_java_deps():
     maven_install(
         name = "ray_streaming_maven",
         artifacts = [
+            "io.ray:ray-api:1.13.0",
+            "io.ray:ray-runtime:1.13.0",
             "com.esotericsoftware:kryo:4.0.0",
             "com.esotericsoftware.minlog:minlog:1.2",
             "com.esotericsoftware.reflectasm:reflectasm:1.07",
@@ -14,8 +16,6 @@ def gen_streaming_java_deps():
             "com.github.davidmoten:flatbuffers-java:1.9.0.1",
             "com.typesafe:config:1.3.2",
             "de.javakaffee:kryo-serializers:0.42",
-            "io.ray:ray-api:1.12.0",
-            "io.ray:ray-runtime:1.12.0",
             "org.apache.commons:commons-lang3:3.4",
             "org.aeonbits.owner:owner:1.0.10",
             "org.mockito:mockito-all:1.10.19",
@@ -25,6 +25,8 @@ def gen_streaming_java_deps():
             "org.powermock:powermock-api-mockito:1.6.6",
             "commons-collections:commons-collections:3.2.2",
             "joda-time:joda-time:2.10.14",
+            "commons-io:commons-io:2.5",
+            "net.java.dev.jna:jna:5.5.0",
             maven.artifact(
                 group = "org.apache.arrow",
                 artifact = "arrow-vector",
