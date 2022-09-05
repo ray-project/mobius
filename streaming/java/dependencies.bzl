@@ -5,8 +5,6 @@ def gen_streaming_java_deps():
     maven_install(
         name = "ray_streaming_maven",
         artifacts = [
-            "io.ray:ray-api:1.13.0",
-            "io.ray:ray-runtime:1.13.0",
             "com.esotericsoftware:kryo:4.0.0",
             "com.esotericsoftware.minlog:minlog:1.2",
             "com.esotericsoftware.reflectasm:reflectasm:1.07",
@@ -27,6 +25,18 @@ def gen_streaming_java_deps():
             "joda-time:joda-time:2.10.14",
             "commons-io:commons-io:2.5",
             "net.java.dev.jna:jna:5.5.0",
+            maven.artifact(
+                group = "io.ray",
+                artifact = "ray-api",
+                version = "1.13.0",
+                neverlink = True
+            ),
+            maven.artifact(
+                group = "io.ray",
+                artifact = "ray-runtime",
+                version = "1.13.0",
+                neverlink = True
+            ),
             maven.artifact(
                 group = "org.apache.arrow",
                 artifact = "arrow-vector",
