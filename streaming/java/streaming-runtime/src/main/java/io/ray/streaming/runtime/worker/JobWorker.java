@@ -2,6 +2,7 @@ package io.ray.streaming.runtime.worker;
 
 import com.google.common.base.Preconditions;
 import io.ray.api.Ray;
+import io.ray.streaming.common.utils.EnvUtil;
 import io.ray.streaming.runtime.config.StreamingWorkerConfig;
 import io.ray.streaming.runtime.config.types.TransferChannelType;
 import io.ray.streaming.runtime.context.ContextBackend;
@@ -20,7 +21,6 @@ import io.ray.streaming.runtime.transfer.TransferHandler;
 import io.ray.streaming.runtime.transfer.channel.ChannelRecoverInfo;
 import io.ray.streaming.runtime.transfer.channel.ChannelRecoverInfo.ChannelCreationStatus;
 import io.ray.streaming.runtime.util.CheckpointStateUtil;
-import io.ray.streaming.runtime.util.EnvUtil;
 import io.ray.streaming.runtime.util.MetricsUtils;
 import io.ray.streaming.runtime.util.Serializer;
 import io.ray.streaming.runtime.util.StateConfigConverter;

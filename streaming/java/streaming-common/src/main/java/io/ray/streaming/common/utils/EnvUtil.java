@@ -3,6 +3,7 @@ package io.ray.streaming.common.utils;
 import com.google.common.collect.Sets;
 import com.sun.jna.NativeLibrary;
 import io.ray.runtime.util.BinaryFileUtil;
+import io.ray.runtime.util.JniUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -190,9 +192,8 @@ public class EnvUtil {
   }
 
   public static void loadNativeLibraries() {
-    loadLibrary(BinaryFileUtil.CORE_WORKER_JAVA_LIBRARY, true);
-    loadLibrary("streaming_java", false);
-    LOG.info("NativeLibraries loaded");
+    JniUtils.loadLibrary(BinaryFileUtil.CORE_WORKER_JAVA_LIBRARY, true);
+    io.ray.streaming.common.utils.JniUtils.loadLibrary("streaming_java");
   }
 
   public static String getWorkingDir() {
@@ -254,5 +255,27 @@ public class EnvUtil {
   public static String getJobID() {
     String jobID = System.getenv("RAY_JOB_ID");
     return jobID == null ? "default" : jobID;
+  }
+
+  /**
+   * Execute an external command.
+   *
+   * @return Whether the command succeeded.
+   */
+  public static boolean executeCommand(List<String> command, int waitTimeoutSeconds) {
+    try {
+      ProcessBuilder processBuilder =
+          new ProcessBuilder(command)
+              .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+              .redirectError(ProcessBuilder.Redirect.INHERIT);
+      Process process = processBuilder.start();
+      boolean exit = process.waitFor(waitTimeoutSeconds, TimeUnit.SECONDS);
+      if (!exit) {
+        process.destroyForcibly();
+      }
+      return process.exitValue() == 0;
+    } catch (Exception e) {
+      throw new RuntimeException("Error executing command " + String.join(" ", command), e);
+    }
   }
 }

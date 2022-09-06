@@ -2,9 +2,10 @@ package io.ray.streaming.runtime.transfer;
 
 import static org.testng.Assert.assertEquals;
 
+
+import io.ray.streaming.common.utils.EnvUtil;
 import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
-import io.ray.streaming.runtime.util.EnvUtil;
 import org.testng.annotations.Test;
 
 public class ChannelIdTest extends RayEnvBaseTest {

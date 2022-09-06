@@ -4,6 +4,7 @@ import io.ray.streaming.common.config.CommonConfig;
 import io.ray.streaming.common.metric.MetricGroup;
 import io.ray.streaming.common.metric.local.LocalMetricGroup;
 import io.ray.streaming.common.metric.ray.RayMetricGroup;
+import io.ray.streaming.common.utils.EnvUtil;
 import io.ray.streaming.runtime.config.global.MetricConfig;
 import io.ray.streaming.runtime.config.worker.WorkerConfig;
 import java.util.HashMap;
