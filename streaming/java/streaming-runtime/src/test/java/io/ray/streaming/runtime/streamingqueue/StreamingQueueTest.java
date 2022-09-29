@@ -71,7 +71,7 @@ public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
     System.clearProperty("ray.head-args.1");
   }
 
-  @Test(timeOut = 300000)
+  @Test(timeOut = 300000, enabled = false)
   public void testReaderWriter() {
     ActorHandle<WriterWorker> writerActor = Ray.actor(WriterWorker::new, "writer").remote();
     ActorHandle<ReaderWorker> readerActor = Ray.actor(ReaderWorker::new, "reader").remote();

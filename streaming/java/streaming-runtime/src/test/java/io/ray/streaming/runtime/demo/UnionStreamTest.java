@@ -24,7 +24,7 @@ public class UnionStreamTest extends RayEnvBaseTest {
     super(true);
   }
 
-  @Test(timeOut = 60000)
+  @Test(timeOut = 60000, enabled = false)
   public void testUnionStream() throws Exception {
     String sinkFileName = "/tmp/testUnionStream.txt";
     Files.deleteIfExists(Paths.get(sinkFileName));
