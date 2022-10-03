@@ -1,10 +1,13 @@
 package io.ray.streaming.runtime.worker.tasks;
 
-import io.ray.streaming.operator.SourceOperator;
+import io.ray.streaming.message.Record;
+import io.ray.streaming.operator.ISourceOperator;
 import io.ray.streaming.runtime.core.processor.Processor;
 import io.ray.streaming.runtime.core.processor.SourceProcessor;
 import io.ray.streaming.runtime.transfer.exception.ChannelInterruptException;
 import io.ray.streaming.runtime.worker.JobWorker;
+import io.ray.streaming.util.EndOfDataException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -22,7 +25,7 @@ public class SourceStreamTask extends StreamTask {
   private long lastCheckpointId = 0;
 
   /**
-   * SourceStreamTask for executing a {@link SourceOperator}. It is responsible for running the
+   * SourceStreamTask for executing a {@link ISourceOperator}. It is responsible for running the
    * corresponding source operator.
    */
   public SourceStreamTask(Processor sourceProcessor, JobWorker jobWorker, long lastCheckpointId) {
@@ -56,7 +59,7 @@ public class SourceStreamTask extends StreamTask {
 
             LOG.info("Finish to do checkpoint {}.", barrierId);
           } else {
-            // pendingCheckpointId has modify, should not happen
+            // pendingCheckpointId has been modified, should not happen
             LOG.warn(
                 "Pending checkpointId modify unexpected, expect={}, now={}.",
                 barrierId,
@@ -64,7 +67,20 @@ public class SourceStreamTask extends StreamTask {
           }
         }
 
-        sourceProcessor.fetch();
+        try {
+          Record record = new Record(null);
+          processor.process(record);
+        } catch (Throwable e) {
+          if (isEndOfDataException(e)) {
+            LOG.warn("SourceStreamTask EndOfDataException.");
+            /// Maybe a new checkpoint should be triggered before finite stream finish.
+            processor.finish(lastCheckpointId);
+            //            handleEndOfDataBarrierMessage();
+            break;
+          } else {
+            throw e;
+          }
+        }
       }
     } catch (Throwable e) {
       if (e instanceof ChannelInterruptException
@@ -83,5 +99,11 @@ public class SourceStreamTask extends StreamTask {
   @Override
   public boolean triggerCheckpoint(Long barrierId) {
     return pendingBarrier.compareAndSet(null, barrierId);
+  }
+
+  private boolean isEndOfDataException(Throwable t) {
+    List<Throwable> causes = ExceptionUtils.getThrowableList(t);
+    long exceptions = causes.stream().filter(c -> c instanceof EndOfDataException).count();
+    return exceptions > 0;
   }
 }

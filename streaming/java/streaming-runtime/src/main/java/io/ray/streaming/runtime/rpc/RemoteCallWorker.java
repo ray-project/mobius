@@ -5,14 +5,19 @@ import io.ray.api.BaseActorHandle;
 import io.ray.api.ObjectRef;
 import io.ray.api.PyActorHandle;
 import io.ray.api.Ray;
+import io.ray.api.WaitResult;
 import io.ray.api.function.PyActorMethod;
 import io.ray.api.function.RayFunc3;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.master.JobMaster;
+import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.worker.JobWorker;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,19 +99,43 @@ public class RemoteCallWorker {
     return result;
   }
 
-  public static ObjectRef triggerCheckpoint(BaseActorHandle actor, Long barrierId) {
-    // python
-    if (actor instanceof PyActorHandle) {
-      RemoteCall.Barrier barrierPb = RemoteCall.Barrier.newBuilder().setId(barrierId).build();
-      return ((PyActorHandle) actor)
-          .task(PyActorMethod.of("commit"), barrierPb.toByteArray())
-          .remote();
-    } else {
-      // java
-      return ((ActorHandle<JobWorker>) actor)
-          .task(JobWorker::triggerCheckpoint, barrierId)
-          .remote();
+  // =========================================================================
+  // Checkpoint(Global + Partial) Methods Start
+  // =========================================================================
+
+  public static ObjectRef<Boolean> triggerCheckpoint(WorkerCaller workerCaller, Barrier barrier) {
+    LOG.info(
+        "Start to trigger checkpoint for actor: {}, checkpointId: {}.",
+        workerCaller.getActorHandle().getId(),
+        barrier.getId());
+    return workerCaller.commit(barrier);
+  }
+
+  public static List<Boolean> batchTriggerCheckpoint(
+      List<WorkerCaller> workerCallers, Barrier barrier, int timeout) {
+    List<ObjectRef<Boolean>> rayCallObjects = new ArrayList<>();
+    for (WorkerCaller workerCaller : workerCallers) {
+      rayCallObjects.add(triggerCheckpoint(workerCaller, barrier));
     }
+    WaitResult<Boolean> waitResult = Ray.wait(rayCallObjects, rayCallObjects.size(), timeout);
+    Set<ObjectRef<Boolean>> objectRefSet = new HashSet<>(waitResult.getReady());
+    List<Boolean> results = new ArrayList<>();
+
+    for (ObjectRef<Boolean> ref : objectRefSet) {
+      if (objectRefSet.contains(ref)) {
+        try {
+          results.add(ref.get());
+        } catch (Exception e) {
+          results.add(false);
+          LOG.warn("Call worker trigger checkpoint exception.", e);
+        }
+      } else {
+        LOG.warn("Call worker trigger checkpoint object ref {} unready.", ref);
+        results.add(false);
+      }
+    }
+
+    return results;
   }
 
   public static void clearExpiredCheckpointParallel(

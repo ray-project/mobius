@@ -1,15 +1,29 @@
 package io.ray.streaming.runtime.master.scheduler;
 
-import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
+import io.ray.streaming.runtime.master.joblifecycle.JobStatus;
 
 /** Job scheduler is used to do the scheduling in JobMaster. */
 public interface JobScheduler {
 
   /**
-   * Schedule streaming job using the physical plan.
+   * Do the preparatory work for job starting.
    *
-   * @param executionGraph physical plan
-   * @return scheduling result
+   * @return result
    */
-  boolean scheduleJob(ExecutionGraph executionGraph);
+  ScheduleResult prepareJobSubmission();
+
+  /**
+   * Let the job to start.
+   *
+   * @return result
+   */
+  ScheduleResult doJobSubmission();
+
+  /**
+   * Destroy all workers created by the job.
+   *
+   * @param jobStatus specified job status
+   * @return true if destroying job succeeded
+   */
+  boolean destroyJob(JobStatus jobStatus);
 }

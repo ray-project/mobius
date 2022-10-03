@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This context backend uses memory and doesn't supports failover. Data will be lost after worker
+ * This context backend uses buffer and doesn't supports failover. Data will be lost after worker
  * died.
  */
 public class MemoryContextBackend implements ContextBackend {
@@ -19,8 +19,8 @@ public class MemoryContextBackend implements ContextBackend {
 
   public MemoryContextBackend(ContextBackendConfig config) {
     if (LOG.isInfoEnabled()) {
-      LOG.info("Start init memory state backend, config is {}.", config);
-      LOG.info("Finish init memory state backend.");
+      LOG.info("Start init buffer state backend, config is {}.", config);
+      LOG.info("Finish init buffer state backend.");
     }
   }
 

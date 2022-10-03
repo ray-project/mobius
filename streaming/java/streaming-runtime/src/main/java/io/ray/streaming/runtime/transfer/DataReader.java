@@ -35,7 +35,7 @@ public class DataReader {
   private long nativeReaderPtr;
   // params set by getBundleNative: bundle data address + size
   private final ByteBuffer getBundleParams = ByteBuffer.allocateDirect(24);
-  // We use direct buffer to reduce gc overhead and memory copy.
+  // We use direct buffer to reduce gc overhead and buffer copy.
   private final ByteBuffer bundleData = Platform.wrapDirectBuffer(0, 0);
   private final ByteBuffer bundleMeta = ByteBuffer.allocateDirect(BundleMeta.LENGTH);
 

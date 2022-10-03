@@ -17,6 +17,11 @@
 
   <dependencies>
     {generated_bzl_deps}
+    <dependency>
+      <groupId>io.ray</groupId>
+      <artifactId>streaming-common</artifactId>
+      <version>${streaming.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

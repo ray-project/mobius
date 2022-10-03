@@ -43,7 +43,7 @@ public class HybridStreamTest extends RayEnvBaseTest {
     }
   }
 
-  @Test(timeOut = 60000)
+  @Test(timeOut = 60000, enabled = false)
   public void testHybridDataStream() throws Exception {
     String sinkFileName = "/tmp/testHybridDataStream.txt";
     Files.deleteIfExists(Paths.get(sinkFileName));

@@ -3,14 +3,17 @@ package io.ray.streaming.jobgraph;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.api.partition.impl.ForwardPartition;
-import io.ray.streaming.api.partition.impl.RoundRobinPartition;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
+import io.ray.streaming.api.partition.impl.RoundRobinPartitionFunction;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
 import io.ray.streaming.operator.StreamOperator;
-import io.ray.streaming.operator.chain.ChainedOperator;
+import io.ray.streaming.python.PythonJoinOperator;
 import io.ray.streaming.python.PythonOperator;
 import io.ray.streaming.python.PythonOperator.ChainedPythonOperator;
-import io.ray.streaming.python.PythonPartition;
+import io.ray.streaming.util.OperatorUtil;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,23 +21,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Optimize job graph by chaining some operators so that some operators can be run in the same
- * thread.
+ * Optimize the job diagram so that operators can run in the same operator by linking operators of
+ * the same partition and parallelism.
  */
 public class JobGraphOptimizer {
-
+  private static final Logger LOG = LoggerFactory.getLogger(JobGraphOptimizer.class);
   private final JobGraph jobGraph;
   private Set<JobVertex> visited = new HashSet<>();
   // vertex id -> vertex
   private Map<Integer, JobVertex> vertexMap;
   private Map<JobVertex, Set<JobEdge>> outputEdgesMap;
-  // tail vertex id -> mergedVertex
-  private Map<Integer, Pair<JobVertex, List<JobVertex>>> mergedVertexMap;
+  // vertex id -> chained vertices
+  private Map<Integer, List<JobVertex>> chainSet;
+  // head vertex id -> the edges to another chainedOperator
+  private Map<Integer, List<JobEdge>> tailEdgesMap;
 
   public JobGraphOptimizer(JobGraph jobGraph) {
+    tailEdgesMap = new HashMap<>();
+    chainSet = new HashMap<>();
     this.jobGraph = jobGraph;
     vertexMap =
         jobGraph.getJobVertices().stream()
@@ -45,160 +53,224 @@ public class JobGraphOptimizer {
                 Collectors.toMap(
                     id -> vertexMap.get(id),
                     id -> new HashSet<>(jobGraph.getVertexOutputEdges(id))));
-    mergedVertexMap = new HashMap<>();
   }
 
   public JobGraph optimize() {
     // Deep-first traverse nodes from source to sink to merge vertices that can be chained
     // together.
-    jobGraph
+    this.jobGraph
+        .getJobVertices()
+        .forEach(
+            vertex -> {
+              resetNextOperator(vertex.getOperator());
+            });
+    this.jobGraph
         .getSourceVertices()
         .forEach(
             vertex -> {
-              List<JobVertex> verticesToMerge = new ArrayList<>();
-              verticesToMerge.add(vertex);
-              mergeVerticesRecursively(vertex, verticesToMerge);
+              addVertexToChainSet(vertex.getVertexId(), vertex);
+              divideVertices(vertex.getVertexId(), vertex);
             });
-
-    List<JobVertex> vertices =
-        mergedVertexMap.values().stream().map(Pair::getLeft).collect(Collectors.toList());
-
-    return new JobGraph(jobGraph.getJobName(), jobGraph.getJobConfig(), vertices, createEdges());
+    return new JobGraph(
+        jobGraph.getJobName(),
+        jobGraph.getJobConfig(),
+        mergeVertex(),
+        resetEdges(),
+        this.jobGraph.getIndependentOperators());
   }
 
-  private void mergeVerticesRecursively(JobVertex vertex, List<JobVertex> verticesToMerge) {
-    if (!visited.contains(vertex)) {
-      visited.add(vertex);
-      Set<JobEdge> outputEdges = outputEdgesMap.get(vertex);
-      if (outputEdges.isEmpty()) {
-        mergeAndAddVertex(verticesToMerge);
+  void resetNextOperator(StreamOperator operator) {
+    operator.setNextOperators(new ArrayList<>());
+  }
+
+  /**
+   * Divide the original DAG into multiple operator groups, each group's operators will be chained
+   * as one ChainedOperator.
+   *
+   * @param headVertexId The head vertex id of this chainedOperator.
+   * @param srcVertex The source vertex of this edge.
+   */
+  public void divideVertices(int headVertexId, JobVertex srcVertex) {
+    Set<JobEdge> outputEdges = outputEdgesMap.get(srcVertex);
+    for (JobEdge outputEdge : outputEdges) {
+      int targetId = outputEdge.getTargetVertexId();
+      JobVertex targetVertex = vertexMap.get(targetId);
+      srcVertex.getOperator().addNextOperator(targetVertex.getOperator());
+      if (canChain(srcVertex, targetVertex, outputEdge)) {
+        addVertexToChainSet(headVertexId, targetVertex);
+        divideVertices(headVertexId, targetVertex);
+
       } else {
-        outputEdges.forEach(
-            edge -> {
-              JobVertex succeedingVertex = vertexMap.get(edge.getTargetVertexId());
-              if (canBeChained(vertex, succeedingVertex, edge)) {
-                verticesToMerge.add(succeedingVertex);
-                mergeVerticesRecursively(succeedingVertex, verticesToMerge);
-              } else {
-                mergeAndAddVertex(verticesToMerge);
-                List<JobVertex> newMergedVertices = new ArrayList<>();
-                newMergedVertices.add(succeedingVertex);
-                mergeVerticesRecursively(succeedingVertex, newMergedVertices);
-              }
-            });
+        addTailEdge(
+            headVertexId,
+            outputEdge,
+            srcVertex.getOperator().getId(),
+            outputEdge.getTargetOperatorId());
+        if (visited.add(targetVertex)) {
+          addVertexToChainSet(targetId, targetVertex);
+          divideVertices(targetId, targetVertex);
+        }
       }
     }
   }
 
-  private void mergeAndAddVertex(List<JobVertex> verticesToMerge) {
-    JobVertex mergedVertex;
-    JobVertex headVertex = verticesToMerge.get(0);
-    Language language = headVertex.getLanguage();
-    if (verticesToMerge.size() == 1) {
-      // no chain
-      mergedVertex = headVertex;
-    } else {
-      List<StreamOperator> operators =
-          verticesToMerge.stream()
-              .map(v -> vertexMap.get(v.getVertexId()).getStreamOperator())
-              .collect(Collectors.toList());
-      List<Map<String, String>> configs =
-          verticesToMerge.stream()
-              .map(v -> vertexMap.get(v.getVertexId()).getConfig())
-              .collect(Collectors.toList());
-      StreamOperator operator;
-      if (language == Language.JAVA) {
-        operator = ChainedOperator.newChainedOperator(operators, configs);
-      } else {
-        List<PythonOperator> pythonOperators =
-            operators.stream().map(o -> (PythonOperator) o).collect(Collectors.toList());
-        operator = new ChainedPythonOperator(pythonOperators, configs);
-      }
-      // chained operator config is placed into `ChainedOperator`.
-      mergedVertex =
-          new JobVertex(
-              headVertex.getVertexId(),
-              headVertex.getParallelism(),
-              headVertex.getVertexType(),
-              operator,
-              new HashMap<>());
-    }
+  public List<JobVertex> mergeVertex() {
+    List<JobVertex> newJobVertices = new ArrayList<>();
+    chainSet.forEach(
+        (headVertexId, treeList) -> {
+          JobVertex mergedVertex;
+          JobVertex headVertex = treeList.get(0);
+          Language language = headVertex.getLanguage();
 
-    mergedVertexMap.put(mergedVertex.getVertexId(), Pair.of(mergedVertex, verticesToMerge));
-  }
+          if (treeList.size() == 1) {
+            // no chain
+            mergedVertex = headVertex;
+          } else {
+            List<StreamOperator> operators =
+                treeList.stream()
+                    .map(v -> vertexMap.get(v.getVertexId()).getOperator())
+                    .collect(Collectors.toList());
+            List<Map<String, String>> opConfigs =
+                treeList.stream()
+                    .map(v -> vertexMap.get(v.getVertexId()).getOperator().getOpConfig())
+                    .collect(Collectors.toList());
+            List<Map<String, Double>> resources =
+                treeList.stream()
+                    .map(v -> vertexMap.get(v.getVertexId()).getOperator().getResource())
+                    .collect(Collectors.toList());
 
-  private List<JobEdge> createEdges() {
-    List<JobEdge> edges = new ArrayList<>();
-    mergedVertexMap.forEach(
-        (id, pair) -> {
-          JobVertex mergedVertex = pair.getLeft();
-          List<JobVertex> mergedVertices = pair.getRight();
-          JobVertex tailVertex = mergedVertices.get(mergedVertices.size() - 1);
-          // input edge will be set up in input vertices
-          if (outputEdgesMap.containsKey(tailVertex)) {
-            outputEdgesMap
-                .get(tailVertex)
-                .forEach(
-                    edge -> {
-                      Pair<JobVertex, List<JobVertex>> downstreamPair =
-                          mergedVertexMap.get(edge.getTargetVertexId());
-                      // change ForwardPartition to RoundRobinPartition.
-                      Partition partition = changePartition(edge.getPartition());
-                      JobEdge newEdge =
-                          new JobEdge(
-                              mergedVertex.getVertexId(),
-                              downstreamPair.getLeft().getVertexId(),
-                              partition);
-                      edges.add(newEdge);
-                    });
+            AbstractStreamOperator operator;
+            if (language == Language.JAVA) {
+              operator = OperatorUtil.newChainedOperator(operators, opConfigs, resources);
+            } else {
+              List<PythonOperator> pythonOperators =
+                  operators.stream()
+                      .map(
+                          op -> {
+                            if (op instanceof PythonJoinOperator) {
+                              return (PythonJoinOperator) op;
+                            }
+                            return (PythonOperator) op;
+                          })
+                      .collect(Collectors.toList());
+              operator = new ChainedPythonOperator(pythonOperators, opConfigs, resources);
+            }
+            // chained operator config is placed into `ChainedOperator`.
+            mergedVertex =
+                new JobVertex(
+                    headVertex.getVertexId(),
+                    headVertex.getParallelism(),
+                    headVertex.getDynamicDivisionNum(),
+                    headVertex.getVertexType(),
+                    operator);
           }
+          newJobVertices.add(mergedVertex);
         });
-    return edges;
+    return newJobVertices;
   }
 
-  /** Change ForwardPartition to RoundRobinPartition. */
+  /**
+   * @param headVertexId The head vertex id of this chainedOperator.
+   * @param outputEdge the edges to another chainedOperator.
+   */
+  private void addTailEdge(
+      Integer headVertexId, JobEdge outputEdge, int srcOperatorId, int targetOperatorId) {
+    JobEdge newJobEdge =
+        new JobEdge(
+            outputEdge.getSourceVertexId(),
+            outputEdge.getTargetVertexId(),
+            srcOperatorId,
+            targetOperatorId,
+            outputEdge.getPartition());
+    newJobEdge.setEdgeType(outputEdge.getEdgeType());
+    if (tailEdgesMap.containsKey(headVertexId)) {
+      tailEdgesMap.get(headVertexId).add(newJobEdge);
+    } else {
+      List<JobEdge> outputEdges = new ArrayList<>();
+      outputEdges.add(newJobEdge);
+      tailEdgesMap.put(headVertexId, outputEdges);
+    }
+  }
+
+  private List<JobEdge> resetEdges() {
+    List<JobEdge> newJobEdges = new ArrayList<>();
+    tailEdgesMap.forEach(
+        (headVertexId, tailEdges) -> {
+          tailEdges.forEach(
+              tailEdge -> {
+                // change ForwardPartition to RoundRobinPartitionFunction if necessary.
+                Partition partition = changePartition(tailEdge.getPartition());
+                JobEdge newEdge =
+                    new JobEdge(
+                        headVertexId,
+                        tailEdge.getTargetVertexId(),
+                        tailEdge.getSourceOperatorId(),
+                        tailEdge.getTargetOperatorId(),
+                        partition);
+                newEdge.setEdgeType(tailEdge.getEdgeType());
+                newJobEdges.add(newEdge);
+              });
+        });
+    newJobEdges.sort(Comparator.comparingInt(JobEdge::getEdgeType));
+    return newJobEdges;
+  }
+
+  private void addVertexToChainSet(Integer root, JobVertex targetVertex) {
+    if (chainSet.containsKey(root)) {
+      chainSet.get(root).add(targetVertex);
+    } else {
+      List<JobVertex> vertexList = new ArrayList<>();
+      vertexList.add(targetVertex);
+      chainSet.put(root, vertexList);
+    }
+  }
+
+  private boolean canChain(JobVertex srcVertex, JobVertex targetVertex, JobEdge edge) {
+    if (srcVertex.getParallelism() != targetVertex.getParallelism()) {
+      return false;
+    }
+    if (srcVertex.getOperator().getChainStrategy() == ChainStrategy.NEVER
+        || targetVertex.getOperator().getChainStrategy() == ChainStrategy.NEVER
+        || targetVertex.getOperator().getChainStrategy() == ChainStrategy.HEAD) {
+      return false;
+    }
+    int inputEdgesNum = jobGraph.getVertexInputEdges(targetVertex.getVertexId()).size();
+    if (jobGraph.getVertexInputEdges(targetVertex.getVertexId()).size() > 1) {
+      return false;
+    }
+    if (srcVertex.getLanguage() != targetVertex.getLanguage()) {
+      return false;
+    }
+    Partition partition = edge.getPartition();
+    if (!(partition instanceof PythonPartitionFunction)) {
+      return partition instanceof ForwardPartition;
+    } else {
+      PythonPartitionFunction pythonPartition = (PythonPartitionFunction) partition;
+      return !pythonPartition.isConstructedFromBinary()
+          && pythonPartition
+              .getFunctionName()
+              .equals(PythonPartitionFunction.FORWARD_PARTITION_CLASS);
+    }
+  }
+
+  /** Change ForwardPartition to RoundRobinPartitionFunction if necessary. */
   private Partition changePartition(Partition partition) {
-    if (partition instanceof PythonPartition) {
-      PythonPartition pythonPartition = (PythonPartition) partition;
+    if (partition instanceof PythonPartitionFunction) {
+      PythonPartitionFunction pythonPartition = (PythonPartitionFunction) partition;
       if (!pythonPartition.isConstructedFromBinary()
-          && pythonPartition.getFunctionName().equals(PythonPartition.FORWARD_PARTITION_CLASS)) {
-        return PythonPartition.RoundRobinPartition;
+          && pythonPartition
+              .getFunctionName()
+              .equals(PythonPartitionFunction.FORWARD_PARTITION_CLASS)) {
+        return PythonPartitionFunction.RoundRobinPartition;
       } else {
         return partition;
       }
     } else {
       if (partition instanceof ForwardPartition) {
-        return new RoundRobinPartition();
+        return new RoundRobinPartitionFunction();
       } else {
         return partition;
       }
-    }
-  }
-
-  private boolean canBeChained(
-      JobVertex precedingVertex, JobVertex succeedingVertex, JobEdge edge) {
-    if (jobGraph.getVertexOutputEdges(precedingVertex.getVertexId()).size() > 1
-        || jobGraph.getVertexInputEdges(succeedingVertex.getVertexId()).size() > 1) {
-      return false;
-    }
-    if (precedingVertex.getParallelism() != succeedingVertex.getParallelism()) {
-      return false;
-    }
-    if (precedingVertex.getStreamOperator().getChainStrategy() == ChainStrategy.NEVER
-        || succeedingVertex.getStreamOperator().getChainStrategy() == ChainStrategy.NEVER
-        || succeedingVertex.getStreamOperator().getChainStrategy() == ChainStrategy.HEAD) {
-      return false;
-    }
-    if (precedingVertex.getLanguage() != succeedingVertex.getLanguage()) {
-      return false;
-    }
-    Partition partition = edge.getPartition();
-    if (!(partition instanceof PythonPartition)) {
-      return partition instanceof ForwardPartition;
-    } else {
-      PythonPartition pythonPartition = (PythonPartition) partition;
-      return !pythonPartition.isConstructedFromBinary()
-          && pythonPartition.getFunctionName().equals(PythonPartition.FORWARD_PARTITION_CLASS);
     }
   }
 }

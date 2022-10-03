@@ -21,7 +21,7 @@ public class CollectionSourceFunction<T> implements SourceFunction<T> {
   public void init(int totalParallel, int currentIndex) {}
 
   @Override
-  public void fetch(SourceContext<T> ctx) throws Exception {
+  public void fetch(long checkpointId, SourceContext<T> ctx) throws Exception {
     if (finished) {
       return;
     }

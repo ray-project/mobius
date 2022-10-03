@@ -18,6 +18,8 @@ enum NodeType {
   // Sinks consume DataStreams and forward them to files, sockets, external
   // systems, or print them.
   SINK = 3;
+
+  SOURCE_AND_SINK = 4;
 }
 
 enum ReliabilityLevel {

@@ -5,7 +5,7 @@ import io.ray.streaming.operator.OneInputOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OneInputProcessor<T> extends StreamProcessor<Record<T>, OneInputOperator<T>> {
+public class OneInputProcessor<T> extends StreamProcessor<OneInputOperator<T>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OneInputProcessor.class);
 
@@ -14,7 +14,7 @@ public class OneInputProcessor<T> extends StreamProcessor<Record<T>, OneInputOpe
   }
 
   @Override
-  public void process(Record<T> record) {
+  public void process(Record record) {
     try {
       this.operator.processElement(record);
     } catch (Exception e) {

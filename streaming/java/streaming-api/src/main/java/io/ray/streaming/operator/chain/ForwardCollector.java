@@ -4,7 +4,8 @@ import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.message.Record;
 import io.ray.streaming.operator.OneInputOperator;
 
-class ForwardCollector implements Collector<Record> {
+@SuppressWarnings("unchecked")
+class ForwardCollector<T> implements Collector<T> {
 
   private final OneInputOperator succeedingOperator;
 
@@ -12,10 +13,15 @@ class ForwardCollector implements Collector<Record> {
     this.succeedingOperator = succeedingOperator;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public void collect(Record record) {
+  public void collect(T value) {
     try {
+      Record record;
+      if (value instanceof Record) {
+        record = (Record) value;
+      } else {
+        record = new Record(value);
+      }
       succeedingOperator.processElement(record);
     } catch (Exception e) {
       throw new RuntimeException(e);

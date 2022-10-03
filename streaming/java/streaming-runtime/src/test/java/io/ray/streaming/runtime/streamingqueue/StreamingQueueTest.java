@@ -7,9 +7,9 @@ import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.function.impl.FlatMapFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.stream.DataStreamSource;
+import io.ray.streaming.common.utils.EnvUtil;
 import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
-import io.ray.streaming.runtime.util.EnvUtil;
 import io.ray.streaming.util.Config;
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,7 +71,7 @@ public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
     System.clearProperty("ray.head-args.1");
   }
 
-  @Test(timeOut = 300000)
+  @Test(timeOut = 300000, enabled = false)
   public void testReaderWriter() {
     ActorHandle<WriterWorker> writerActor = Ray.actor(WriterWorker::new, "writer").remote();
     ActorHandle<ReaderWorker> readerActor = Ray.actor(ReaderWorker::new, "reader").remote();

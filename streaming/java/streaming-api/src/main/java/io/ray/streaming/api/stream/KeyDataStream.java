@@ -4,10 +4,11 @@ import io.ray.streaming.api.function.impl.AggregateFunction;
 import io.ray.streaming.api.function.impl.ReduceFunction;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.api.partition.impl.KeyPartition;
-import io.ray.streaming.operator.StreamOperator;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.impl.ReduceOperator;
 import io.ray.streaming.python.stream.PythonDataStream;
 import io.ray.streaming.python.stream.PythonKeyDataStream;
+import io.ray.streaming.util.TypeResolver;
 
 /**
  * Represents a DataStream returned by a key-by operation.
@@ -18,7 +19,7 @@ import io.ray.streaming.python.stream.PythonKeyDataStream;
 @SuppressWarnings("unchecked")
 public class KeyDataStream<K, T> extends DataStream<T> {
 
-  public KeyDataStream(DataStream<T> input, StreamOperator streamOperator) {
+  public KeyDataStream(DataStream<T> input, AbstractStreamOperator streamOperator) {
     super(input, streamOperator, (Partition<T>) new KeyPartition<K, T>());
   }
 
@@ -36,8 +37,10 @@ public class KeyDataStream<K, T> extends DataStream<T> {
    * @param reduceFunction The reduce function.
    * @return A new DataStream.
    */
-  public DataStream<T> reduce(ReduceFunction reduceFunction) {
-    return new DataStream<>(this, new ReduceOperator(reduceFunction));
+  public DataStream<T> reduce(ReduceFunction<T> reduceFunction) {
+    Class<?>[] reduceTypeArguments =
+        TypeResolver.resolveRawArguments(ReduceFunction.class, reduceFunction.getClass());
+    return new DataStream<>(this, new ReduceOperator(reduceFunction, reduceTypeArguments));
   }
 
   /**

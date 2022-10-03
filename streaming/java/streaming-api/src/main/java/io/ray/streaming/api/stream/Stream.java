@@ -5,13 +5,19 @@ import io.ray.streaming.api.Language;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.partition.Partition;
 import io.ray.streaming.api.partition.impl.ForwardPartition;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
+import io.ray.streaming.common.tuple.Tuple2;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.operator.ChainStrategy;
-import io.ray.streaming.operator.Operator;
-import io.ray.streaming.operator.StreamOperator;
-import io.ray.streaming.python.PythonPartition;
+import io.ray.streaming.util.TypeInference;
+import io.ray.streaming.util.TypeInfo;
+import io.ray.streaming.util.TypeUtils;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.arrow.vector.types.pojo.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of all stream types.
@@ -20,26 +26,32 @@ import java.util.Map;
  * @param <T> Type of the data in the stream.
  */
 public abstract class Stream<S extends Stream<S, T>, T> implements Serializable {
+  private static final Logger LOG = LoggerFactory.getLogger(Stream.class);
 
   private final int id;
   private final StreamingContext streamingContext;
   private final Stream inputStream;
-  private final StreamOperator operator;
+  private final AbstractStreamOperator operator;
   private int parallelism = 1;
   private Map<String, String> config = new HashMap<>();
   private Partition<T> partition;
   private Stream originalStream;
+  private String name;
+  // The default value indicates edges grouping by the greatest common divisor.
+  private int dynamicDivisionNum = 0;
 
-  public Stream(StreamingContext streamingContext, StreamOperator streamOperator) {
+  public Stream(StreamingContext streamingContext, AbstractStreamOperator streamOperator) {
     this(streamingContext, null, streamOperator, getForwardPartition(streamOperator));
   }
 
   public Stream(
-      StreamingContext streamingContext, StreamOperator streamOperator, Partition<T> partition) {
+      StreamingContext streamingContext,
+      AbstractStreamOperator streamOperator,
+      Partition<T> partition) {
     this(streamingContext, null, streamOperator, partition);
   }
 
-  public Stream(Stream inputStream, StreamOperator streamOperator) {
+  public Stream(Stream inputStream, AbstractStreamOperator streamOperator) {
     this(
         inputStream.getStreamingContext(),
         inputStream,
@@ -47,14 +59,14 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
         getForwardPartition(streamOperator));
   }
 
-  public Stream(Stream inputStream, StreamOperator streamOperator, Partition<T> partition) {
+  public Stream(Stream inputStream, AbstractStreamOperator streamOperator, Partition<T> partition) {
     this(inputStream.getStreamingContext(), inputStream, streamOperator, partition);
   }
 
   protected Stream(
       StreamingContext streamingContext,
       Stream inputStream,
-      StreamOperator streamOperator,
+      AbstractStreamOperator streamOperator,
       Partition<T> partition) {
     this.streamingContext = streamingContext;
     this.inputStream = inputStream;
@@ -80,10 +92,10 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> Partition<T> getForwardPartition(Operator operator) {
+  private static <T> Partition<T> getForwardPartition(AbstractStreamOperator operator) {
     switch (operator.getLanguage()) {
       case PYTHON:
-        return (Partition<T>) PythonPartition.ForwardPartition;
+        return (Partition<T>) PythonPartitionFunction.ForwardPartition;
       case JAVA:
         return new ForwardPartition<>();
       default:
@@ -103,7 +115,7 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
     return inputStream;
   }
 
-  public StreamOperator getOperator() {
+  public AbstractStreamOperator getOperator() {
     return operator;
   }
 
@@ -123,6 +135,17 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
       this.parallelism = parallelism;
     }
     return self();
+  }
+
+  public S withName(String name) {
+    LOG.info("Set customer name: {} for the stream: {}", name, getId());
+    this.name = name;
+    operator.setName(name);
+    return self();
+  }
+
+  public String getName() {
+    return name;
   }
 
   @SuppressWarnings("unchecked")
@@ -173,6 +196,71 @@ public abstract class Stream<S extends Stream<S, T>, T> implements Serializable 
     Preconditions.checkArgument(!isProxyStream());
     operator.setChainStrategy(chainStrategy);
     return self();
+  }
+
+  /** @return Schema of data in this stream */
+  public Schema getSchema() {
+    if (isProxyStream()) {
+      return getOriginalStream().getSchema();
+    } else {
+      if (!operator.hasSchema()) {
+        throw new IllegalStateException(
+            "Schema information can't be inferred, please specify manually.");
+      }
+      return operator.getSchema();
+    }
+  }
+
+  /** Set the schema of data in this stream */
+  public S withSchema(Schema schema) {
+    this.operator.setSchema(schema);
+    return self();
+  }
+
+  public TypeInfo getType() {
+    Preconditions.checkArgument(
+        operator.hasTypeInfo(), "Type information can't inferred out, please specify manually.");
+    return operator.getTypeInfo();
+  }
+
+  public S withType(TypeInfo typeInfo) {
+    operator.setTypeInfo(typeInfo);
+    if (TypeInference.isBean(typeInfo.getType())) {
+      Tuple2<Schema, String> either = TypeUtils.tryInferSchema(typeInfo.getType());
+      if (either.f1 != null) {
+        LOG.info("Can't infer schema for data type {}: {}", operator.getTypeInfo(), either.f1);
+      } else {
+        operator.setSchema(either.f0);
+      }
+    }
+    return self();
+  }
+
+  public S withResource(String resourceKey, Double resourceValue) {
+    this.operator.setResource(resourceKey, resourceValue);
+    return self();
+  }
+
+  public S withResource(Map<String, Double> resources) {
+    if (resources != null && !resources.isEmpty()) {
+      this.operator.setResource(resources);
+    }
+    return self();
+  }
+
+  /**
+   * Sets the number of edge groups. It will set a default value at run time based on the greatest
+   * common divisor of source vertex's partition and target vertex's partition if this is not set.
+   */
+  public S setDynamicDivisionNum(int dynamicDivisionNum) {
+    Preconditions.checkArgument(
+        dynamicDivisionNum > 0, "The number of groups must be greater than 0");
+    this.dynamicDivisionNum = dynamicDivisionNum;
+    return self();
+  }
+
+  public int getDynamicDivisionNum() {
+    return this.dynamicDivisionNum;
   }
 
   /** Disable chain for this stream */

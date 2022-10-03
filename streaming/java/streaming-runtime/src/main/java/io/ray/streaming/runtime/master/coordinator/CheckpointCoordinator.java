@@ -2,19 +2,24 @@ package io.ray.streaming.runtime.master.coordinator;
 
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
-import io.ray.api.ObjectRef;
 import io.ray.api.id.ActorId;
-import io.ray.runtime.exception.RayException;
+import io.ray.streaming.runtime.config.StreamingMasterConfig;
+import io.ray.streaming.runtime.config.global.CheckpointConfig;
+import io.ray.streaming.runtime.core.checkpoint.Barrier;
+import io.ray.streaming.runtime.core.command.WorkerCommitBarrierReport;
+import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.master.coordinator.command.BaseWorkerCmd;
 import io.ray.streaming.runtime.master.coordinator.command.WorkerCommitReport;
 import io.ray.streaming.runtime.rpc.RemoteCallWorker;
+import io.ray.streaming.runtime.rpc.remoteworker.WorkerCaller;
 import io.ray.streaming.runtime.worker.JobWorker;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,15 +33,19 @@ public class CheckpointCoordinator extends BaseCoordinator {
   private static final Logger LOG = LoggerFactory.getLogger(CheckpointCoordinator.class);
   private final Set<ActorId> pendingCheckpointActors = new HashSet<>();
   private final Set<Long> interruptedCheckpointSet = new HashSet<>();
+  private final List<WorkerCommitBarrierReport> arrivedCheckpointReports = new ArrayList<>();
   private final int cpIntervalSecs;
   private final int cpTimeoutSecs;
 
+  private volatile boolean isCheckpointing = false;
+
   public CheckpointCoordinator(JobMaster jobMaster) {
     super(jobMaster);
+    StreamingMasterConfig masterConfig = runtimeContext.getConfig().getMasterConfig();
 
     // get checkpoint interval from conf
-    this.cpIntervalSecs = runtimeContext.getConf().masterConfig.checkpointConfig.cpIntervalSecs();
-    this.cpTimeoutSecs = runtimeContext.getConf().masterConfig.checkpointConfig.cpTimeoutSecs();
+    this.cpIntervalSecs = masterConfig.checkpointConfig.cpIntervalSecs();
+    this.cpTimeoutSecs = masterConfig.checkpointConfig.cpTimeoutSecs();
 
     // Trigger next checkpoint in interval by reset last checkpoint timestamp.
     runtimeContext.lastCpTimestamp = System.currentTimeMillis();
@@ -135,37 +144,71 @@ public class CheckpointCoordinator extends BaseCoordinator {
   }
 
   private void triggerCheckpoint() {
-    interruptedCheckpointSet.clear();
     if (LOG.isInfoEnabled()) {
       LOG.info("Start trigger checkpoint {}.", runtimeContext.lastCheckpointId + 1);
     }
 
+    markAsCheckpointing();
+    interruptedCheckpointSet.clear();
+
+    Set<ActorId> deletingActorIds =
+        graphManager.getExecutionGraph().getAllMoribundVertices().stream()
+            .map(ExecutionVertex::getWorkerActorId)
+            .collect(Collectors.toSet());
+
+    for (ActorId id : deletingActorIds) {
+      if (pendingCheckpointActors.contains(id)) {
+        pendingCheckpointActors.remove(id);
+        LOG.info("Remove trigger checkpoint actor id {} ", id);
+      }
+    }
+
     List<ActorId> allIds = graphManager.getExecutionGraph().getAllActorsId();
+    allIds.removeAll(deletingActorIds);
     // do the checkpoint
     pendingCheckpointActors.addAll(allIds);
+    arrivedCheckpointReports.clear();
 
     // inc last checkpoint id
     ++runtimeContext.lastCheckpointId;
 
-    final List<ObjectRef> sourcesRet = new ArrayList<>();
+    // generate barrier by checkpoint id
+    Barrier barrier = new Barrier(runtimeContext.lastCheckpointId);
 
-    graphManager
-        .getExecutionGraph()
-        .getSourceActors()
-        .forEach(
-            actor -> {
-              sourcesRet.add(
-                  RemoteCallWorker.triggerCheckpoint(actor, runtimeContext.lastCheckpointId));
-            });
+    // get all the source worker's caller except the one who is ready to be deleted
+    List<WorkerCaller> targetWorkers =
+        graphManager.getExecutionGraph().getSourceWorkerCallers().stream()
+            .filter(
+                workerCaller -> !deletingActorIds.contains(workerCaller.getActorHandle().getId()))
+            .collect(Collectors.toList());
 
-    for (ObjectRef rayObject : sourcesRet) {
-      if (rayObject.get() instanceof RayException) {
-        LOG.warn("Trigger checkpoint has exception.", (RayException) rayObject.get());
-        throw (RayException) rayObject.get();
-      }
-    }
+    // NOTE(lingxuan.zlx): the lastest timestamp must be updated to prevent coordiantor from
+    // interrupting checkpoint wrongly if any source returns false trigger result.
     runtimeContext.lastCpTimestamp = System.currentTimeMillis();
-    LOG.info("Trigger checkpoint success.");
+
+    if (RemoteCallWorker.batchTriggerCheckpoint(
+            targetWorkers, barrier, CheckpointConfig.TRIGGER_CHECKPOINT_TIMEOUT)
+        .stream()
+        .anyMatch(eachTriggerResult -> !eachTriggerResult)) {
+      LOG.error("Trigger checkpoint failed: {}.", runtimeContext.lastCheckpointId);
+
+      return;
+    }
+
+    LOG.info("Trigger checkpoint success: {}.", runtimeContext.lastCheckpointId);
+
+    afterTriggerCheckpoint();
+  }
+
+  /**
+   * To collect or do some extra operations for extending job status within checkpoint lifecycle.
+   */
+  private void afterTriggerCheckpoint() {
+    return;
+  }
+
+  public synchronized void markAsCheckpointing() {
+    isCheckpointing = true;
   }
 
   private void interruptCheckpoint() {

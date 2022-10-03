@@ -5,27 +5,34 @@ import io.ray.streaming.operator.TwoInputOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TwoInputProcessor<T, O> extends StreamProcessor<Record, TwoInputOperator<T, O>> {
+public class TwoInputProcessor extends StreamProcessor<TwoInputOperator> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TwoInputProcessor.class);
 
   private String leftStream;
   private String rightStream;
 
-  public TwoInputProcessor(TwoInputOperator<T, O> operator) {
+  public TwoInputProcessor(TwoInputOperator operator) {
     super(operator);
   }
 
   @Override
   public void process(Record record) {
-    try {
-      if (record.getStream().equals(leftStream)) {
-        this.operator.processElement(record, null);
-      } else {
-        this.operator.processElement(null, record);
+    String streamName = record.getStream();
+    if (leftStream.equals(streamName)) {
+      try {
+        operator.processElement(record, null);
+      } catch (Exception e) {
+        LOGGER.error("TwoInputProcessor processes left stream failed", e);
+        throw new RuntimeException(e);
       }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    } else if (rightStream.equals(streamName)) {
+      try {
+        operator.processElement(null, record);
+      } catch (Exception e) {
+        LOGGER.error("TwoInputProcessor processes right stream failed", e);
+        throw new RuntimeException(e);
+      }
     }
   }
 

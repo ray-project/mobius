@@ -3,10 +3,10 @@ package io.ray.streaming.runtime.python;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Primitives;
 import io.ray.streaming.api.context.StreamingContext;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.api.stream.DataStream;
 import io.ray.streaming.api.stream.Stream;
 import io.ray.streaming.python.PythonFunction;
-import io.ray.streaming.python.PythonPartition;
 import io.ray.streaming.python.stream.PythonDataStream;
 import io.ray.streaming.python.stream.PythonStreamSource;
 import io.ray.streaming.runtime.serialization.MsgPackSerializer;
@@ -95,7 +95,7 @@ public class PythonGateway {
   }
 
   public byte[] createPyPartition(byte[] pyPartition) {
-    PythonPartition partition = new PythonPartition(pyPartition);
+    PythonPartitionFunction partition = new PythonPartitionFunction(pyPartition);
     referenceMap.put(getReferenceId(partition), partition);
     return serializer.serialize(getReferenceId(partition));
   }

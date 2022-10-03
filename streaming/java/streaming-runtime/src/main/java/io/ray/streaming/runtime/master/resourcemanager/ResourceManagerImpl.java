@@ -5,8 +5,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.ray.api.Ray;
 import io.ray.api.id.UniqueId;
 import io.ray.api.runtimecontext.NodeInfo;
+import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.runtime.config.StreamingMasterConfig;
-import io.ray.streaming.runtime.config.master.ResourceConfig;
 import io.ray.streaming.runtime.config.types.ResourceAssignStrategyType;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.core.resource.Container;
@@ -47,7 +47,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
   public ResourceManagerImpl(JobMasterRuntimeContext runtimeContext) {
     this.runtimeContext = runtimeContext;
-    StreamingMasterConfig masterConfig = runtimeContext.getConf().masterConfig;
+    StreamingMasterConfig masterConfig = runtimeContext.getConfig().getMasterConfig();
 
     this.resourceConfig = masterConfig.resourceConfig;
     this.resources = new Resources();

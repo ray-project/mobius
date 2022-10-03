@@ -1,6 +1,9 @@
 package io.ray.streaming.runtime.util;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.management.OperatingSystemMXBean;
+import io.ray.streaming.common.enums.ResourceKey;
 import io.ray.streaming.runtime.core.resource.Container;
 import io.ray.streaming.runtime.core.resource.ContainerId;
 import java.io.BufferedInputStream;
@@ -10,7 +13,9 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -21,6 +26,10 @@ public class ResourceUtil {
 
   public static final Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
 
+  // limit by ray, the mem size must be a positive multiple of 50
+  public static final int MEMORY_UNIT_SIZE = 50;
+  public static final int MEMORY_MB_MIN_VALUE = 128;
+
   /**
    * Refer to:
    * https://docs.oracle.com/javase/8/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html
@@ -28,7 +37,7 @@ public class ResourceUtil {
   private static OperatingSystemMXBean osmxb =
       (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-  /** Log current jvm process's memory detail */
+  /** Log current jvm process's buffer detail */
   public static void logProcessMemoryDetail() {
     int mb = 1024 * 1024;
 
@@ -37,13 +46,13 @@ public class ResourceUtil {
 
     StringBuilder sb = new StringBuilder(32);
 
-    sb.append("used memory: ")
+    sb.append("used buffer: ")
         .append((runtime.totalMemory() - runtime.freeMemory()) / mb)
-        .append(", free memory: ")
+        .append(", free buffer: ")
         .append(runtime.freeMemory() / mb)
-        .append(", total memory: ")
+        .append(", total buffer: ")
         .append(runtime.totalMemory() / mb)
-        .append(", max memory: ")
+        .append(", max buffer: ")
         .append(runtime.maxMemory() / mb);
 
     if (LOG.isInfoEnabled()) {
@@ -53,7 +62,7 @@ public class ResourceUtil {
 
   /**
    * @return jvm heap usage ratio. note that one of the survivor space is not include in total
-   *     memory while calculating this ratio.
+   *     buffer while calculating this ratio.
    */
   public static double getJvmHeapUsageRatio() {
     Runtime runtime = Runtime.getRuntime();
@@ -69,19 +78,19 @@ public class ResourceUtil {
     return runtime.totalMemory() - runtime.freeMemory();
   }
 
-  /** Returns the total amount of physical memory in bytes. */
+  /** Returns the total amount of physical buffer in bytes. */
   public static long getSystemTotalMemory() {
     return osmxb.getTotalPhysicalMemorySize();
   }
 
-  /** Returns the used system physical memory in bytes */
+  /** Returns the used system physical buffer in bytes */
   public static long getSystemMemoryUsage() {
     long totalMemory = osmxb.getTotalPhysicalMemorySize();
     long freeMemory = osmxb.getFreePhysicalMemorySize();
     return totalMemory - freeMemory;
   }
 
-  /** Returns the ratio of used system physical memory. This value is a double in the [0.0,1.0] */
+  /** Returns the ratio of used system physical buffer. This value is a double in the [0.0,1.0] */
   public static double getSystemMemoryUsageRatio() {
     double totalMemory = osmxb.getTotalPhysicalMemorySize();
     double freeMemory = osmxb.getFreePhysicalMemorySize();
@@ -198,5 +207,95 @@ public class ResourceUtil {
     return containers.stream()
         .filter(container -> container.getId().equals(containerID))
         .findFirst();
+  }
+
+  /**
+   * Transfer the buffer properly to fit the buffer value used for ray internal(divisible by 50).
+   *
+   * <p>Notice: 1) if the input buffer value < 128, it will be used as gb unit 2) if the input
+   * buffer value >= 128, it will be used as mb unit
+   *
+   * @param memoryValue the buffer value
+   * @return the properly value
+   */
+  public static long getMemoryMbFromMemoryValue(Double memoryValue) {
+    if (isMemoryMbValue(memoryValue.longValue())) {
+      // for mb value
+      if (memoryValue.longValue() % MEMORY_UNIT_SIZE == 0) {
+        return memoryValue.longValue();
+      }
+      return Double.valueOf(
+              (memoryValue.longValue() + (MEMORY_UNIT_SIZE - 1))
+                  / MEMORY_UNIT_SIZE
+                  * MEMORY_UNIT_SIZE)
+          .longValue();
+    } else {
+      // for gb value
+      return Double.valueOf(
+              (memoryValue.longValue() * 1024 + (MEMORY_UNIT_SIZE - 1))
+                  / MEMORY_UNIT_SIZE
+                  * MEMORY_UNIT_SIZE)
+          .longValue();
+    }
+  }
+
+  /**
+   * Judge whether the value is valid to describe buffer in mb. e.g. if user use gb-value, the value
+   * should be like 2,4
+   *
+   * @param value buffer value
+   * @return is a valid to describe buffer in mb
+   */
+  public static boolean isMemoryMbValue(long value) {
+    return value >= MEMORY_MB_MIN_VALUE;
+  }
+
+  /**
+   * Format cpu value for ray's limitation. limitation: if 0 < cpu <= 1, value can be decimal if cpu
+   * > 1, value must be integer
+   *
+   * @param cpuValue the target value
+   * @return formatted value
+   */
+  public static double formatCpuValue(double cpuValue) {
+    if (cpuValue > 1) {
+      return Math.round(cpuValue);
+    } else if (cpuValue > 0) {
+      return cpuValue;
+    }
+    return 1D;
+  }
+
+  /**
+   * Format resource map for ray's limitation.
+   *
+   * @param resource target resource
+   * @return formatted resource
+   */
+  public static Map<String, Double> formatResource(Map<String, Double> resource) {
+    // format cpu
+    if (resource.containsKey(ResourceKey.CPU.name())) {
+      resource.put(ResourceKey.CPU.name(), formatCpuValue(resource.get(ResourceKey.CPU.name())));
+    }
+    return resource;
+  }
+
+  /**
+   * Transfer operator resources into map.
+   *
+   * @param customOpResourceConfig resource config in job config
+   * @return map result
+   */
+  public static Map<String, Map<String, Double>> resolveOperatorResourcesFromJobConfig(
+      String customOpResourceConfig) {
+    try {
+      return new Gson()
+          .fromJson(
+              customOpResourceConfig,
+              new TypeToken<Map<String, Map<String, Double>>>() {}.getType());
+    } catch (Exception e) {
+      LOG.error("Failed to resolve operator resource from job config: {}.", customOpResourceConfig);
+    }
+    return Collections.emptyMap();
   }
 }

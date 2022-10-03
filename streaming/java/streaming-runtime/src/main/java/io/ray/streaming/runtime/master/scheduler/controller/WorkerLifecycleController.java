@@ -12,15 +12,13 @@ import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.python.GraphPbBuilder;
 import io.ray.streaming.runtime.rpc.RemoteCallWorker;
+import io.ray.streaming.runtime.util.RemoteCallUtils;
 import io.ray.streaming.runtime.worker.JobWorker;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,22 +27,38 @@ public class WorkerLifecycleController {
 
   private static final Logger LOG = LoggerFactory.getLogger(WorkerLifecycleController.class);
 
-  public boolean createWorkers(List<ExecutionVertex> executionVertices) {
-    return asyncBatchExecute(this::createWorker, executionVertices);
+  public boolean createWorkers(ExecutionGraph executionGraph) {
+    LOG.info(
+        "Use placement group: {} to create workers({}).",
+        executionGraph.getExecutionGroups() == null ? "empty" : executionGraph.getExecutionGroups(),
+        executionGraph.getAllNewbornVertices().size());
+    executionGraph.buildPlacementGroupToAllVertices();
+    List<ExecutionVertex> executionVertices = executionGraph.getAllNewbornVertices();
+
+    //    // Set worker config
+    //    executionVertices.forEach(executionVertex -> {
+    //      Map<String, String> conf = setUpWorkerConfig(jobConfig.getWorkerConfigTemplate(),
+    // executionVertex);
+    //      LOG.info("Worker {} conf is {}.", executionVertex.getExecutionVertexName(), conf);
+    //    });
+
+    LOG.info("Begin creating workers, size: {}.", executionVertices.size());
+    long now = System.currentTimeMillis();
+
+    boolean result = RemoteCallUtils.asyncBatchExecute(this::createWorker, executionVertices);
+
+    long cost = System.currentTimeMillis() - now;
+    LOG.info("Finish workers' creation request. Cost {} ms.", cost);
+
+    return result;
   }
 
-  /**
-   * Create JobWorker actor according to the execution vertex.
-   *
-   * @param executionVertex target execution vertex
-   * @return creation result
-   */
   private boolean createWorker(ExecutionVertex executionVertex) {
     LOG.info(
         "Start to create worker actor for vertex: {} with resource: {}, workeConfig: {}.",
         executionVertex.getExecutionVertexName(),
         executionVertex.getResource(),
-        executionVertex.getWorkerConfig());
+        executionVertex.getJobConfig());
 
     Language language = executionVertex.getLanguage();
 
@@ -72,7 +86,7 @@ public class WorkerLifecycleController {
       return false;
     }
 
-    executionVertex.setWorkerActor(actor);
+    executionVertex.setActor(actor);
 
     LOG.info(
         "Worker actor created, actor: {}, vertex: {}.",
@@ -100,7 +114,7 @@ public class WorkerLifecycleController {
             (entry -> {
               ExecutionVertex vertex = entry.getKey();
               rayObjects.put(
-                  RemoteCallWorker.initWorker(vertex.getWorkerActor(), entry.getValue()),
+                  RemoteCallWorker.initWorker(vertex.getActor(), entry.getValue()),
                   vertex.getWorkerActorId());
             }));
 
@@ -157,11 +171,16 @@ public class WorkerLifecycleController {
    * @return destroy result
    */
   public boolean destroyWorkers(List<ExecutionVertex> executionVertices) {
-    return asyncBatchExecute(this::destroyWorker, executionVertices);
+    return RemoteCallUtils.asyncBatchExecute(this::destroyWorker, executionVertices);
   }
 
   private boolean destroyWorker(ExecutionVertex executionVertex) {
-    BaseActorHandle rayActor = executionVertex.getWorkerActor();
+    if (null == executionVertex.getActor()) {
+      LOG.error("Execution vertex does not have an actor!");
+      return false;
+    }
+
+    BaseActorHandle rayActor = executionVertex.getActor();
     LOG.info(
         "Begin destroying worker[vertex={}, actor={}].",
         executionVertex.getExecutionVertexName(),
@@ -181,33 +200,25 @@ public class WorkerLifecycleController {
     return true;
   }
 
-  /**
-   * Async batch execute function, for some cases that could not use Ray.wait
-   *
-   * @param operation the function to be executed
-   */
-  private boolean asyncBatchExecute(
-      Function<ExecutionVertex, Boolean> operation, List<ExecutionVertex> executionVertices) {
-    final Object asyncContext = Ray.getAsyncContext();
+  public boolean destroyWorkersDirectly(List<ExecutionVertex> executionVertices) {
+    return RemoteCallUtils.asyncBatchExecute(this::destroyWorkerDirectly, executionVertices);
+  }
 
-    List<CompletableFuture<Boolean>> futureResults =
-        executionVertices.stream()
-            .map(
-                vertex ->
-                    CompletableFuture.supplyAsync(
-                        () -> {
-                          Ray.setAsyncContext(asyncContext);
-                          return operation.apply(vertex);
-                        }))
-            .collect(Collectors.toList());
-
-    List<Boolean> succeeded =
-        futureResults.stream().map(CompletableFuture::join).collect(Collectors.toList());
-
-    if (succeeded.stream().anyMatch(x -> !x)) {
-      LOG.error("Not all futures return true, check ResourceManager'log the detail.");
+  private boolean destroyWorkerDirectly(ExecutionVertex executionVertex) {
+    if (null == executionVertex.getActor()) {
+      LOG.error("Execution vertex does not have an actor!");
       return false;
     }
+
+    LOG.info(
+        "Start to destroy JobWorker actor directly for vertex: {}.",
+        executionVertex.getExecutionVertexName());
+    if (!Ray.getRuntimeContext().isSingleProcess()) {
+      executionVertex.getActor().kill();
+    }
+
+    LOG.info(
+        "Destroy JobWorker directly succeeded, actor: {}.", executionVertex.getWorkerActorId());
     return true;
   }
 }

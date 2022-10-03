@@ -3,15 +3,18 @@ package io.ray.streaming.runtime.master.graphmanager;
 import io.ray.api.BaseActorHandle;
 import io.ray.streaming.jobgraph.JobGraph;
 import io.ray.streaming.jobgraph.JobVertex;
+import io.ray.streaming.runtime.core.graph.JobInformation;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionEdge;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionGraph;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobEdge;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionJobVertex;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.master.context.JobMasterRuntimeContext;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -34,7 +37,7 @@ public class GraphManagerImpl implements GraphManager {
     // setup structure
     ExecutionGraph executionGraph = setupStructure(jobGraph);
 
-    // set max parallelism
+    // setup max parallelism
     int maxParallelism =
         jobGraph.getJobVertices().stream()
             .map(JobVertex::getParallelism)
@@ -42,15 +45,17 @@ public class GraphManagerImpl implements GraphManager {
             .get();
     executionGraph.setMaxParallelism(maxParallelism);
 
-    // set job config
-    executionGraph.setJobConfig(jobGraph.getJobConfig());
+    // setup job information
+    JobInformation jobInformation =
+        new JobInformation(jobGraph.getJobName(), jobGraph.getJobConfig());
+    executionGraph.setJobInformation(jobInformation);
 
     LOG.info("Build execution graph success.");
     return executionGraph;
   }
 
   private ExecutionGraph setupStructure(JobGraph jobGraph) {
-    ExecutionGraph executionGraph = new ExecutionGraph(jobGraph.getJobName());
+    ExecutionGraph executionGraph = new ExecutionGraph();
     Map<String, String> jobConfig = jobGraph.getJobConfig();
 
     // create vertex
@@ -62,22 +67,26 @@ public class GraphManagerImpl implements GraphManager {
       exeJobVertexMap.put(
           jobVertexId,
           new ExecutionJobVertex(
-              jobVertex, jobConfig, executionGraph.getExecutionVertexIdGenerator(), buildTime));
+              jobVertex, jobConfig, executionGraph.getLastExecutionVertexIndex(), buildTime));
     }
 
+    List<ExecutionJobEdge> exeJobEdgeList = new ArrayList<>();
     // for each job edge, connect all source exeVertices and target exeVertices
     jobGraph
         .getJobEdges()
         .forEach(
             jobEdge -> {
-              ExecutionJobVertex source = exeJobVertexMap.get(jobEdge.getSrcVertexId());
+              ExecutionJobVertex source = exeJobVertexMap.get(jobEdge.getSourceVertexId());
               ExecutionJobVertex target = exeJobVertexMap.get(jobEdge.getTargetVertexId());
 
               ExecutionJobEdge executionJobEdge = new ExecutionJobEdge(source, target, jobEdge);
+              exeJobEdgeList.add(executionJobEdge);
 
+              // attach execution job edge
               source.getOutputEdges().add(executionJobEdge);
               target.getInputEdges().add(executionJobEdge);
 
+              // attach execution edge
               source
                   .getExecutionVertices()
                   .forEach(
@@ -102,8 +111,10 @@ public class GraphManagerImpl implements GraphManager {
             });
 
     // set execution job vertex into execution graph
-    executionGraph.setExecutionJobVertexMap(exeJobVertexMap);
-    executionGraph.setExecutionVertexMap(executionVertexMap);
+    executionGraph.setExecutionJobEdges(exeJobEdgeList);
+    executionGraph.setJobVertexIdExecutionJobVertexMap(exeJobVertexMap);
+    executionGraph.setExecutionVertexIdExecutionVertexMap(executionVertexMap);
+    executionGraph.setVerticesInCreationOrder(new ArrayList<>(exeJobVertexMap.values()));
 
     return executionGraph;
   }
@@ -116,6 +127,10 @@ public class GraphManagerImpl implements GraphManager {
     Set<BaseActorHandle> actorSet =
         channelGroupedActors.computeIfAbsent(channelId, k -> new HashSet<>());
     actorSet.add(actor);
+  }
+
+  public void removeAllPlacementGroup() {
+    getExecutionGraph().removePlacementGroupToAllVertices();
   }
 
   @Override

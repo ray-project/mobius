@@ -4,16 +4,17 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import io.ray.api.BaseActorHandle;
 import io.ray.streaming.api.Language;
+import io.ray.streaming.common.config.ResourceConfig;
 import io.ray.streaming.jobgraph.JobVertex;
 import io.ray.streaming.jobgraph.VertexType;
 import io.ray.streaming.operator.StreamOperator;
-import io.ray.streaming.runtime.config.master.ResourceConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.aeonbits.owner.ConfigFactory;
 
 /**
@@ -27,8 +28,11 @@ public class ExecutionJobVertex implements Serializable {
   /** Unique id. Use {@link JobVertex}'s id directly. */
   private final int executionJobVertexId;
 
+  private final JobVertex jobVertex;
+
   /**
-   * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g. 1-SourceOperator
+   * Use jobVertex id and operator(use {@link StreamOperator}'s name) as name. e.g.
+   * 1-ISourceOperator
    */
   private final String executionJobVertexName;
 
@@ -40,6 +44,8 @@ public class ExecutionJobVertex implements Serializable {
 
   /** Parallelism of current execution job vertex(operator). */
   private int parallelism;
+  /** Max parallelism limit of current execution job vertex(operator). */
+  private int maxParallelism;
 
   /** Sub execution vertices of current execution job vertex(operator). */
   private List<ExecutionVertex> executionVertices;
@@ -49,16 +55,19 @@ public class ExecutionJobVertex implements Serializable {
 
   private List<ExecutionJobEdge> outputEdges = new ArrayList<>();
 
+  /** The status of the vertex considering any scaling process. */
+  private ExecutionJobVertexState executionJobVertexState = ExecutionJobVertexState.NORMAL;
+
   public ExecutionJobVertex(
       JobVertex jobVertex,
       Map<String, String> jobConfig,
       AtomicInteger idGenerator,
       long buildTime) {
+    this.jobVertex = jobVertex;
     this.executionJobVertexId = jobVertex.getVertexId();
     this.executionJobVertexName =
-        generateExecutionJobVertexName(
-            executionJobVertexId, jobVertex.getStreamOperator().getName());
-    this.streamOperator = jobVertex.getStreamOperator();
+        generateExecutionJobVertexName(executionJobVertexId, jobVertex.getOperator().getName());
+    this.streamOperator = jobVertex.getOperator();
     this.vertexType = jobVertex.getVertexType();
     this.language = jobVertex.getLanguage();
     this.jobConfig = jobConfig;
@@ -91,8 +100,8 @@ public class ExecutionJobVertex implements Serializable {
         .forEach(
             vertex -> {
               Preconditions.checkArgument(
-                  vertex.getWorkerActor() != null, "Empty execution vertex worker actor.");
-              executionVertexWorkersMap.put(vertex.getExecutionVertexId(), vertex.getWorkerActor());
+                  vertex.getActor() != null, "Empty execution vertex worker actor.");
+              executionVertexWorkersMap.put(vertex.getExecutionVertexId(), vertex.getActor());
             });
 
     return executionVertexWorkersMap;
@@ -107,7 +116,7 @@ public class ExecutionJobVertex implements Serializable {
   }
 
   /**
-   * e.g. 1-SourceOperator
+   * e.g. 1-ISourceOperator
    *
    * @return operator name with index
    */
@@ -131,16 +140,43 @@ public class ExecutionJobVertex implements Serializable {
     return outputEdges;
   }
 
-  public void setOutputEdges(List<ExecutionJobEdge> outputEdges) {
-    this.outputEdges = outputEdges;
-  }
-
   public List<ExecutionJobEdge> getInputEdges() {
     return inputEdges;
   }
 
-  public void setInputEdges(List<ExecutionJobEdge> inputEdges) {
-    this.inputEdges = inputEdges;
+  public Map<String, String> getOpConfig() {
+    if (jobVertex.getOperator() == null || jobVertex.getOperator().getOpConfig() == null) {
+      return new HashMap<>();
+    }
+    return jobVertex.getOperator().getOpConfig();
+  }
+
+  public List<ExecutionJobVertex> getOutputExecJobVertices() {
+    List<ExecutionJobVertex> executionJobVertices = new ArrayList<>();
+    for (ExecutionJobEdge executionJobEdge : outputEdges) {
+      executionJobVertices.add(executionJobEdge.getTarget());
+    }
+    return executionJobVertices;
+  }
+
+  public List<ExecutionJobVertex> getInputExecJobVertices() {
+    List<ExecutionJobVertex> executionJobVertices = new ArrayList<>();
+    for (ExecutionJobEdge executionJobEdge : inputEdges) {
+      executionJobVertices.add(executionJobEdge.getSource());
+    }
+    return executionJobVertices;
+  }
+
+  public void connectInputs(List<ExecutionJobEdge> inputEdges) {
+    if (inputEdges != null) {
+      this.inputEdges.addAll(inputEdges);
+    }
+  }
+
+  public void connectOutputs(List<ExecutionJobEdge> outputEdges) {
+    if (outputEdges != null) {
+      this.outputEdges.addAll(outputEdges);
+    }
   }
 
   public StreamOperator getStreamOperator() {
@@ -159,20 +195,54 @@ public class ExecutionJobVertex implements Serializable {
     return jobConfig;
   }
 
+  public JobVertex getJobVertex() {
+    return jobVertex;
+  }
+
   public long getBuildTime() {
     return buildTime;
   }
 
   public boolean isSourceVertex() {
-    return getVertexType() == VertexType.SOURCE;
+    return getVertexType() == VertexType.source;
   }
 
   public boolean isTransformationVertex() {
-    return getVertexType() == VertexType.TRANSFORMATION;
+    return getVertexType() == VertexType.process;
   }
 
   public boolean isSinkVertex() {
-    return getVertexType() == VertexType.SINK;
+    return getVertexType() == VertexType.sink;
+  }
+
+  public List<ExecutionVertex> getNewbornVertices() {
+    return executionVertices.stream()
+        .filter(v -> v.getState() == ExecutionVertexState.TO_ADD)
+        .collect(Collectors.toList());
+  }
+
+  public List<ExecutionVertex> getMoribundVertices() {
+    return executionVertices.stream()
+        .filter(v -> v.getState() == ExecutionVertexState.TO_DEL)
+        .collect(Collectors.toList());
+  }
+
+  public boolean isChangedOrAffected() {
+    return !executionJobVertexState.equals(ExecutionJobVertexState.NORMAL);
+  }
+
+  public boolean isChanged() {
+    return executionVertices.stream().anyMatch(ExecutionVertex::isToChange);
+  }
+
+  public List<BaseActorHandle> getAllActors() {
+    return executionVertices.stream().map(ExecutionVertex::getActor).collect(Collectors.toList());
+  }
+
+  public void updateResources(Map<String, Double> resources) {
+    jobVertex.getResources().putAll(resources);
+    executionVertices.forEach(
+        executionVertex -> executionVertex.updateRequiredResources(resources));
   }
 
   @Override

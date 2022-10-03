@@ -8,10 +8,10 @@ import java.io.Serializable;
 public class ExecutionEdge implements Serializable {
 
   /** The source(upstream) execution vertex. */
-  private final ExecutionVertex sourceExecutionVertex;
+  private ExecutionVertex sourceExecutionVertex;
 
   /** The target(downstream) execution vertex. */
-  private final ExecutionVertex targetExecutionVertex;
+  private ExecutionVertex targetExecutionVertex;
 
   /** The partition of current execution edge's execution job edge. */
   private final Partition partition;
@@ -35,16 +35,24 @@ public class ExecutionEdge implements Serializable {
         + targetExecutionVertex.getExecutionVertexId();
   }
 
-  public ExecutionVertex getSourceExecutionVertex() {
+  public ExecutionVertex getSource() {
     return sourceExecutionVertex;
   }
 
-  public ExecutionVertex getTargetExecutionVertex() {
+  public ExecutionVertex getTarget() {
     return targetExecutionVertex;
   }
 
+  public void setSource(ExecutionVertex source) {
+    this.sourceExecutionVertex = source;
+  }
+
+  public void setTarget(ExecutionVertex target) {
+    this.targetExecutionVertex = target;
+  }
+
   public String getTargetExecutionJobVertexName() {
-    return getTargetExecutionVertex().getExecutionJobVertexName();
+    return getTarget().getExecutionJobVertexName();
   }
 
   public int getSourceVertexId() {
@@ -55,12 +63,24 @@ public class ExecutionEdge implements Serializable {
     return targetExecutionVertex.getExecutionVertexId();
   }
 
+  public String getExecutionEdgeId() {
+    return getSourceVertexId() + "_" + getTargetVertexId();
+  }
+
+  public String getExecutionEdgeName() {
+    return getSource().getExecutionVertexName() + "_" + getTarget().getExecutionVertexName();
+  }
+
   public Partition getPartition() {
     return partition;
   }
 
   public String getExecutionEdgeIndex() {
     return executionEdgeIndex;
+  }
+
+  public boolean isAlive() {
+    return !getSource().isToDelete() && !getTarget().isToDelete();
   }
 
   @Override

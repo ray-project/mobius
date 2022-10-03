@@ -4,8 +4,8 @@ import io.ray.streaming.api.partition.Partition;
 
 /**
  * Default partition for operator if the operator can be chained with succeeding operators.
- * Partition will be set to {@link RoundRobinPartition} if the operator can't be chiained with
- * succeeding operators.
+ * Partition will be set to {@link RoundRobinPartitionFunction} if the operator can't be chiained
+ * with succeeding operators.
  *
  * @param <T> Type of the input record.
  */

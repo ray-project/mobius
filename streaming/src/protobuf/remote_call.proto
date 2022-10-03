@@ -12,12 +12,21 @@ option java_package = "io.ray.streaming.runtime.generated";
 message ExecutionVertexContext {
   // An edge between 2 execution vertices
   message ExecutionEdge {
+
     // upstream execution vertex id
     int32 source_execution_vertex_id = 1;
+
     // downstream execution vertex id
     int32 target_execution_vertex_id = 2;
+
+    //original source operator id
+    int32 original_src_operator_id = 3;
+
     // serialized partition between source/target vertex
-    bytes partition = 3;
+    bytes partition = 4;
+
+    //if the edge is cyclic
+    bool cyclic = 5;
   }
 
   message ExecutionVertex {
@@ -53,10 +62,29 @@ message ExecutionVertexContext {
 
 // Streaming python worker context
 message PythonJobWorkerContext {
-  // serialized master actor handle
-  bytes master_actor = 1;
-  // vertex including it's upstream and downstream
-  ExecutionVertexContext execution_vertex_context = 2;
+    // worker id
+    string worker_id = 1;
+
+    // serialized master actor handle
+    bytes master_actor = 2;
+
+    // vertex including it's upstream and downstream
+    ExecutionVertexContext execution_vertex_context = 3;
+
+    // vertex changing state
+    bool is_changed = 4;
+
+    // role in change sub dag
+    NodeType role_in_changed_sub_dag = 5;
+}
+
+message ActorId {
+  bytes id = 1;
+}
+
+message ActorHandle {
+  bool from_java = 1;
+  bytes actor_handle = 2;
 }
 
 message BoolResult {
@@ -103,3 +131,28 @@ message QueueRecoverInfo {
   }
   map<string, QueueCreationStatus> creation_status = 3;
 }
+
+message JobWorkerContext {
+  string job_name = 1;
+  string op_name = 2;
+  string worker_name = 3;
+  ActorHandle master = 4;
+  ActorId worker_id = 5;
+  map<string, string> conf = 6;
+  map<string, ActorHandle> input_queue_actor = 7;
+  map<string, ActorHandle> output_queue_actor = 8;
+  bool is_changed = 9;
+  ExecutionVertexState worker_state = 10;
+  int64 id = 11;
+}
+
+enum ExecutionVertexState {
+  TO_ADD = 0;
+  TO_ADD_RELATED = 1;
+  TO_DEL = 2;
+  TO_DEL_RELATED = 3;
+  TO_UPDATE = 4;
+  RUNNING = 5;
+  UNKNOWN_STATE = 6;
+}
+

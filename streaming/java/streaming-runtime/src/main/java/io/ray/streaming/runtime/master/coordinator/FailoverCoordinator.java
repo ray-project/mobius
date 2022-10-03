@@ -132,7 +132,7 @@ public class FailoverCoordinator extends BaseCoordinator {
       interruptCheckpointAndRollback(rollbackRequest);
     } else {
       asyncRemoteCaller.checkIfNeedRollbackAsync(
-          exeVertex.getWorkerActor(),
+          exeVertex.getActor(),
           res -> {
             if (!res) {
               LOG.info("Vertex {} doesn't need to rollback, skip it.", exeVertex);
@@ -190,7 +190,7 @@ public class FailoverCoordinator extends BaseCoordinator {
     isRollbacking.put(exeVertex, true);
 
     asyncRemoteCaller.rollback(
-        exeVertex.getWorkerActor(),
+        exeVertex.getActor(),
         checkpointId,
         result -> {
           List<WorkerRollbackRequest> newRollbackRequests = new ArrayList<>();
@@ -259,9 +259,9 @@ public class FailoverCoordinator extends BaseCoordinator {
     dataLostQueues.forEach(
         q -> {
           BaseActorHandle upstreamActor =
-              graphManager.getExecutionGraph().getPeerActor(fromVertex.getWorkerActor(), q);
+              graphManager.getExecutionGraph().getAnotherActor(fromVertex.getActor(), q);
           ExecutionVertex upstreamExeVertex = getExecutionVertex(upstreamActor);
-          // vertexes that has already cascaded by other vertex in the same level
+          // vertices that have already cascaded by other vertex in the same level
           // of graph should be ignored.
           if (isRollbacking.get(upstreamExeVertex)) {
             return;

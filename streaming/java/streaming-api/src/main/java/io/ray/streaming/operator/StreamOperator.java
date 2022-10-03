@@ -4,94 +4,128 @@ import io.ray.streaming.api.Language;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.api.function.Function;
-import io.ray.streaming.api.function.RichFunction;
-import io.ray.streaming.api.function.internal.Functions;
-import io.ray.streaming.message.KeyRecord;
-import io.ray.streaming.message.Record;
+import io.ray.streaming.common.enums.OperatorInputType;
+import io.ray.streaming.util.TypeInfo;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.arrow.vector.types.pojo.Schema;
 
-public abstract class StreamOperator<F extends Function> implements Operator {
+public interface StreamOperator extends Serializable {
 
-  protected final String name;
-  protected F function;
-  protected RichFunction richFunction;
-  protected List<Collector> collectorList;
-  protected RuntimeContext runtimeContext;
-  private ChainStrategy chainStrategy = ChainStrategy.ALWAYS;
+  String DEFAULT_NAME = "DefaultOperator";
 
-  protected StreamOperator() {
-    this.name = getClass().getSimpleName();
+  /** Get current operator's id. */
+  int getId();
+
+  /** Get current operator's name. */
+  String getName();
+
+  /** Get current operator's type. */
+  OperatorInputType getOpType();
+
+  /** Get current operator's chain strategy. */
+  ChainStrategy getChainStrategy();
+
+  /** Get current operator's function. */
+  Function getFunction();
+
+  /** Get current operator's language type. */
+  Language getLanguage();
+
+  /** Get current operator's config. */
+  Map<String, String> getOpConfig();
+
+  /** Whether is ready to do rescaling for the operator. */
+  boolean isReadyRescaling();
+
+  /** Get current operator's down stream collectors. */
+  List<Collector> getCollectors();
+
+  /** Open operator. */
+  void open(List<Collector> collectors, RuntimeContext runtimeContext);
+
+  /**
+   * Process record.
+   *
+   * @param record target object
+   */
+  void process(Object record);
+
+  /** Close Operator. */
+  void close();
+
+  /** Finish this checkpoint in specific id. */
+  void finish(long checkpointId) throws Exception;
+
+  /** Save checkpoint by checkpoint id. */
+  void saveCheckpoint(long checkpointId) throws Exception;
+
+  /** Load checkpoint by checkpoint id. */
+  void loadCheckpoint(long checkpointId) throws Exception;
+
+  /** Delete checkpoint by checkpoint id. */
+  default void deleteCheckpoint(long checkpointId) throws Exception {
+    throw new UnsupportedOperationException();
   }
 
-  protected StreamOperator(F function) {
-    this();
-    setFunction(function);
+  /** Returns true if this operator has output data type information. */
+  boolean hasTypeInfo();
+
+  /** Returns Output data type information of this operator. */
+  TypeInfo getTypeInfo();
+
+  /** Set typeinfo for this operator. */
+  void setTypeInfo(TypeInfo typeInfo);
+
+  /** Returns true if this operator has output data schema. */
+  boolean hasSchema();
+
+  /** Returns Output data schema of this operator. */
+  Schema getSchema();
+
+  /** Set schema for this operator. */
+  void setSchema(Schema schema);
+
+  /** Set resource for operator. */
+  void setResource(String resourceKey, Double resourceValue);
+
+  /** Set resources for operator. */
+  void setResource(Map<String, Double> resources);
+
+  /** Get operator's resources. */
+  Map<String, Double> getResource();
+
+  default void closeState() {
+    throw new UnsupportedOperationException();
   }
 
-  public void setFunction(F function) {
-    this.function = function;
-    this.richFunction = Functions.wrap(function);
+  default String getOperatorString() {
+    return getClass().getSimpleName();
   }
 
-  @Override
-  public void open(List<Collector> collectorList, RuntimeContext runtimeContext) {
-    this.collectorList = collectorList;
-    this.runtimeContext = runtimeContext;
-    richFunction.open(runtimeContext);
+  default boolean isRollback() {
+    throw new UnsupportedOperationException();
   }
 
-  @Override
-  public void finish() {}
-
-  @Override
-  public void close() {
-    richFunction.close();
+  default List<StreamOperator> getNextOperators() {
+    return new ArrayList<>();
   }
 
-  @Override
-  public Function getFunction() {
-    return function;
+  default Set<StreamOperator> getTailOperatorSet() {
+    return new HashSet<>();
   }
 
-  @Override
-  public Language getLanguage() {
-    return Language.JAVA;
+  default void setNextOperators(List<StreamOperator> operators) {}
+
+  default String getFunctionString() {
+    return "";
   }
 
-  protected void collect(Record record) {
-    for (Collector collector : this.collectorList) {
-      collector.collect(record);
-    }
-  }
+  void addNextOperator(StreamOperator operator);
 
-  protected void collect(KeyRecord keyRecord) {
-    for (Collector collector : this.collectorList) {
-      collector.collect(keyRecord);
-    }
-  }
-
-  @Override
-  public Serializable saveCheckpoint() {
-    return function.saveCheckpoint();
-  }
-
-  @Override
-  public void loadCheckpoint(Serializable checkpointObject) {
-    function.loadCheckpoint(checkpointObject);
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  public void setChainStrategy(ChainStrategy chainStrategy) {
-    this.chainStrategy = chainStrategy;
-  }
-
-  @Override
-  public ChainStrategy getChainStrategy() {
-    return chainStrategy;
-  }
+  void forwardCommand(String commandMessage);
 }

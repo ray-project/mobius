@@ -10,16 +10,16 @@ import java.util.List;
  */
 public class CollectionCollector<T> implements Collector<T> {
 
-  private List<Collector> collectorList;
+  private List<Collector<Record<T>>> collectorList;
 
-  public CollectionCollector(List<Collector> collectorList) {
+  public CollectionCollector(List<Collector<Record<T>>> collectorList) {
     this.collectorList = collectorList;
   }
 
   @Override
   public void collect(T value) {
-    for (Collector collector : collectorList) {
-      collector.collect(new Record(value));
+    for (Collector<Record<T>> collector : collectorList) {
+      collector.collect(new Record<>(value));
     }
   }
 }

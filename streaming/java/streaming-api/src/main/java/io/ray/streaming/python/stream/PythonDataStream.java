@@ -3,12 +3,12 @@ package io.ray.streaming.python.stream;
 import io.ray.streaming.api.Language;
 import io.ray.streaming.api.context.StreamingContext;
 import io.ray.streaming.api.partition.Partition;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
 import io.ray.streaming.api.stream.DataStream;
 import io.ray.streaming.api.stream.Stream;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonFunction.FunctionInterface;
 import io.ray.streaming.python.PythonOperator;
-import io.ray.streaming.python.PythonPartition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -160,7 +160,7 @@ public class PythonDataStream extends Stream<PythonDataStream, Object> implement
    */
   public PythonDataStream broadcast() {
     checkPartitionCall();
-    return setPartition(PythonPartition.BroadcastPartition);
+    return setPartition(PythonPartitionFunction.BroadcastPartition);
   }
 
   /**
@@ -169,7 +169,7 @@ public class PythonDataStream extends Stream<PythonDataStream, Object> implement
    * @param partition The partitioning strategy.
    * @return This stream.
    */
-  public PythonDataStream partitionBy(PythonPartition partition) {
+  public PythonDataStream partitionBy(PythonPartitionFunction partition) {
     checkPartitionCall();
     return setPartition(partition);
   }

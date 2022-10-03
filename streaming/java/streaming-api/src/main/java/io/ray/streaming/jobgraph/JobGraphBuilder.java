@@ -7,8 +7,11 @@ import io.ray.streaming.api.stream.Stream;
 import io.ray.streaming.api.stream.StreamSink;
 import io.ray.streaming.api.stream.StreamSource;
 import io.ray.streaming.api.stream.UnionStream;
-import io.ray.streaming.operator.StreamOperator;
+import io.ray.streaming.operator.AbstractStreamOperator;
 import io.ray.streaming.python.stream.PythonDataStream;
+import io.ray.streaming.python.stream.PythonJoinStream;
+import io.ray.streaming.python.stream.PythonKeyDataStream;
+import io.ray.streaming.python.stream.PythonMergeStream;
 import io.ray.streaming.python.stream.PythonUnionStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +24,8 @@ import org.slf4j.LoggerFactory;
 public class JobGraphBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(JobGraphBuilder.class);
+
+  private final int isJoinRightEdge = 1;
 
   private JobGraph jobGraph;
 
@@ -58,30 +63,46 @@ public class JobGraphBuilder {
       LOG.debug("Skip proxy stream {} of id {}", stream, stream.getId());
       stream = stream.getOriginalStream();
     }
-    StreamOperator streamOperator = stream.getOperator();
+    AbstractStreamOperator streamOperator = stream.getOperator();
     Preconditions.checkArgument(
         stream.getLanguage() == streamOperator.getLanguage(),
         "Reference stream should be skipped.");
     int vertexId = stream.getId();
     int parallelism = stream.getParallelism();
     Map<String, String> config = stream.getConfig();
+    int dynamicDivisionNum = stream.getDynamicDivisionNum();
     JobVertex jobVertex;
     if (stream instanceof StreamSink) {
-      jobVertex = new JobVertex(vertexId, parallelism, VertexType.SINK, streamOperator, config);
+      jobVertex =
+          new JobVertex(vertexId, parallelism, dynamicDivisionNum, VertexType.sink, streamOperator);
       Stream parentStream = stream.getInputStream();
       int inputVertexId = parentStream.getId();
       JobEdge jobEdge = new JobEdge(inputVertexId, vertexId, parentStream.getPartition());
-      this.jobGraph.addEdge(jobEdge);
+      this.jobGraph.addEdgeIfNotExist(jobEdge);
       processStream(parentStream);
     } else if (stream instanceof StreamSource) {
-      jobVertex = new JobVertex(vertexId, parallelism, VertexType.SOURCE, streamOperator, config);
-    } else if (stream instanceof DataStream || stream instanceof PythonDataStream) {
       jobVertex =
-          new JobVertex(vertexId, parallelism, VertexType.TRANSFORMATION, streamOperator, config);
+          new JobVertex(
+              vertexId, parallelism, dynamicDivisionNum, VertexType.source, streamOperator);
+    } else if (stream instanceof DataStream || stream instanceof PythonDataStream) {
+      if (stream instanceof JoinStream) {
+        jobVertex =
+            new JobVertex(
+                vertexId, parallelism, dynamicDivisionNum, VertexType.join, streamOperator);
+      } else if (stream instanceof UnionStream) {
+        jobVertex =
+            new JobVertex(
+                vertexId, parallelism, dynamicDivisionNum, VertexType.union, streamOperator);
+      } else {
+        jobVertex =
+            new JobVertex(
+                vertexId, parallelism, dynamicDivisionNum, VertexType.process, streamOperator);
+      }
+
       Stream parentStream = stream.getInputStream();
       int inputVertexId = parentStream.getId();
       JobEdge jobEdge = new JobEdge(inputVertexId, vertexId, parentStream.getPartition());
-      this.jobGraph.addEdge(jobEdge);
+      this.jobGraph.addEdgeIfNotExist(jobEdge);
       processStream(parentStream);
 
       // process union stream
@@ -94,16 +115,34 @@ public class JobGraphBuilder {
       }
       for (Stream otherStream : streams) {
         JobEdge otherEdge = new JobEdge(otherStream.getId(), vertexId, otherStream.getPartition());
-        this.jobGraph.addEdge(otherEdge);
+        this.jobGraph.addEdgeIfNotExist(otherEdge);
         processStream(otherStream);
       }
 
-      // process join stream
+      // Process java join stream.
       if (stream instanceof JoinStream) {
         DataStream rightStream = ((JoinStream) stream).getRightStream();
-        this.jobGraph.addEdge(
+        JobEdge rightJobEdge =
+            new JobEdge(rightStream.getId(), vertexId, rightStream.getPartition());
+        rightJobEdge.setEdgeType(isJoinRightEdge);
+        this.jobGraph.addEdgeIfNotExist(rightJobEdge);
+        processStream(rightStream);
+      }
+      // Process python join stream.
+      if (stream instanceof PythonJoinStream) {
+        PythonKeyDataStream rightStream = ((PythonJoinStream) stream).getRightStream();
+        this.jobGraph.addEdgeIfNotExist(
             new JobEdge(rightStream.getId(), vertexId, rightStream.getPartition()));
         processStream(rightStream);
+      }
+      // Process multiple input stream.
+      if (stream instanceof PythonMergeStream) {
+        List<PythonKeyDataStream> rightStreams = ((PythonMergeStream) stream).getRightStreams();
+        for (PythonKeyDataStream rightStream : rightStreams) {
+          this.jobGraph.addEdgeIfNotExist(
+              new JobEdge(rightStream.getId(), vertexId, rightStream.getPartition()));
+          processStream(rightStream);
+        }
       }
     } else {
       throw new UnsupportedOperationException("Unsupported stream: " + stream);

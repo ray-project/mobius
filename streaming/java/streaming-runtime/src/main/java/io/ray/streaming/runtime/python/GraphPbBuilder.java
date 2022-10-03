@@ -4,11 +4,11 @@ import com.google.protobuf.ByteString;
 import io.ray.runtime.actor.NativeActorHandle;
 import io.ray.streaming.api.function.Function;
 import io.ray.streaming.api.partition.Partition;
-import io.ray.streaming.operator.Operator;
+import io.ray.streaming.api.partition.impl.PythonPartitionFunction;
+import io.ray.streaming.operator.StreamOperator;
 import io.ray.streaming.python.PythonFunction;
 import io.ray.streaming.python.PythonOperator;
 import io.ray.streaming.python.PythonOperator.ChainedPythonOperator;
-import io.ray.streaming.python.PythonPartition;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionEdge;
 import io.ray.streaming.runtime.core.graph.executiongraph.ExecutionVertex;
 import io.ray.streaming.runtime.generated.RemoteCall;
@@ -31,13 +31,13 @@ public class GraphPbBuilder {
     builder.setCurrentExecutionVertex(buildVertex(executionVertex));
 
     // build upstream vertices
-    List<ExecutionVertex> upstreamVertices = executionVertex.getInputVertices();
+    List<ExecutionVertex> upstreamVertices = executionVertex.getInputExecutionVertices();
     List<RemoteCall.ExecutionVertexContext.ExecutionVertex> upstreamVertexPbs =
         upstreamVertices.stream().map(this::buildVertex).collect(Collectors.toList());
     builder.addAllUpstreamExecutionVertices(upstreamVertexPbs);
 
     // build downstream vertices
-    List<ExecutionVertex> downstreamVertices = executionVertex.getOutputVertices();
+    List<ExecutionVertex> downstreamVertices = executionVertex.getOutputExecutionVertices();
     List<RemoteCall.ExecutionVertexContext.ExecutionVertex> downstreamVertexPbs =
         downstreamVertices.stream().map(this::buildVertex).collect(Collectors.toList());
     builder.addAllDownstreamExecutionVertices(downstreamVertexPbs);
@@ -68,17 +68,17 @@ public class GraphPbBuilder {
     executionVertexBuilder.setExecutionVertexIndex(executionVertex.getExecutionVertexIndex());
     executionVertexBuilder.setParallelism(executionVertex.getParallelism());
     executionVertexBuilder.setOperator(
-        ByteString.copyFrom(serializeOperator(executionVertex.getStreamOperator())));
-    executionVertexBuilder.setChained(isPythonChainedOperator(executionVertex.getStreamOperator()));
-    if (executionVertex.getWorkerActor() != null) {
+        ByteString.copyFrom(serializeOperator(executionVertex.getOperator())));
+    executionVertexBuilder.setChained(isPythonChainedOperator(executionVertex.getOperator()));
+    if (executionVertex.getActor() != null) {
       executionVertexBuilder.setWorkerActor(
-          ByteString.copyFrom(((NativeActorHandle) (executionVertex.getWorkerActor())).toBytes()));
+          ByteString.copyFrom(((NativeActorHandle) (executionVertex.getActor())).toBytes()));
     }
     executionVertexBuilder.setContainerId(executionVertex.getContainerId().toString());
     executionVertexBuilder.setBuildTime(executionVertex.getBuildTime());
     executionVertexBuilder.setLanguage(
         Streaming.Language.valueOf(executionVertex.getLanguage().name()));
-    executionVertexBuilder.putAllConfig(executionVertex.getWorkerConfig());
+    executionVertexBuilder.putAllConfig(executionVertex.getJobConfig());
     executionVertexBuilder.putAllResource(executionVertex.getResource());
 
     return executionVertexBuilder.build();
@@ -96,7 +96,7 @@ public class GraphPbBuilder {
     return executionEdgeBuilder.build();
   }
 
-  private byte[] serializeOperator(Operator operator) {
+  private byte[] serializeOperator(StreamOperator operator) {
     if (operator instanceof PythonOperator) {
       if (isPythonChainedOperator(operator)) {
         return serializePythonChainedOperator((ChainedPythonOperator) operator);
@@ -113,14 +113,14 @@ public class GraphPbBuilder {
     }
   }
 
-  private boolean isPythonChainedOperator(Operator operator) {
+  private boolean isPythonChainedOperator(StreamOperator operator) {
     return operator instanceof ChainedPythonOperator;
   }
 
   private byte[] serializePythonChainedOperator(ChainedPythonOperator operator) {
     List<byte[]> serializedOperators =
         operator.getOperators().stream().map(this::serializeOperator).collect(Collectors.toList());
-    return serializer.serialize(Arrays.asList(serializedOperators, operator.getConfigs()));
+    return serializer.serialize(Arrays.asList(serializedOperators, operator.getOpConfigs()));
   }
 
   private byte[] serializeFunction(Function function) {
@@ -137,14 +137,14 @@ public class GraphPbBuilder {
   }
 
   private byte[] serializePartition(Partition partition) {
-    if (partition instanceof PythonPartition) {
-      PythonPartition pythonPartition = (PythonPartition) partition;
+    if (partition instanceof PythonPartitionFunction) {
+      PythonPartitionFunction pythonPartitionFunction = (PythonPartitionFunction) partition;
       // partition_bytes, module_name, function_name
       return serializer.serialize(
           Arrays.asList(
-              pythonPartition.getPartition(),
-              pythonPartition.getModuleName(),
-              pythonPartition.getFunctionName()));
+              pythonPartitionFunction.getPartition(),
+              pythonPartitionFunction.getModuleName(),
+              pythonPartitionFunction.getFunctionName()));
     } else {
       return new byte[0];
     }
