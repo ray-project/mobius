@@ -50,8 +50,8 @@ jobs:
     - name: Streaming python test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_python"
 
-#    - name: Streaming java test
-#      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
+    - name: Streaming java test
+      run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_java"
 
     - name: Streaming cpp test
       run: sh -c "bash streaming/buildtest.sh --test_categories=streaming_cpp"
