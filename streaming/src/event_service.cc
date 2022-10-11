@@ -173,7 +173,9 @@ void EventService::Execute(Event &event) {
 
 void EventService::LoopThreadHandler() {
   if (ray::internal::IsInitialized()) {
-    ray::internal::SetCurrentThreadWorker(worker_id_);
+    // NOTE(lingxuan.zlx): feature multi-actors in one single process has been removed,
+    // so we don't need set current thread worker anymore from ray-2.0.0 branch.
+    // ray::internal::SetCurrentThreadWorker(worker_id_);
   }
   while (true) {
     if (stop_flag_) {
