@@ -68,7 +68,7 @@ cc_binary(
     copts = COPTS,
     linkshared = 1,
     visibility = ["//visibility:public"],
-    deps = ["@com_github_ray_project_ray//:ray_util"],
+    deps = ["@com_github_ray_project_ray//src/ray/util"],
 )
 
 cc_binary(
@@ -514,7 +514,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":streaming_lib",
-        "@bazel_tools//tools/jdk:jni",
+        "@platforms//tools/jdk:jni",
     ],
 )
 
