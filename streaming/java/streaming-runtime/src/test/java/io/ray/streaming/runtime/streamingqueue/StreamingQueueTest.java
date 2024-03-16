@@ -31,6 +31,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+@Test(enabled = false)
 public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
 
   private static Logger LOGGER = LoggerFactory.getLogger(StreamingQueueTest.class);
@@ -71,7 +72,7 @@ public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
     System.clearProperty("ray.head-args.1");
   }
 
-  @Test(timeOut = 300000, enabled = false)
+  @Test(timeOut = 300000)
   public void testReaderWriter() {
     ActorHandle<WriterWorker> writerActor = Ray.actor(WriterWorker::new, "writer").remote();
     ActorHandle<ReaderWorker> readerActor = Ray.actor(ReaderWorker::new, "reader").remote();
@@ -81,7 +82,6 @@ public class StreamingQueueTest extends RayEnvBaseTest implements Serializable {
     LOGGER.info(
         "call getName on readerActor: {}", readerActor.task(ReaderWorker::getName).remote().get());
 
-    // LOGGER.info(writerActor.task(WriterWorker::testCallReader, readerActor).remote().get());
     List<String> outputQueueList = new ArrayList<>();
     List<String> inputQueueList = new ArrayList<>();
     int queueNum = 2;
