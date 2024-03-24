@@ -23,10 +23,10 @@ jobs:
 
     - name: Apt get update and Install bazel
       run:  |
-            apt-get update
-            apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip git
             cp /etc/apt/sources.list /etc/apt/sources.list.bak
             cp .github/sources.list /etc/apt/sources.list
+            apt-get update
+            apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip git
             apt-get update
             apt-get install -yq gcc g++
             sh scripts/install-bazel.sh
