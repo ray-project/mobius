@@ -514,7 +514,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":streaming_lib",
-        "@platforms//tools/jdk:jni",
+        "@bazel_tools//tools/jdk:jni",
     ],
 )
 
