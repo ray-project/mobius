@@ -24,11 +24,11 @@ esac
 echo "platform is ${platform}"
 
 if [ "${platform}" = "darwin" ]; then
-    wget "https://github.com/bazelbuild/bazel/releases/download/5.1.0/bazel-5.1.0-installer-darwin-x86_64.sh" -O bazel-5.1.0-installer-darwin-x86_64.sh
-    sh bazel-5.1.0-installer-darwin-x86_64.sh
+    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-installer-darwin-x86_64.sh" -O bazel-5.1.0-installer-darwin-x86_64.sh
+    sh bazel-5.4.1-installer-darwin-x86_64.sh
 else
-    wget "https://github.com/bazelbuild/bazel/releases/download/5.1.0/bazel_5.1.0-linux-x86_64.deb" -O bazel_5.1.0-linux-x86_64.deb
-    dpkg -i bazel_5.1.0-linux-x86_64.deb
+    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.0/bazel_5.4.1-linux-x86_64.deb" -O bazel_5.1.0-linux-x86_64.deb
+    dpkg -i bazel_5.4.1-linux-x86_64.deb
 fi
 
 bazel --version
