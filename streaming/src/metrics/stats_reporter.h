@@ -76,6 +76,18 @@ class StatsReporter : public StreamingReporterInterface {
     return merged_tags;
   }
 
+  /// We need convert this tag key vector to string vector since ray registry can not
+  /// support this compatible interface anymore.
+  /// \param tag_keys
+  /// \return string list of tag keys.
+  inline std::vector<std::string> ConvertTagKeysToStrings(
+      const std::vector<opencensus::tags::TagKey> &tag_keys) {
+    std::vector<std::string> tag_string_list;
+    std::transform(tag_keys.begin(), tag_keys.end(), tag_string_list.begin(),
+                   [](opencensus::tags::TagKey tag_key) { return tag_key.name(); });
+    return tag_string_list;
+  }
+
  private:
   std::mutex metric_mutex_;
   std::unordered_map<std::string, std::shared_ptr<ray::stats::Metric>> metric_map_;

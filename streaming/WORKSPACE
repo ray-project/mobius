@@ -2,13 +2,17 @@ workspace(name = "com_github_ray_streaming")
 
 # LOAD RAY WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-ray_version = "b8d0cb31ae452ad72817b78661a48887e6cab264"
-# Lastest ray version 2.9.3.
+# ray_version = "b8d0cb31ae452ad72817b78661a48887e6cab264"
+# Lastest ray version 2.9.3, but internal exported has not beed merge yet, so
+# just use temp commit : 
+# https://github.com/ray-project/ray/archive/refs/heads/revert-internal-module-removed.zip.
 http_archive(
         name="com_github_ray_project_ray",
-        strip_prefix = "ray-{}".format(ray_version),
-        urls = ["https://github.com/ray-project/ray/archive/{}.zip".format(ray_version)],
-        sha256 = "d2a234814adb3469fa6e85670e3d107b06c5fdc194e03447d13fc32a3ea28e53",
+        # strip_prefix = "ray-{}".format(ray_version),
+        strip_prefix = "ray-revert-internal-module-removed",
+        # urls = ["https://github.com/ray-project/ray/archive/{}.zip".format(ray_version)],
+        urls = ["https://github.com/ray-project/ray/archive/refs/heads/revert-internal-module-removed.zip"],
+        sha256 = "f005dccc89c3907da9e8eb71f3fc5ad6f3c7f7cbce7bd7d825a8f3df5a5f21bb",
 )
 
 http_archive(
