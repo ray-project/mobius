@@ -434,6 +434,8 @@ StreamingStatus DataReader::GetBundle(const uint32_t timeout_ms,
       NotifyConsumed(message);
     }
   }
+  STREAMING_LOG(DEBUG) << "Empty bundles have been received " << empty_bundle_cnt
+                       << " times.";
   RETURN_IF_NOT_OK(status);
   last_message_latency_ += current_time_ms() - start_time;
   if (message->meta->GetMessageListSize() > 0) {
