@@ -85,7 +85,7 @@ public interface ResourceConfig extends Config {
    *
    * @return buffer size
    */
-  @DefaultValue(value = "1600")
+  @DefaultValue(value = "500")
   @Key(value = WORKER_MEM)
   double workerMemMbRequired();
 

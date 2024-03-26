@@ -74,7 +74,7 @@ public class WorkerLifecycleController {
           new GraphPbBuilder().buildVertex(executionVertex);
       actor =
           Ray.actor(
-                  PyActorClass.of("ray.streaming.runtime.worker", "JobWorker"),
+                  PyActorClass.of("raystreaming.runtime.worker", "JobWorker"),
                   vertexPb.toByteArray())
               .setResources(executionVertex.getResource())
               .setMaxRestarts(-1)

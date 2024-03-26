@@ -10,7 +10,7 @@ public enum ResourceType {
   GPU("GPU"),
 
   /** Memory resource key. */
-  MEM("MEM");
+  memory("memory");
 
   private String value;
 

@@ -394,7 +394,7 @@ public class JobSchedulerImpl implements JobScheduler {
                 } else if (resourceValue < 0) {
                   LOG.error("Resource value < 0 for operator: {}.", operatorName);
                   return false;
-                } else if (resourceKey.equals(ResourceKey.MEM.name())) {
+                } else if (resourceKey.equals(ResourceKey.memory.name())) {
                   if (!ResourceUtil.isMemoryMbValue(resourceValue.longValue())) {
                     LOG.error("Memory resource is illegal for operator: {}.", operatorName);
                     return false;
@@ -465,7 +465,7 @@ public class JobSchedulerImpl implements JobScheduler {
           if (isStrictLimit) {
             resources.put(ResourceKey.CPU.name(), defaultCpuRequired);
             resources.put(ResourceKey.GPU.name(), defaultGpuRequired);
-            resources.put(ResourceKey.MEM.name(), defaultMemRequired);
+            resources.put(ResourceKey.memory.name(), defaultMemRequired);
           }
 
           // ----------------------------------------------------
