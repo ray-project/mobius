@@ -68,7 +68,7 @@ public class JobMaster {
     runtimeContext = new JobMasterRuntimeContext(streamingConfig);
 
     // load checkpoint if is recovered
-    if (!Ray.getRuntimeContext().isSingleProcess()
+    if (!Ray.getRuntimeContext().isLocalMode()
         && Ray.getRuntimeContext().wasCurrentActorRestarted()) {
       loadMasterCheckpoint();
     }

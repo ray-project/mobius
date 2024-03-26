@@ -1,6 +1,5 @@
 package io.ray.streaming.runtime.master.resourcemanager;
 
-import io.ray.api.Ray;
 import io.ray.api.id.UniqueId;
 import io.ray.api.runtimecontext.NodeInfo;
 import io.ray.streaming.runtime.RayEnvBaseTest;
@@ -25,7 +24,7 @@ public class ResourceManagerTest extends RayEnvBaseTest {
 
   @Test(dependsOnMethods = "testGcsMockedApi")
   public void testApi() {
-    Ray.setAsyncContext(rayAsyncContext);
+    // Ray.setAsyncContext(rayAsyncContext);
 
     Map<String, String> conf = new HashMap<String, String>();
     conf.put(CommonConfig.JOB_NAME, "testApi");
