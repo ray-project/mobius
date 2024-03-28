@@ -12,7 +12,7 @@ http_archive(
         strip_prefix = "ray-revert-internal-module-removed",
         # urls = ["https://github.com/ray-project/ray/archive/{}.zip".format(ray_version)],
         urls = ["https://github.com/ray-project/ray/archive/refs/heads/revert-internal-module-removed.zip"],
-        sha256 = "f005dccc89c3907da9e8eb71f3fc5ad6f3c7f7cbce7bd7d825a8f3df5a5f21bb",
+        #sha256 = "68d5f664dd0315d1193a4014164972f945c0891a4690ed0789d2ddf1172bbbea",
 )
 
 http_archive(
