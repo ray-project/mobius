@@ -16,6 +16,7 @@
 
 #include <mutex>
 
+#include "ray/internal/internal.h"
 #include "ray/stats/metric.h"
 #include "streaming_perf_metric.h"
 
@@ -81,10 +82,11 @@ class StatsReporter : public StreamingReporterInterface {
   /// \param tag_keys
   /// \return string list of tag keys.
   inline std::vector<std::string> ConvertTagKeysToStrings(
-      const std::vector<opencensus::tags::TagKey> &tag_keys) {
+      const std::vector<ray::stats::TagKeyType> &tag_keys) {
     std::vector<std::string> tag_string_list;
-    std::transform(tag_keys.begin(), tag_keys.end(), tag_string_list.begin(),
-                   [](opencensus::tags::TagKey tag_key) { return tag_key.name(); });
+    std::transform(
+        tag_keys.begin(), tag_keys.end(), tag_string_list.begin(),
+        [](ray::stats::TagKeyType tag_key) { return ray::internal::TagName(tag_key); });
     return tag_string_list;
   }
 
