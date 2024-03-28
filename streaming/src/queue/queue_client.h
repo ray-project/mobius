@@ -1,9 +1,8 @@
 #pragma once
 
-#include "ray/internal/internal.h"
-
 #include "queue/queue_handler.h"
 #include "queue/transport.h"
+#include "ray/internal/internal.h"
 
 namespace ray {
 namespace streaming {

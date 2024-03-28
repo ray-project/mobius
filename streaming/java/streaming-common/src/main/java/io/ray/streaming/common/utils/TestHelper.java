@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 
 public class TestHelper {
 
-  private static boolean isSingleProcess = false;
+  private static boolean isLocalMode = false;
 
   static {
     if (Ray.isInitialized()
         && Ray.getRuntimeContext() != null
-        && Ray.getRuntimeContext().isSingleProcess()) {
-      isSingleProcess = true;
+        && Ray.getRuntimeContext().isLocalMode()) {
+      isLocalMode = true;
     }
   }
 
@@ -63,7 +63,7 @@ public class TestHelper {
   }
 
   public static boolean isUTPattern() {
-    return System.getProperty(UT_PATTERN) != null || isSingleProcess;
+    return System.getProperty(UT_PATTERN) != null || isLocalMode;
   }
 
   public static void mockBackpressure() {

@@ -63,7 +63,7 @@ public abstract class RayEnvBaseTest {
 
     Ray.init();
     TestHelper.setUTFlag();
-    rayAsyncContext = Ray.getAsyncContext();
+    // rayAsyncContext = Ray.getAsyncContext();
 
     TestHelper.cleanUpJobRunningRubbish(jobName);
   }

@@ -100,8 +100,8 @@ public class ExecutionBundle implements Serializable {
     }
 
     // override by spec
-    if (resources.containsKey(ResourceKey.MEM.name())) {
-      memValue = resources.get(ResourceKey.MEM.name());
+    if (resources.containsKey(ResourceKey.memory.name())) {
+      memValue = resources.get(ResourceKey.memory.name());
     }
 
     // replace mem value because: 'Resource 'buffer' must be specified in bundles if gcs scheduler

@@ -1,6 +1,5 @@
 package io.ray.streaming.runtime.master.coordinator;
 
-import io.ray.api.Ray;
 import io.ray.streaming.runtime.master.JobMaster;
 import io.ray.streaming.runtime.master.context.JobMasterRuntimeContext;
 import io.ray.streaming.runtime.master.graphmanager.GraphManager;
@@ -27,7 +26,8 @@ public abstract class BaseCoordinator implements Runnable {
   public void start() {
     thread =
         new Thread(
-            Ray.wrapRunnable(this),
+            this,
+            // this,
             runtimeContext.getJobName()
                 + "-"
                 + this.getClass().getName()

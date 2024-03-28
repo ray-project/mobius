@@ -71,8 +71,8 @@ void StatsReporter::UpdateGauge(const std::string &domain, const std::string &gr
                        << value;
   auto metric = GetMetricByName(merged_metric_name);
   if (nullptr == metric) {
-    metric = std::shared_ptr<ray::stats::Metric>(
-        new ray::stats::Gauge(merged_metric_name, "", "", global_tag_key_list_));
+    metric = std::shared_ptr<ray::stats::Metric>(new ray::stats::Gauge(
+        merged_metric_name, "", "", ConvertTagKeysToStrings(global_tag_key_list_)));
     MetricRegister(merged_metric_name, metric);
   }
   metric->Record(value, global_tags_);
@@ -94,8 +94,8 @@ void StatsReporter::UpdateGauge(const std::string &metric_name,
     for (auto &tag : tags) {
       tag_key_list.push_back(internal::TagRegister(tag.first));
     }
-    metric = std::shared_ptr<ray::stats::Metric>(
-        new ray::stats::Gauge(merged_metric_name, "", "", tag_key_list));
+    metric = std::shared_ptr<ray::stats::Metric>(new ray::stats::Gauge(
+        merged_metric_name, "", "", ConvertTagKeysToStrings(tag_key_list)));
     MetricRegister(merged_metric_name, metric);
   }
   auto merged_tags = MergeGlobalTags(tags);

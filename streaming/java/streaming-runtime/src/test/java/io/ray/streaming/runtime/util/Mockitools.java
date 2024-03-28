@@ -60,7 +60,15 @@ public class Mockitools {
 
   private static NodeInfo mockNodeInfo(int i, Map<String, Double> resources) {
     return new NodeInfo(
-        createNodeId(i), "localhost" + i, "localhost" + i, -1, "", "", true, resources);
+        createNodeId(i),
+        "localhost" + i,
+        "localhost" + i,
+        -1,
+        "",
+        "",
+        true,
+        resources,
+        new HashMap<>());
   }
 
   private static UniqueId createNodeId(int id) {

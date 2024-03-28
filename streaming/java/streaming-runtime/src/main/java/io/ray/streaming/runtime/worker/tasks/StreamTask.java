@@ -62,9 +62,7 @@ public abstract class StreamTask implements Runnable {
     this.checkpointState = jobWorker.contextBackend;
     this.lastCheckpointId = lastCheckpointId;
 
-    this.thread =
-        new Thread(
-            Ray.wrapRunnable(this), this.getClass().getName() + "-" + System.currentTimeMillis());
+    this.thread = new Thread(this, this.getClass().getName() + "-" + System.currentTimeMillis());
     this.thread.setDaemon(true);
   }
 
@@ -229,7 +227,7 @@ public abstract class StreamTask implements Runnable {
   /** Close running tasks. */
   public void close() {
     this.running = false;
-    if (thread.isAlive() && !Ray.getRuntimeContext().isSingleProcess()) {
+    if (thread.isAlive() && !Ray.getRuntimeContext().isLocalMode()) {
       // `Runtime.halt` is used because System.exist can't ensure the process killing.
       Runtime.getRuntime().halt(0);
       LOG.warn("runtime halt 0");

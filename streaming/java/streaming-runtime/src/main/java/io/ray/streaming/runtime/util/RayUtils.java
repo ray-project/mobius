@@ -18,7 +18,7 @@ public class RayUtils {
    * @return node info list
    */
   public static List<NodeInfo> getAllNodeInfo() {
-    if (Ray.getRuntimeContext().isSingleProcess()) {
+    if (Ray.getRuntimeContext().isLocalMode()) {
       // only for single process(for unit test)
       return mockContainerResources();
     }
@@ -57,16 +57,15 @@ public class RayUtils {
               "",
               "",
               true,
-              resources);
+              resources,
+              new HashMap<>());
       nodeInfos.add(nodeInfo);
     }
     return nodeInfos;
   }
 
   public static boolean isInClusterMode() {
-    if (Ray.isInitialized()
-        && null != Ray.internal()
-        && !Ray.getRuntimeContext().isSingleProcess()) {
+    if (Ray.isInitialized() && null != Ray.internal() && !Ray.getRuntimeContext().isLocalMode()) {
       return true;
     }
     return false;

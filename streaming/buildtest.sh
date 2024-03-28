@@ -4,6 +4,12 @@ TMP_LOG_OUTPUT="$script_dir"/tmp/logs
 
 mkdir -p "$TMP_LOG_OUTPUT"
 
+if [[ "$VIRTUAL_ENV" != "" ]]; then
+  INVENV=1
+else
+  INVENV=0
+fi
+
 function suppress_output()
 {
   "$script_dir"/../scripts/suppress_output "$@"
@@ -22,6 +28,12 @@ function create_py_env()
 
 function init()
 {
+    if [ $INVENV = 1 ]
+    then
+        echo "Already in vritual env, reuse $VIRTUAL_ENV"
+        return 0
+    fi
+
     pushd "$script_dir" || exit
     PY3_DIR=$script_dir/../py3
     if [ -d $PY3_DIR ]

@@ -16,6 +16,7 @@
 
 #include <mutex>
 
+#include "ray/internal/internal.h"
 #include "ray/stats/metric.h"
 #include "streaming_perf_metric.h"
 
@@ -74,6 +75,19 @@ class StatsReporter : public StreamingReporterInterface {
       merged_tags.emplace(item.first, item.second);
     }
     return merged_tags;
+  }
+
+  /// We need convert this tag key vector to string vector since ray registry can not
+  /// support this compatible interface anymore.
+  /// \param tag_keys
+  /// \return string list of tag keys.
+  inline std::vector<std::string> ConvertTagKeysToStrings(
+      const std::vector<ray::stats::TagKeyType> &tag_keys) {
+    std::vector<std::string> tag_string_list;
+    std::transform(
+        tag_keys.begin(), tag_keys.end(), tag_string_list.begin(),
+        [](ray::stats::TagKeyType tag_key) { return ray::internal::TagName(tag_key); });
+    return tag_string_list;
   }
 
  private:

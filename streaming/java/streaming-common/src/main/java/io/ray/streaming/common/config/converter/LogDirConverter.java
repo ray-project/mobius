@@ -1,7 +1,7 @@
 package io.ray.streaming.common.config.converter;
 
 import io.ray.api.Ray;
-import io.ray.runtime.RayRuntimeInternal;
+import io.ray.runtime.AbstractRayRuntime;
 import java.lang.reflect.Method;
 import org.aeonbits.owner.Converter;
 
@@ -13,7 +13,7 @@ public class LogDirConverter implements Converter<String> {
   public String convert(Method method, String input) {
     if (input.isEmpty()) {
       return Ray.isInitialized()
-          ? ((RayRuntimeInternal) Ray.internal()).getRayConfig().logDir
+          ? ((AbstractRayRuntime) Ray.internal()).getRayConfig().logDir
           : DEFAULT_LOG_DIR;
     }
     return input;

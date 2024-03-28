@@ -2,7 +2,6 @@ package io.ray.streaming.runtime.streamingqueue;
 
 import io.ray.api.ActorHandle;
 import io.ray.api.BaseActorHandle;
-import io.ray.api.Ray;
 import io.ray.runtime.functionmanager.JavaFunctionDescriptor;
 import io.ray.streaming.runtime.config.StreamingWorkerConfig;
 import io.ray.streaming.runtime.transfer.ChannelCreationParametersBuilder;
@@ -109,13 +108,12 @@ class ReaderWorker extends Worker {
     // Should not GetBundle in RayCall thread
     Thread readThread =
         new Thread(
-            Ray.wrapRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    consume();
-                  }
-                }));
+            new Runnable() {
+              @Override
+              public void run() {
+                consume();
+              }
+            });
     readThread.start();
 
     LOGGER.info("ReaderWorker init done");
@@ -239,13 +237,12 @@ class WriterWorker extends Worker {
     dataWriter = new DataWriter(outputQueueList, outputActors, new HashMap<>(), workerConfig);
     Thread writerThread =
         new Thread(
-            Ray.wrapRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    produce();
-                  }
-                }));
+            new Runnable() {
+              @Override
+              public void run() {
+                produce();
+              }
+            });
     writerThread.start();
 
     LOGGER.info("WriterWorker init done");

@@ -38,7 +38,7 @@ public class PipelineFirstStrategyTest {
       UniqueId uniqueId = UniqueId.randomId();
       Map<String, Double> resource = new HashMap<>();
       resource.put(ResourceType.CPU.getValue(), 4.0);
-      resource.put(ResourceType.MEM.getValue(), 4.0);
+      resource.put(ResourceType.memory.getValue(), 4.0);
       Container container = new Container("1.1.1." + i, uniqueId, "localhost" + i, resource);
       container.getAvailableResources().put(container.getName(), 500.0);
       containers.add(container);

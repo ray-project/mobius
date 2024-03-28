@@ -187,6 +187,7 @@ streaming/python/raystreaming/_streaming.so
 streaming/python/raystreaming/generated
 streaming/python/raystreaming/jars
 streaming/python/build
+streaming/python/dist
 
 # gitpod cache related
 .pip-cache/

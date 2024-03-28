@@ -31,5 +31,5 @@ setup(
     description="streaming module",
     packages=find_packages(),
     package_data={"raystreaming": ["_streaming.so", "jars/raystreaming_dist.jar"]},
-    install_requires=["msgpack>=0.6.2"],
+    install_requires=["msgpack>=0.6.2", "pytest"],
 )
