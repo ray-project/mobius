@@ -74,15 +74,15 @@ public class ChannelCreationParametersBuilder {
       new JavaFunctionDescriptor(JobWorker.class.getName(), "onWriterMessageSync", "([B)[B");
   // function descriptors of direct call entry point for Python workers
   private static PyFunctionDescriptor pyReaderAsyncFunctionDesc =
-      new PyFunctionDescriptor("ray.streaming.runtime.worker", "JobWorker", "on_reader_message");
+      new PyFunctionDescriptor("raystreaming.runtime.worker", "JobWorker", "on_reader_message");
   private static PyFunctionDescriptor pyReaderSyncFunctionDesc =
       new PyFunctionDescriptor(
-          "ray.streaming.runtime.worker", "JobWorker", "on_reader_message_sync");
+          "raystreaming.runtime.worker", "JobWorker", "on_reader_message_sync");
   private static PyFunctionDescriptor pyWriterAsyncFunctionDesc =
-      new PyFunctionDescriptor("ray.streaming.runtime.worker", "JobWorker", "on_writer_message");
+      new PyFunctionDescriptor("raystreaming.runtime.worker", "JobWorker", "on_writer_message");
   private static PyFunctionDescriptor pyWriterSyncFunctionDesc =
       new PyFunctionDescriptor(
-          "ray.streaming.runtime.worker", "JobWorker", "on_writer_message_sync");
+          "raystreaming.runtime.worker", "JobWorker", "on_writer_message_sync");
 
   public ChannelCreationParametersBuilder() {}
 

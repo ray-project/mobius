@@ -238,13 +238,13 @@ class ChannelCreationParametersBuilder:
         "io.ray.streaming.runtime.worker.JobWorker", "onWriterMessageSync",
         "([B)[B")
     _python_reader_async_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_reader_message", "JobWorker")
+        "raystreaming.runtime.worker", "on_reader_message", "JobWorker")
     _python_reader_sync_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_reader_message_sync", "JobWorker")
+        "raystreaming.runtime.worker", "on_reader_message_sync", "JobWorker")
     _python_writer_async_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_writer_message", "JobWorker")
+        "raystreaming.runtime.worker", "on_writer_message", "JobWorker")
     _python_writer_sync_function_descriptor = PythonFunctionDescriptor(
-        "ray.streaming.runtime.worker", "on_writer_message_sync", "JobWorker")
+        "raystreaming.runtime.worker", "on_writer_message_sync", "JobWorker")
 
     def get_parameters(self):
         return self._parameters
