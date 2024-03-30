@@ -84,9 +84,10 @@ class StatsReporter : public StreamingReporterInterface {
   inline std::vector<std::string> ConvertTagKeysToStrings(
       const std::vector<ray::stats::TagKeyType> &tag_keys) {
     std::vector<std::string> tag_string_list;
-    std::transform(
-        tag_keys.begin(), tag_keys.end(), tag_string_list.begin(),
-        [](ray::stats::TagKeyType tag_key) { return ray::internal::TagName(tag_key); });
+    std::transform(tag_keys.begin(), tag_keys.end(), tag_string_list.begin(),
+                   [](ray::stats::TagKeyType tag_key) {
+                     return ray::internal::TagKeyName(tag_key);
+                   });
     return tag_string_list;
   }
 
