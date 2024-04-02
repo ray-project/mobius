@@ -151,7 +151,7 @@ public class StreamTest {
     streamingContext
         .withIndependentOperator(className, moduleName, Language.PYTHON)
         .setParallelism(2)
-        .setResource(ImmutableMap.of(ResourceKey.MEM.name(), 2500D))
+        .setResource(ImmutableMap.of(ResourceKey.memory.name(), 2500D))
         .setConfig(ImmutableMap.of("k2", "v2"))
         .setLazyScheduling();
 
@@ -159,7 +159,7 @@ public class StreamTest {
     streamingContext
         .withIndependentOperator(className, moduleName, Language.PYTHON)
         .setParallelism(4)
-        .setResource(ImmutableMap.of(ResourceKey.MEM.name(), 2600D))
+        .setResource(ImmutableMap.of(ResourceKey.memory.name(), 2600D))
         .setConfig(ImmutableMap.of("k3", "v3"));
 
     Set<IndependentOperatorDescriptor> result = streamingContext.getIndependentOperators();
@@ -172,7 +172,7 @@ public class StreamTest {
         Assert.assertEquals(independentOperatorDescriptor.getLanguage(), Language.PYTHON);
         Assert.assertEquals(independentOperatorDescriptor.getParallelism(), 2);
         Assert.assertEquals(
-            (double) independentOperatorDescriptor.getResource().get(ResourceKey.MEM.name()),
+            (double) independentOperatorDescriptor.getResource().get(ResourceKey.memory.name()),
             2500D);
         Assert.assertEquals(independentOperatorDescriptor.getConfig().get("k2"), "v2");
         Assert.assertTrue(independentOperatorDescriptor.isLazyScheduling());

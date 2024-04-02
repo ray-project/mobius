@@ -2,7 +2,6 @@ package io.ray.streaming.runtime.master.resourcemanager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.ray.api.Ray;
 import io.ray.api.id.UniqueId;
 import io.ray.api.runtimecontext.NodeInfo;
 import io.ray.streaming.common.config.ResourceConfig;
@@ -168,7 +167,7 @@ public class ResourceManagerImpl implements ResourceManager {
   private void checkAndUpdateResourcePeriodically() {
     long intervalSecond = resourceConfig.resourceCheckIntervalSecond();
     this.resourceUpdater.scheduleAtFixedRate(
-        Ray.wrapRunnable(this::checkAndUpdateResource), 0, intervalSecond, TimeUnit.SECONDS);
+        this::checkAndUpdateResource, 0, intervalSecond, TimeUnit.SECONDS);
   }
 
   private boolean isAddedNode(UniqueId uniqueId) {

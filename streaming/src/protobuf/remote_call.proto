@@ -12,20 +12,19 @@ option java_package = "io.ray.streaming.runtime.generated";
 message ExecutionVertexContext {
   // An edge between 2 execution vertices
   message ExecutionEdge {
-
     // upstream execution vertex id
     int32 source_execution_vertex_id = 1;
 
     // downstream execution vertex id
     int32 target_execution_vertex_id = 2;
 
-    //original source operator id
+    // original source operator id
     int32 original_src_operator_id = 3;
 
     // serialized partition between source/target vertex
     bytes partition = 4;
 
-    //if the edge is cyclic
+    // if the edge is cyclic
     bool cyclic = 5;
   }
 
@@ -62,20 +61,20 @@ message ExecutionVertexContext {
 
 // Streaming python worker context
 message PythonJobWorkerContext {
-    // worker id
-    string worker_id = 1;
+  // worker id
+  string worker_id = 1;
 
-    // serialized master actor handle
-    bytes master_actor = 2;
+  // serialized master actor handle
+  bytes master_actor = 2;
 
-    // vertex including it's upstream and downstream
-    ExecutionVertexContext execution_vertex_context = 3;
+  // vertex including it's upstream and downstream
+  ExecutionVertexContext execution_vertex_context = 3;
 
-    // vertex changing state
-    bool is_changed = 4;
+  // vertex changing state
+  bool is_changed = 4;
 
-    // role in change sub dag
-    NodeType role_in_changed_sub_dag = 5;
+  // role in change sub dag
+  NodeType role_in_changed_sub_dag = 5;
 }
 
 message ActorId {
@@ -155,4 +154,3 @@ enum ExecutionVertexState {
   RUNNING = 5;
   UNKNOWN_STATE = 6;
 }
-

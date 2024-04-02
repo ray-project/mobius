@@ -74,7 +74,7 @@ public class WorkerLifecycleController {
           new GraphPbBuilder().buildVertex(executionVertex);
       actor =
           Ray.actor(
-                  PyActorClass.of("ray.streaming.runtime.worker", "JobWorker"),
+                  PyActorClass.of("raystreaming.runtime.worker", "JobWorker"),
                   vertexPb.toByteArray())
               .setResources(executionVertex.getResource())
               .setMaxRestarts(-1)
@@ -213,7 +213,7 @@ public class WorkerLifecycleController {
     LOG.info(
         "Start to destroy JobWorker actor directly for vertex: {}.",
         executionVertex.getExecutionVertexName());
-    if (!Ray.getRuntimeContext().isSingleProcess()) {
+    if (!Ray.getRuntimeContext().isLocalMode()) {
       executionVertex.getActor().kill();
     }
 

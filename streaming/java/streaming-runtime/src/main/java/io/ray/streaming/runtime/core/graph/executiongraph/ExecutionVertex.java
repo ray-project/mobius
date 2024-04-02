@@ -398,7 +398,7 @@ public class ExecutionVertex implements Serializable {
       resourceMap.put(ResourceType.CPU.name(), resourceConfig.taskCpuResource());
     }
     if (resourceConfig.isTaskMemResourceLimit()) {
-      resourceMap.put(ResourceType.MEM.name(), resourceConfig.taskMemResource());
+      resourceMap.put(ResourceType.memory.name(), resourceConfig.taskMemResource());
     }
     return resourceMap;
   }

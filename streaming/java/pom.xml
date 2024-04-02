@@ -57,7 +57,7 @@
   <properties>
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <ray.version>2.0.0</ray.version>
+    <ray.version>2.9.3</ray.version>
     <streaming.version>0.0.1</streaming.version>
     <mockito.version>1.10.19</mockito.version>
   </properties>
@@ -101,7 +101,7 @@
       <dependency>
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>
-        <version>7.3.0</version>
+        <version>7.5.1</version>
         <exclusions>
           <exclusion>
             <groupId>org.yaml</groupId>

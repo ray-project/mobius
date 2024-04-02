@@ -2,7 +2,7 @@
 # C/C++ documentation: https://docs.bazel.build/versions/master/be/c-cpp.html
 
 load("@rules_proto_grpc//python:defs.bzl", "python_proto_compile")
-load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "PYX_COPTS", "PYX_SRCS", "copy_to_workspace")
+load("@com_github_ray_project_ray//bazel:ray.bzl", "COPTS", "PYX_COPTS", "PYX_SRCS", "copy_to_workspace", "ray_cc_library")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@com_github_grpc_grpc//bazel:cython_library.bzl", "pyx_library")
 load("@com_github_google_flatbuffers//:build_defs.bzl", "flatbuffer_cc_library")
@@ -68,7 +68,7 @@ cc_binary(
     copts = COPTS,
     linkshared = 1,
     visibility = ["//visibility:public"],
-    deps = ["@com_github_ray_project_ray//:ray_util"],
+    deps = ["@com_github_ray_project_ray//src/ray/util"],
 )
 
 cc_binary(
@@ -305,7 +305,7 @@ test_common_deps = [
     "@com_github_ray_project_ray//:exported_internal",
     ":streaming_lib",
     "@com_github_ray_project_ray//:ray_common",
-    "@com_github_ray_project_ray//:ray_util",
+    "@com_github_ray_project_ray//src/ray/util",
     "@com_github_ray_project_ray//:core_worker_lib",
 ]
 

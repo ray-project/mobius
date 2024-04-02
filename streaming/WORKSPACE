@@ -2,12 +2,12 @@ workspace(name = "com_github_ray_streaming")
 
 # LOAD RAY WORKSPACE
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-ray_version = "cba26cc83f6b5b8a2ff166594a65cb74c0ec8740"
+ray_version = "5e7b3c3de1efacb937701c4eebea64b6a02996be"
 http_archive(
         name="com_github_ray_project_ray",
         strip_prefix = "ray-{}".format(ray_version),
         urls = ["https://github.com/ray-project/ray/archive/{}.zip".format(ray_version)],
-        sha256 = "8b5bd40cf28372f9684d49ea5627f9ae247854882309f0f261378ba5d849ad24",
+        sha256 = "9059707ca9bf63e7521586acb0e7ddbd9e10ac1d0ecfc95274f6b6b08c67eb1c",
 )
 
 http_archive(
@@ -27,6 +27,15 @@ ray_deps_setup()
 load("@com_github_ray_project_ray//bazel:ray_deps_build_all.bzl", "ray_deps_build_all")
 
 ray_deps_build_all()
+
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
+
+python_register_toolchains(
+    name = "python3_9",
+    python_version = "3.9",
+    register_toolchains = False,
+)
+
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 
 grpc_extra_deps()
@@ -39,4 +48,4 @@ load("@bazel_skylib//lib:versions.bzl", "versions")
 
 # When the bazel version is updated, make sure to update it
 # in setup.py as well.
-versions.check(minimum_bazel_version = "4.2.1")
+versions.check(minimum_bazel_version = "5.4.1")

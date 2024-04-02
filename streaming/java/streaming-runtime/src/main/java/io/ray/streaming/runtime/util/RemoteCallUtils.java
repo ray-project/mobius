@@ -4,9 +4,9 @@ import com.google.protobuf.ByteString;
 import io.ray.api.ObjectRef;
 import io.ray.api.Ray;
 import io.ray.api.WaitResult;
+import io.ray.api.exception.UnreconstructableException;
 import io.ray.api.id.ActorId;
 import io.ray.runtime.actor.NativeJavaActorHandle;
-import io.ray.runtime.exception.UnreconstructableException;
 import io.ray.streaming.runtime.generated.RemoteCall;
 import io.ray.streaming.runtime.generated.RemoteCall.ActorHandle;
 import io.ray.streaming.runtime.worker.context.JobWorkerContext;
@@ -61,7 +61,7 @@ public final class RemoteCallUtils {
   public static <T> boolean asyncBatchExecute(
       Function<T, Boolean> operation, List<T> executionVertices) {
 
-    final Object asyncContext = Ray.getAsyncContext();
+    // final Object asyncContext = Ray.getAsyncContext();
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     List<CompletableFuture<Boolean>> futureResults =
         executionVertices.stream()
@@ -69,7 +69,7 @@ public final class RemoteCallUtils {
                 vertex ->
                     CompletableFuture.supplyAsync(
                         () -> {
-                          Ray.setAsyncContext(asyncContext);
+                          // Ray.setAsyncContext(asyncContext);
                           // Note, we have no strong way to make 100% sure that these threads use
                           // the
                           // creater thread's class loader. Set the class loader manully here to

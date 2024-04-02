@@ -10,7 +10,7 @@ public enum ResourceKey {
   GPU("GPU"),
 
   /** Memory resource. */
-  MEM("MEM"),
+  memory("memory"),
 
   /** Disk storage size resource. */
   DISK("DISK"),
