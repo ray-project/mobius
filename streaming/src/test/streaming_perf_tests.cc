@@ -24,9 +24,8 @@ class StreamingReporterCounterTest : public ::testing::Test {
     ray::stats::StatsConfig::instance().SetReportInterval(report_interval);
     ray::stats::StatsConfig::instance().SetHarvestInterval(harvest_interval);
     const stats::TagsType global_tags = {};
-    std::shared_ptr<stats::MetricExporterClient> exporter(
-        new stats::StdoutExporterClient());
-    ray::stats::Init(global_tags, 10054, exporter);
+    auto worker_id = ray::BaseID<ray::WorkerID>::FromRandom();
+    ray::stats::Init(global_tags, 10054, worker_id);
 
     setenv("STREAMING_METRICS_MODE", "DEV", 1);
     setenv("ENABLE_RAY_STATS", "ON", 1);
