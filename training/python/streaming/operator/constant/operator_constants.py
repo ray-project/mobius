@@ -7,6 +7,7 @@ class OperatorConstants:
     """
     Training constants
     """
+
     NONE_BYTES = 8
 
     # Stream reader
@@ -14,7 +15,9 @@ class OperatorConstants:
     READER_MAX_SLOT_SIZE = "reader_max_slot_size"
     READER_MAX_BYTES = "reader_max_bytes"
     READER_LOG_INTERVAL = "reader_log_interval_in_secs"
-    READER_FORCE_CLEAR_WHEN_FULL_AND_ALL_CONSUMED = "reader_force_clear_when_full_and_all_consumed"
+    READER_FORCE_CLEAR_WHEN_FULL_AND_ALL_CONSUMED = (
+        "reader_force_clear_when_full_and_all_consumed"
+    )
 
     DEFAULT_QUEUE_START_OFFSET = 0
     DEFAULT_QUEUE_MAX_SLOT_SIZE = 100000

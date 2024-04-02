@@ -15,13 +15,13 @@ class StreamReader(Reader):
         self._start_offset = start_offset
 
     def get_offset(self):
-        raise NotImplementedError('function not implemented')
+        raise NotImplementedError("function not implemented")
 
     def fetch_data(self, batch_size, **options):
-        raise NotImplementedError('function not implemented')
+        raise NotImplementedError("function not implemented")
 
     def seek_by_offset(self, start_offset):
-        raise NotImplementedError('function not implemented')
+        raise NotImplementedError("function not implemented")
 
     def clear_expired_data(self, expired_offset):
-        raise NotImplementedError('function not implemented')
+        raise NotImplementedError("function not implemented")

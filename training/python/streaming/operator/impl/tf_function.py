@@ -28,58 +28,59 @@ class TFSinkFunction(SinkFunction):
         self._op_config = runtime_context.get_config()
         logging.info(
             "Open tf function. op config : {}, job config : {}.".format(
-                self._op_config, runtime_context.get_job_config()))
+                self._op_config, runtime_context.get_job_config()
+            )
+        )
         self._operator_module_manager = self.__init_operator_module_manager()
         module_name = self._op_config[OPERATOR_MODULE_NAME]
         class_name = self._op_config[OPERATOR_CLASS_NAME]
         try:
             self._operator = self._operator_module_manager.load_single_module(
-                module_name, class_name)
+                module_name, class_name
+            )
             self._operator.set_master_actor(
-                runtime_context.get_controller_actor_handler())
+                runtime_context.get_controller_actor_handler()
+            )
         except Exception as e:
             ray.report_event(
-                ray.EventSeverity.ERROR, "TF_OPERATOR_ERROR",
-                f"Loading operator exception {e}")
+                ray.EventSeverity.ERROR,
+                "TF_OPERATOR_ERROR",
+                f"Loading operator exception {e}",
+            )
             raise RuntimeError(f"Loading operator exception : {e}.")
 
         self.optimize_config()
 
-        logger.info("Initializing operator with config: {}".format(
-            self._op_config))
+        logger.info("Initializing operator with config: {}".format(self._op_config))
 
-        self._op_config[
-            WORKER_PARALLELISM_INDEX] = runtime_context.get_task_index()
+        self._op_config[WORKER_PARALLELISM_INDEX] = runtime_context.get_task_index()
         was_reconstructed = False
         try:
-            was_reconstructed = \
+            was_reconstructed = (
                 ray.get_runtime_context().was_current_actor_reconstructed
-            logger.info(
-                "Get ray actor reconstructed {}".format(was_reconstructed))
+            )
+            logger.info("Get ray actor reconstructed {}".format(was_reconstructed))
         except Exception as e:
             was_reconstructed = False
             logger.info("Get ray actor reconstructed exception, {}".format(e))
 
-        logger.info("Operator actor list : {}".format(
-            self.get_all_actor_names()))
+        logger.info("Operator actor list : {}".format(self.get_all_actor_names()))
         logger.info("Operator begin init.")
         self._operator.set_named_handler(self.get_all_actor_names)
-        self._operator.set_key_value_state(
-            runtime_context.get_key_value_state())
-        self._operator.init_and_run({
-            **self._op_config,
-            **{
-                ACTOR_WAS_RECONSTRUCTED: was_reconstructed
-            },
-            **self.job_config
-        })
+        self._operator.set_key_value_state(runtime_context.get_key_value_state())
+        self._operator.init_and_run(
+            {
+                **self._op_config,
+                **{ACTOR_WAS_RECONSTRUCTED: was_reconstructed},
+                **self.job_config,
+            }
+        )
         logger.info("Operator init finished.")
 
     def optimize_config(self):
         for k, v in self._op_config.items():
             try:
-                if isinstance(v,
-                              str) and v.find("{") != -1 and v.find("}") != -1:
+                if isinstance(v, str) and v.find("{") != -1 and v.find("}") != -1:
                     self._op_config[k] = json.loads(v)
             except Exception:
                 pass
@@ -110,8 +111,8 @@ class TFSinkFunction(SinkFunction):
         task_index = 0
         global_index = self.task_id - self.task_index
         actor_names = [
-            f"{self.job_id}-{self.job_config['StreamingOpName']}-" +
-            f"{task_index + i}|{global_index+i}"
+            f"{self.job_id}-{self.job_config['StreamingOpName']}-"
+            + f"{task_index + i}|{global_index+i}"
             for i in range(0, self.parallelism)
         ]
         return actor_names
@@ -127,6 +128,9 @@ class TFSinkFunction(SinkFunction):
 
     def __init_operator_module_manager(self):
         self._operator_module_path = self._op_config[OPERATOR_MODULE_PATH]
-        logger.info("Initializing operator module from path {}".format(
-            self._operator_module_path))
+        logger.info(
+            "Initializing operator module from path {}".format(
+                self._operator_module_path
+            )
+        )
         return OperatorModuleManager(self._operator_module_path)

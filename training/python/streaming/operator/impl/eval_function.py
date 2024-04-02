@@ -22,10 +22,11 @@ class EvalSinkFunction(SinkFunction):
         self.job_id = ray.get_runtime_context().actor_id.job_id.hex()
         logging.info(
             "Open eval function. op config : {}, job config : {}.".format(
-                self._op_config, runtime_context.get_job_config()))
+                self._op_config, runtime_context.get_job_config()
+            )
+        )
         self.optimize_config()
-        logger.info("Initializing operator with config: {}".format(
-            self._op_config))
+        logger.info("Initializing operator with config: {}".format(self._op_config))
         self._reader = EvalReader(self._op_config)
         self._evaluate_thread_started = False
         logger.info("Operator begin finish.")
@@ -33,8 +34,7 @@ class EvalSinkFunction(SinkFunction):
     def optimize_config(self):
         for k, v in self._op_config.items():
             try:
-                if isinstance(v,
-                              str) and v.find("{") != -1 and v.find("}") != -1:
+                if isinstance(v, str) and v.find("{") != -1 and v.find("}") != -1:
                     self._op_config[k] = json.loads(v)
             except Exception:
                 pass
@@ -43,8 +43,8 @@ class EvalSinkFunction(SinkFunction):
         task_index = 0
         global_index = self.task_id - self.task_index
         actor_names = [
-            f"{self.job_id}-{self.job_config['StreamingOpName']}-" +
-            f"{task_index + i}|{global_index+i}"
+            f"{self.job_id}-{self.job_config['StreamingOpName']}-"
+            + f"{task_index + i}|{global_index+i}"
             for i in range(0, self.parallelism)
         ]
         return actor_names
@@ -65,7 +65,7 @@ class EvalSinkFunction(SinkFunction):
         evaluator should override this method
         :return:
         """
-        raise NotImplementedError('function _evaluate not implemented!')
+        raise NotImplementedError("function _evaluate not implemented!")
 
     def save_checkpoint(self, checkpoint_id):
         pass

@@ -63,16 +63,19 @@ def test_generate():
 
 def test_save_checkpoint():
     key_value_state = StateBackendFactory.get_state_backend(
-        StreamingConstants.CP_STATE_BACKEND_PANGU)
-    key_value_state.init({
-        "cp_state_backend_type": "cp_state_backend_pangu",
-        "cp_pangu_root_dir": "file:///tmp/state_backend/"
-    })
+        StreamingConstants.CP_STATE_BACKEND_PANGU
+    )
+    key_value_state.init(
+        {
+            "cp_state_backend_type": "cp_state_backend_pangu",
+            "cp_pangu_root_dir": "file:///tmp/state_backend/",
+        }
+    )
     tf_operator = MockOperator()
     tf_operator.init({"batch_size": 5, "epoch": 2})
     tf_operator.set_key_value_state(key_value_state)
     tf_operator.run()
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "abcdefgh"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "abcdefgh"]
     # Leave a little bit time for consumer
     sleep(0.5)
     assert tf_operator._reader.get_head() == 0
@@ -89,7 +92,7 @@ def test_save_checkpoint():
     tf_operator.on_checkpoint_complete(1)
     assert tf_operator._reader.get_head() == 5
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "ijk"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "ijk"]
     sleep(0.5)
     assert tf_operator._reader.get_offset() == 10
     assert tf_operator._reader.get_cursor() == 10
@@ -97,18 +100,20 @@ def test_save_checkpoint():
 
 def test_save_and_load_checkpoint():
     key_value_state = StateBackendFactory.get_state_backend(
-        StreamingConstants.CP_STATE_BACKEND_DFS)
-    key_value_state.init({
-        StreamingConstants.CP_STATE_BACKEND_TYPE:
-        StreamingConstants.CP_STATE_BACKEND_DFS,
-        StreamingConstants.CP_DFS_ROOT_DIR:
-        StreamingConstants.CP_DFS_ROOT_DIR_DEFAULT + "/{}".format(random())
-    })
+        StreamingConstants.CP_STATE_BACKEND_DFS
+    )
+    key_value_state.init(
+        {
+            StreamingConstants.CP_STATE_BACKEND_TYPE: StreamingConstants.CP_STATE_BACKEND_DFS,
+            StreamingConstants.CP_DFS_ROOT_DIR: StreamingConstants.CP_DFS_ROOT_DIR_DEFAULT
+            + "/{}".format(random()),
+        }
+    )
     tf_operator = MockOperator()
     tf_operator.init({"batch_size": 5, "epoch": 2})
     tf_operator.set_key_value_state(key_value_state)
     tf_operator.run()
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "abcdefgh"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "abcdefgh"]
     # Leave a little bit time for consumer
     sleep(0.5)
     assert tf_operator._reader.get_head() == 0
@@ -125,7 +130,7 @@ def test_save_and_load_checkpoint():
     tf_operator.on_checkpoint_complete(1)
     assert tf_operator._reader.get_head() == 5
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "ijk"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "ijk"]
     sleep(0.5)
     assert tf_operator._reader.get_offset() == 10
     assert tf_operator._reader.get_cursor() == 10
@@ -147,11 +152,14 @@ def test_save_and_load_checkpoint():
 
 def test_save_checkpoint_async():
     key_value_state = StateBackendFactory.get_state_backend(
-        StreamingConstants.CP_STATE_BACKEND_PANGU)
-    key_value_state.init({
-        "cp_state_backend_type": "cp_state_backend_pangu",
-        "cp_pangu_root_dir": "file:///tmp/state_backend/"
-    })
+        StreamingConstants.CP_STATE_BACKEND_PANGU
+    )
+    key_value_state.init(
+        {
+            "cp_state_backend_type": "cp_state_backend_pangu",
+            "cp_pangu_root_dir": "file:///tmp/state_backend/",
+        }
+    )
     tf_operator = MockOperator()
     tf_operator.init({})
     tf_operator.set_key_value_state(key_value_state)
@@ -159,7 +167,7 @@ def test_save_checkpoint_async():
 
     assert len(tf_operator._last_checkpoint_state) == 0
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "abcde"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "abcde"]
 
     # Leave a little bit time for consumer
     sleep(0.5)
@@ -175,12 +183,12 @@ def test_seek_by_offset_normal():
 
     assert len(tf_operator._last_checkpoint_state) == 0
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "abcde"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "abcde"]
 
     # Leave a little bit time for consumer
     sleep(0.5)
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "xyz"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "xyz"]
 
 
 def test_seek_by_offset_abnormal():
@@ -189,12 +197,12 @@ def test_seek_by_offset_abnormal():
 
     assert len(tf_operator._last_checkpoint_state) == 0
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "abcdefghijk"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "abcdefghijk"]
 
     # Leave a little bit time for consumer
     sleep(0.5)
 
-    [tf_operator.process(c.encode(encoding='utf-8')) for c in "xyz"]
+    [tf_operator.process(c.encode(encoding="utf-8")) for c in "xyz"]
 
 
 class MockAbortOperator(TFOperator):

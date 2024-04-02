@@ -7,8 +7,9 @@ import sys
 
 from ray.streaming.generated import remote_call_pb2
 from ray.streaming.runtime.worker import WorkerRuntimeInfo
-from raystreaming.runtime.udc_adapter_callee import \
-    UnitedDistributedControllerAdapterCallee as UDCAdapterCallee
+from raystreaming.runtime.udc_adapter_callee import (
+    UnitedDistributedControllerAdapterCallee as UDCAdapterCallee,
+)
 import ray
 
 logger = logging.getLogger(__name__)
@@ -40,8 +41,7 @@ class TrainingIndependentActorInterface(Object):
 
             return info_result_pb.SerializeToString()
         except Exception as e:
-            logger.warning(
-                "Get worker runtime info occurs an exception: {}".format(e))
+            logger.warning("Get worker runtime info occurs an exception: {}".format(e))
             return remote_call_pb2.WorkerRuntimeInfo().SerializeToString()
 
     def inject_exception(self, exception_injector_bytes):

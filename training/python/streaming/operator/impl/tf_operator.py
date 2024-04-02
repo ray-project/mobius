@@ -21,7 +21,8 @@ class TFOperator(BatchOperator, CheckpointListener):
         # can update executor state by itself.
         self._last_checkpoint_state = {}
         self._async_cp_threadpool = ThreadPoolExecutor(
-            max_workers=1, thread_name_prefix="TF-Operator-Checkpoint-Thread")
+            max_workers=1, thread_name_prefix="TF-Operator-Checkpoint-Thread"
+        )
         self._worker_parallelism_index = None
         self._trainer_thread_started = False
 
@@ -30,8 +31,9 @@ class TFOperator(BatchOperator, CheckpointListener):
         logger.info("TF operator Initialized with config: {}".format(config))
         self._reader = TFOperatorReader(config)
         index_key = "worker_parallelism_index"
-        self._worker_parallelism_index = int(
-            config[index_key]) if index_key in config else 0
+        self._worker_parallelism_index = (
+            int(config[index_key]) if index_key in config else 0
+        )
 
     # should override by penrose
     def init_and_run(self, config):
@@ -55,7 +57,7 @@ class TFOperator(BatchOperator, CheckpointListener):
         operator should override this method
         :return:
         """
-        raise NotImplementedError('function _train not implemented!')
+        raise NotImplementedError("function _train not implemented!")
 
     def _get_consumed_offset(self):
         """
@@ -70,81 +72,96 @@ class TFOperator(BatchOperator, CheckpointListener):
         :param checkpoint_id:
         :return:
         """
-        logger.info("Tf operator on checkpoint complete, checkpoint id: {}."
-                    .format(checkpoint_id))
-        logger.debug("Tf operator last checkpoint state: {}"
-                     .format(self._last_checkpoint_state))
-        if self._last_checkpoint_state is None or len(
-                self._last_checkpoint_state) == 0:
+        logger.info(
+            "Tf operator on checkpoint complete, checkpoint id: {}.".format(
+                checkpoint_id
+            )
+        )
+        logger.debug(
+            "Tf operator last checkpoint state: {}".format(self._last_checkpoint_state)
+        )
+        if self._last_checkpoint_state is None or len(self._last_checkpoint_state) == 0:
             logger.warning("Tf operator last checkpoint state is None.")
             return
         self._reader.clear_expired_data(
-            self._last_checkpoint_state["reader_consumed_offset"])
+            self._last_checkpoint_state["reader_consumed_offset"]
+        )
 
     def __gen_tf_operator_cp_key(self, checkpoint_id):
-        return "checkpoint-{}-state-{}".format(checkpoint_id,
-                                               self._worker_parallelism_index)
+        return "checkpoint-{}-state-{}".format(
+            checkpoint_id, self._worker_parallelism_index
+        )
 
     def save_checkpoint(self, checkpoint_id):
         # 1. save current consume offset before cp sink!
-        logger.info("Tf operator({}) saving checkpoint, checkpoint id: {}, "
-                    "getting last checkpoint state.".format(
-                        self._worker_parallelism_index, checkpoint_id))
+        logger.info(
+            "Tf operator({}) saving checkpoint, checkpoint id: {}, "
+            "getting last checkpoint state.".format(
+                self._worker_parallelism_index, checkpoint_id
+            )
+        )
 
         self._last_checkpoint_state.update(self._reader.get_state())
         self._reader.set_can_be_notified_to_clear()
 
-        logger.info("Tf operator saving checkpoint, checkpoint id: {}.".format(
-            checkpoint_id))
-        logger.debug("Tf operator last checkpoint state: {}".format(
-            self._last_checkpoint_state))
+        logger.info(
+            "Tf operator saving checkpoint, checkpoint id: {}.".format(checkpoint_id)
+        )
+        logger.debug(
+            "Tf operator last checkpoint state: {}".format(self._last_checkpoint_state)
+        )
         state_data = pickle.dumps(self._last_checkpoint_state)
         try:
             self.key_value_state.put(
-                self.__gen_tf_operator_cp_key(checkpoint_id), state_data)
+                self.__gen_tf_operator_cp_key(checkpoint_id), state_data
+            )
         except BaseException as e:
             logger.warning(
                 "Put state checkpoint id {} failed, exception {}.".format(
-                    checkpoint_id, e))
+                    checkpoint_id, e
+                )
+            )
         return state_data
 
     def save_checkpoint_async(self, checkpoint_id):
         # return future
         logger.info(
             "Tf operator({}) submitting async checkpoint task, checkpoint is: "
-            "{}.".format(self._worker_parallelism_index, checkpoint_id))
-        f = self._async_cp_threadpool.submit(self.save_checkpoint,
-                                             checkpoint_id)
+            "{}.".format(self._worker_parallelism_index, checkpoint_id)
+        )
+        f = self._async_cp_threadpool.submit(self.save_checkpoint, checkpoint_id)
         logger.info(
             "Tf operator({}) save_checkpoint_async return future: {}.".format(
-                self._worker_parallelism_index, f))
+                self._worker_parallelism_index, f
+            )
+        )
         return f
 
     def load_checkpoint(self, checkpoint_id):
-        logger.info(
-            "Tf operator load checkpoint, id: {}.".format(checkpoint_id))
+        logger.info("Tf operator load checkpoint, id: {}.".format(checkpoint_id))
         # user operator should use state to keep reader's offset from now on
         if checkpoint_id <= 0:
             return
         try:
             state_data = self.key_value_state.get(
-                self.__gen_tf_operator_cp_key(checkpoint_id))
+                self.__gen_tf_operator_cp_key(checkpoint_id)
+            )
             self._last_checkpoint_state = pickle.loads(state_data)
-            self._last_checkpoint_state["operator_consumed_offset"] = \
-                self._get_consumed_offset()
+            self._last_checkpoint_state[
+                "operator_consumed_offset"
+            ] = self._get_consumed_offset()
             self._reader.load_checkpoint(self._last_checkpoint_state)
         except BaseException as e:
-            logger.warning("Get state checkpoint id {} failed, {}.".format(
-                checkpoint_id, e))
+            logger.warning(
+                "Get state checkpoint id {} failed, {}.".format(checkpoint_id, e)
+            )
 
     def delete_checkpoint(self, checkpoint_id):
         logger.info("Delete tf operator state : {}.".format(checkpoint_id))
         try:
-            self.key_value_state.remove(
-                self.__gen_tf_operator_cp_key(checkpoint_id))
+            self.key_value_state.remove(self.__gen_tf_operator_cp_key(checkpoint_id))
         except BaseException as e:
-            logger.warning(
-                "Remove tf operator state failed, exception {}.".format(e))
+            logger.warning("Remove tf operator state failed, exception {}.".format(e))
 
     def forward_command(self, message):
         pass
@@ -233,9 +250,7 @@ class Mock4RescaleOperator(TFOperator):
         command_func = message.message.get("func_name", None)
         if command_func is None:
             raise ValueError(f"Can't find function {command_func}.")
-        return methodcaller(
-            command_func,
-            *message.message.get("func_args", ()))(self)
+        return methodcaller(command_func, *message.message.get("func_args", ()))(self)
 
     def is_ready_rescaling(self):
         return True

@@ -15,8 +15,11 @@ from ray.streaming import utils
 def debug(q, return_msg):
     print(return_msg)
     print("Buffer is: {}".format(q.queue))
-    print("head: {}, tail:{}, cursor: {}, size:{}\n".format(
-        q.head, q.tail, q.cursor, q._qsize()))
+    print(
+        "head: {}, tail:{}, cursor: {}, size:{}\n".format(
+            q.head, q.tail, q.cursor, q._qsize()
+        )
+    )
 
 
 def pull(q: RingBuffer):
@@ -47,10 +50,10 @@ def push(q):
 def test_buffer_operation_block():
     q = RingBuffer(30, force_clear=False)
 
-    producer = threading.Thread(target=push, args=(q, ))
+    producer = threading.Thread(target=push, args=(q,))
     producer.start()
 
-    consumer = threading.Thread(target=pull, args=(q, ))
+    consumer = threading.Thread(target=pull, args=(q,))
     consumer.start()
 
     producer.join()
@@ -62,24 +65,45 @@ def test_buffer_operation_non_block():
     q = RingBuffer(5, force_clear=False)
 
     debug(q, q.put(1))
-    assert q._qsize(
-    ) == 1 and not q.is_full and q.head == 0 and q.tail == 1 and q.cursor == 0
+    assert (
+        q._qsize() == 1
+        and not q.is_full
+        and q.head == 0
+        and q.tail == 1
+        and q.cursor == 0
+    )
 
     debug(q, q.put(2))
-    assert q._qsize(
-    ) == 2 and not q.is_full and q.head == 0 and q.tail == 2 and q.cursor == 0
+    assert (
+        q._qsize() == 2
+        and not q.is_full
+        and q.head == 0
+        and q.tail == 2
+        and q.cursor == 0
+    )
 
     debug(q, q.put(3))
-    assert q._qsize(
-    ) == 3 and not q.is_full and q.head == 0 and q.tail == 3 and q.cursor == 0
+    assert (
+        q._qsize() == 3
+        and not q.is_full
+        and q.head == 0
+        and q.tail == 3
+        and q.cursor == 0
+    )
 
     debug(q, q.put(4))
-    assert q._qsize(
-    ) == 4 and not q.is_full and q.head == 0 and q.tail == 4 and q.cursor == 0
+    assert (
+        q._qsize() == 4
+        and not q.is_full
+        and q.head == 0
+        and q.tail == 4
+        and q.cursor == 0
+    )
 
     debug(q, q.put(5))
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 0
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 0
+    )
 
     # Buffer is full, blocking until timeout
     with pytest.raises(Full):
@@ -87,24 +111,29 @@ def test_buffer_operation_non_block():
 
     # Get operation does not pop data, so the buffer is still full
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 1
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 1
+    )
 
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 2
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 2
+    )
 
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 3
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 3
+    )
 
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 4
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 4
+    )
 
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 0
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 0 and q.tail == 0 and q.cursor == 0
+    )
 
     # All data are consumed so the queue is both full and empty for now
     assert q.is_empty
@@ -120,29 +149,42 @@ def test_buffer_operation_non_block():
 
     # Clear expired data to free buffer memory, set head from 0 to 2 (index 0 and 1 are expired)
     q.clear_expired_data(2)
-    assert q._qsize(
-    ) == 3 and not q.is_full and q.head == 2 and q.tail == 0 and q.cursor == 0
+    assert (
+        q._qsize() == 3
+        and not q.is_full
+        and q.head == 2
+        and q.tail == 0
+        and q.cursor == 0
+    )
 
     debug(q, q.put(6))
-    assert q._qsize(
-    ) == 4 and not q.is_full and q.head == 2 and q.tail == 1 and q.cursor == 0
+    assert (
+        q._qsize() == 4
+        and not q.is_full
+        and q.head == 2
+        and q.tail == 1
+        and q.cursor == 0
+    )
 
     # Buffer is full again
     debug(q, q.put(7))
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 2 and q.tail == 2 and q.cursor == 0
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 2 and q.tail == 2 and q.cursor == 0
+    )
 
     # Can not put when buffer is full
     with pytest.raises(Full):
         q.put_nowait(8)
 
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 2 and q.tail == 2 and q.cursor == 1
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 2 and q.tail == 2 and q.cursor == 1
+    )
 
     debug(q, q.get())
-    assert q._qsize(
-    ) == 5 and q.is_full and q.head == 2 and q.tail == 2 and q.cursor == 2
+    assert (
+        q._qsize() == 5 and q.is_full and q.head == 2 and q.tail == 2 and q.cursor == 2
+    )
 
     # Empty again
     with pytest.raises(Empty):
@@ -165,29 +207,27 @@ def test_python_list_memory():
     assert 64 + 8 * 5 + 16 == utils.getsize([None] * 5)
 
     # []->64 + item pointer-> 8*5 + None->16 + bytes->33 + 'a'->1
-    assert 64 + 8 * 5 + 16 + 33 + 1 == utils.getsize(
-        [None, b'a', None, None, None])
+    assert 64 + 8 * 5 + 16 + 33 + 1 == utils.getsize([None, b"a", None, None, None])
 
     # []->64 + item pointer-> 8*5 + bytes->33 + 'a'->1
-    assert 64 + 8 * 5 + 33 + 1 == utils.getsize([b'a', b'a', b'a', b'a', b'a'])
+    assert 64 + 8 * 5 + 33 + 1 == utils.getsize([b"a", b"a", b"a", b"a", b"a"])
 
-    assert 64 + 8 == sys.getsizeof([b'a'])
+    assert 64 + 8 == sys.getsizeof([b"a"])
 
     # []->64 + item pointer->8 + bytes->33
-    assert 64 + 8 + 33 == utils.getsize([b''])
+    assert 64 + 8 + 33 == utils.getsize([b""])
     # []->64 + item pointer->8 + bytes->33 + 'a'->1
-    assert 64 + 8 + 34 == utils.getsize([b'a'])
+    assert 64 + 8 + 34 == utils.getsize([b"a"])
     # []->64 + item pointer->8 + bytes->33 + 'ab'->2
-    assert 64 + 8 + 35 == utils.getsize([b'ab'])
+    assert 64 + 8 + 35 == utils.getsize([b"ab"])
 
     last_memory_in_bytes = get_process_memory()
     # Ring buffer with 10000000 same b'a' takes 76MB
-    q = [b'a'] * 10000000
+    q = [b"a"] * 10000000
     assert 64 + 8 * 10000000 + 33 + 1 == utils.getsize(q)
     assert int(utils.getsize(q) / 1024 / 1024) == 76  # 76MB
     # Check increased memory of current process
-    assert int(
-        (get_process_memory() - last_memory_in_bytes) / 1024 / 1024) == 76
+    assert int((get_process_memory() - last_memory_in_bytes) / 1024 / 1024) == 76
 
 
 def test_ring_buffer_memory():
@@ -198,16 +238,21 @@ def test_ring_buffer_memory():
 
     print("\n")
     for i in range(1, 10):
-        q.put(str(i).encode(encoding='utf-8'))
+        q.put(str(i).encode(encoding="utf-8"))
 
         # Count used bytes directly
-        print("#{} Used byte: {}, diff byte: {}".format(
-            i, q.used_bytes, q.used_bytes - last_used_bytes))
+        print(
+            "#{} Used byte: {}, diff byte: {}".format(
+                i, q.used_bytes, q.used_bytes - last_used_bytes
+            )
+        )
 
         # Use memory utils to count memory size
-        print("#{} Used mem:  {}, diff mem:  {}\n".format(
-            i, utils.getsize(q.queue),
-            utils.getsize(q.queue) - last_mem_size))
+        print(
+            "#{} Used mem:  {}, diff mem:  {}\n".format(
+                i, utils.getsize(q.queue), utils.getsize(q.queue) - last_mem_size
+            )
+        )
 
         last_used_bytes = q.used_bytes
         last_mem_size = utils.getsize(q.queue)
@@ -306,26 +351,35 @@ def test_put_reach_memory_limit():
     assert 64 + 8 * 40 + 16 == utils.getsize(buffer.queue)  # 400Bytes
 
     # add 35Bytes
-    buffer.put(b'10', timeout=1)
-    assert buffer.used_bytes == 435 and utils.getsize(
-        buffer.queue) == 435 and not buffer.is_full
+    buffer.put(b"10", timeout=1)
+    assert (
+        buffer.used_bytes == 435
+        and utils.getsize(buffer.queue) == 435
+        and not buffer.is_full
+    )
     # add 35Bytes
-    buffer.put(b'11', timeout=1)
-    assert buffer.used_bytes == 470 and utils.getsize(
-        buffer.queue) == 470 and not buffer.is_full
+    buffer.put(b"11", timeout=1)
+    assert (
+        buffer.used_bytes == 470
+        and utils.getsize(buffer.queue) == 470
+        and not buffer.is_full
+    )
     # add 35Bytes, can exceed little bit
-    buffer.put(b'12', timeout=1)
-    assert buffer.used_bytes == 505 and utils.getsize(
-        buffer.queue) == 505 and buffer.is_full
+    buffer.put(b"12", timeout=1)
+    assert (
+        buffer.used_bytes == 505
+        and utils.getsize(buffer.queue) == 505
+        and buffer.is_full
+    )
 
     with pytest.raises(Full):
-        buffer.put(b'13', timeout=1)
+        buffer.put(b"13", timeout=1)
 
     assert buffer.is_full
 
-    assert b'10' == buffer.get()
-    assert b'11' == buffer.get()
-    assert b'12' == buffer.get()
+    assert b"10" == buffer.get()
+    assert b"11" == buffer.get()
+    assert b"12" == buffer.get()
 
     assert buffer.is_full
 
@@ -372,9 +426,9 @@ def test_clear():
     buffer.clear_expired_data(expired_offset)
     assert buffer.real_head == 10
 
-    buffer.put(b'1')
-    buffer.put(b'2')
-    buffer.put(b'3')
+    buffer.put(b"1")
+    buffer.put(b"2")
+    buffer.put(b"3")
 
     buffer.get()
     buffer.get()
@@ -412,12 +466,12 @@ def test_seek_by_offset():
 
 def test_load_checkpoint():
     state = {
-        'real_head': 8,
-        'real_tail': 10,
-        'real_cursor': 8,
-        'reader_consumed_offset': 8,
-        'operator_consumed_offset': 8,
-        'unconsumed_data': [1, 2]
+        "real_head": 8,
+        "real_tail": 10,
+        "real_cursor": 8,
+        "reader_consumed_offset": 8,
+        "operator_consumed_offset": 8,
+        "unconsumed_data": [1, 2],
     }
     buffer = RingBuffer(max_slot_size=10)
     buffer.load_checkpoint(state)
@@ -442,7 +496,7 @@ class ProducerThread(threading.Thread):
         self.num = num
 
     def run(self):
-        print('starting ' + self.name)
+        print("starting " + self.name)
         for i in range(0, self.num):
             sleep(0.01)
             self.buffer.put(i)
@@ -456,7 +510,7 @@ class ConsumerThread(threading.Thread):
         self.sum = 0
 
     def run(self):
-        print('starting ' + self.name)
+        print("starting " + self.name)
         for i in range(0, self.num):
             self.sum += self.buffer.get()
 
@@ -466,12 +520,12 @@ class ConsumerThread(threading.Thread):
 
 def test_producer_consumer():
     state = {
-        'real_head': 8,
-        'real_tail': 10,
-        'real_cursor': 8,
-        'reader_consumed_offset': 8,
-        'operator_consumed_offset': 8,
-        'unconsumed_data': [1, 2]
+        "real_head": 8,
+        "real_tail": 10,
+        "real_cursor": 8,
+        "reader_consumed_offset": 8,
+        "operator_consumed_offset": 8,
+        "unconsumed_data": [1, 2],
     }
     buffer = RingBuffer(max_slot_size=10)
     buffer.load_checkpoint(state)
@@ -488,12 +542,12 @@ def test_producer_consumer():
 
 def test_load_none_value():
     state = {
-        'real_head': 8,
-        'real_tail': 10,
-        'real_cursor': 8,
-        'reader_consumed_offset': 8,
-        'operator_consumed_offset': 8,
-        'unconsumed_data': [None, 2]
+        "real_head": 8,
+        "real_tail": 10,
+        "real_cursor": 8,
+        "reader_consumed_offset": 8,
+        "operator_consumed_offset": 8,
+        "unconsumed_data": [None, 2],
     }
     buffer = RingBuffer(max_slot_size=10)
     buffer.load_checkpoint(state)
