@@ -14,7 +14,7 @@ install_clang_format() {
 }
 
 install_black_format() {
-    pip3 install black==21.12b0
+    pip3 install black==22.3.0
 }
 
 install_shell_check() {
