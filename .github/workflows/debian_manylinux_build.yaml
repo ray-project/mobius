@@ -23,6 +23,8 @@ jobs:
 
     - name: Apt get update and Install bazel
       run:  |
+            sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list
+            sed -i s/security.debian.org/archive.debian.org/g /etc/apt/sources.list
             apt-get update
             apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip git
             apt-get install -yq gcc g++
