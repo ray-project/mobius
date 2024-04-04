@@ -1,7 +1,7 @@
 #!/bin/bash
 # Current github bazel version is 5.0.0
 platform="unknown"
-arm=`uname -a | grep -o -m 1 -e "arm" -e "aarch64" | head -n 1``
+arm=`uname -a | grep -o -m 1 -e "arm" -e "aarch64" | head -n 1`
 
 case "${OSTYPE}" in
   msys)
