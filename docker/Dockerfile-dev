@@ -1,0 +1,10 @@
+FROM ubuntu:22.04
+RUN apt-get update
+RUN apt-get install -yq software-properties-common
+RUN add-apt-repository -y ppa:deadsnakes/ppa
+RUN apt-get install -yq wget gcc g++ openjdk-8-jdk maven python3.8 zlib1g-dev zip git pip
+RUN git clone https://github.com/ray-project/mobius.git
+RUN sh -c "bash mobius/scripts/install-bazel.sh"
+RUN python3 -m pip install virtualenv
+RUN python3 -m virtualenv -p python3 py3
+RUN pip install pytest "protobuf<4"
