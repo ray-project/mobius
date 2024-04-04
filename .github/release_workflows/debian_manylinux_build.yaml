@@ -15,7 +15,7 @@ env:
 jobs:
   streaming-debian-manylinux-pipeline:
     timeout-minutes: 120
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container: quay.io/pypa/manylinux_2_24_x86_64
 
     steps:
@@ -23,7 +23,7 @@ jobs:
 
     - name: Apt get update and Install bazel
       run:  |
-            # cp .github/ubuntu-source.list /etc/apt/sources.list
+            cp .github/ubuntu-source.list /etc/apt/sources.list
             apt-get update
             apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip git
             apt-get install -yq gcc g++
