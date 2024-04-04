@@ -19,18 +19,23 @@ class RingBuffer(Queue):
 
     Note that item in ringbuffer must to bytes
     """
-    def __init__(
-            self,
-            max_slot_size=OperatorConstants.DEFAULT_QUEUE_MAX_SLOT_SIZE,
-            max_bytes=OperatorConstants.DEFAULT_QUEUE_MAX_BYTES,
-            start_offset=OperatorConstants.DEFAULT_QUEUE_START_OFFSET,
-            log_interval=OperatorConstants.DEFAULT_RINGBUFFER_LOG_DETAIL_INTERVAL,
-            force_clear=OperatorConstants.DEFAULT_FORCE_CLEAR,
-            report_interval=OperatorConstants.DEFAULT_LOG_DETAIL_INTERVAL):
 
-        logger.info("Ringbuffer initialized with max_slot_size:{}, "
-                    "max_byte:{}, start_offset:{}, log_interval:{}".format(
-                        max_slot_size, max_bytes, start_offset, log_interval))
+    def __init__(
+        self,
+        max_slot_size=OperatorConstants.DEFAULT_QUEUE_MAX_SLOT_SIZE,
+        max_bytes=OperatorConstants.DEFAULT_QUEUE_MAX_BYTES,
+        start_offset=OperatorConstants.DEFAULT_QUEUE_START_OFFSET,
+        log_interval=OperatorConstants.DEFAULT_RINGBUFFER_LOG_DETAIL_INTERVAL,
+        force_clear=OperatorConstants.DEFAULT_FORCE_CLEAR,
+        report_interval=OperatorConstants.DEFAULT_LOG_DETAIL_INTERVAL,
+    ):
+
+        logger.info(
+            "Ringbuffer initialized with max_slot_size:{}, "
+            "max_byte:{}, start_offset:{}, log_interval:{}".format(
+                max_slot_size, max_bytes, start_offset, log_interval
+            )
+        )
 
         super(RingBuffer, self).__init__(maxsize=max_slot_size)
 
@@ -39,8 +44,11 @@ class RingBuffer(Queue):
         self.queue = [None] * max_slot_size
         self.used_bytes = utils.getsize(self.queue)
         if self.used_bytes > max_bytes:
-            raise ValueError("Used bytes {} of {} items > max bytes {}".format(
-                self.used_bytes, max_slot_size, max_bytes))
+            raise ValueError(
+                "Used bytes {} of {} items > max bytes {}".format(
+                    self.used_bytes, max_slot_size, max_bytes
+                )
+            )
 
         self.start_offset = start_offset
         self.cursor = start_offset % max_slot_size  # the reader cursor
@@ -120,21 +128,26 @@ class RingBuffer(Queue):
 
         if self.need_log():
             msg = "Increase used bytes from {} to {}".format(
-                self.used_bytes, self.used_bytes + commit_data_size)
+                self.used_bytes, self.used_bytes + commit_data_size
+            )
             self.log_ring_buffer_detail("put", msg)
 
         if self.tail == self.head:
             logger.warning(
-                "Queue is full, tail: {}, head: {}, unfinished tasks: {}".
-                format(self.head, self.tail, self.unfinished_tasks))
+                "Queue is full, tail: {}, head: {}, unfinished tasks: {}".format(
+                    self.head, self.tail, self.unfinished_tasks
+                )
+            )
             self.is_full = True
             self.log_ring_buffer_detail("put", "queue is full")
 
         if self.used_bytes > self.max_bytes:
-            logger.warning("Queue is full, max bytes: {}, used bytes: {}, "
-                           "commit data bytes: {}.".format(
-                               self.max_bytes, self.used_bytes,
-                               commit_data_size))
+            logger.warning(
+                "Queue is full, max bytes: {}, used bytes: {}, "
+                "commit data bytes: {}.".format(
+                    self.max_bytes, self.used_bytes, commit_data_size
+                )
+            )
             self.is_full = True
             self.log_ring_buffer_detail("put", "queue is full")
 
@@ -201,20 +214,20 @@ class RingBuffer(Queue):
                 # Queue is full and all data are consumed
                 if self.is_full and self.force_clear:
                     self.log_ring_buffer_detail(
-                        "get", "queue is full and all data are consumed, "
-                        "force clear buffer starting")
+                        "get",
+                        "queue is full and all data are consumed, "
+                        "force clear buffer starting",
+                    )
                     self.queue = [None] * self.max_slot_size
                     self.used_bytes = utils.getsize(self.queue)
                     self.is_full = False
                     self.not_full.notify()
                     self.can_be_notified_to_clear = False
                     self.real_head = self.real_cursor
-                    self.log_ring_buffer_detail("get",
-                                                "force clear buffer finished")
+                    self.log_ring_buffer_detail("get", "force clear buffer finished")
             return data
         except Exception as e:
-            logger.error("Data is not ready, cursor: {}".format(self.cursor),
-                         e)
+            logger.error("Data is not ready, cursor: {}".format(self.cursor), e)
             return None
 
     def _qsize(self):
@@ -239,21 +252,19 @@ class RingBuffer(Queue):
         :return:
         """
         with self.mutex:
-            logger.info(
-                "Start to reset start offset to {}".format(start_offset))
+            logger.info("Start to reset start offset to {}".format(start_offset))
 
             if not (self.real_head <= start_offset <= self.real_tail):
-                raise ValueError("Seek error, specified cursor {} is not in "
-                                 "[{}, {}]".format(start_offset,
-                                                   self.real_head,
-                                                   self.real_tail))
+                raise ValueError(
+                    "Seek error, specified cursor {} is not in "
+                    "[{}, {}]".format(start_offset, self.real_head, self.real_tail)
+                )
 
             self.start_offset = start_offset
             self.real_cursor = start_offset
             self.cursor = self.real_cursor % self.max_slot_size
 
-            logger.info(
-                "Finished resetting start offset to {}".format(start_offset))
+            logger.info("Finished resetting start offset to {}".format(start_offset))
 
     def clear_expired_data(self, expired_offset):
         """
@@ -265,23 +276,32 @@ class RingBuffer(Queue):
             self.log_ring_buffer_detail("clear")
 
             if not self.can_be_notified_to_clear:
-                msg = "can_be_notified_to_clear=False, do not clear for this" \
-                      " time, waiting for next checkpoint"
+                msg = (
+                    "can_be_notified_to_clear=False, do not clear for this"
+                    " time, waiting for next checkpoint"
+                )
                 self.log_ring_buffer_detail("clear", msg)
                 return
 
             self.log_ring_buffer_detail(
-                "clear", "Start to clear expired data, "
-                "expired offset: {}".format(expired_offset))
+                "clear",
+                "Start to clear expired data, "
+                "expired offset: {}".format(expired_offset),
+            )
 
             if expired_offset < self.real_head:
-                msg = "expired_offset {} < real_head {}, reader consumed offset has not bean updated after " \
-                      "force clearing, do not clear this time".format(expired_offset, self.real_head)
+                msg = (
+                    "expired_offset {} < real_head {}, reader consumed offset has not bean updated after "
+                    "force clearing, do not clear this time".format(
+                        expired_offset, self.real_head
+                    )
+                )
                 self.log_ring_buffer_detail("clear", msg)
                 return
             if expired_offset > self.real_cursor:
                 msg = "expired_offset {} > real cursor {}, illegal value, do not clear this time.".format(
-                    expired_offset, self.real_cursor)
+                    expired_offset, self.real_cursor
+                )
                 self.log_ring_buffer_detail("clear", msg)
                 return
 
@@ -290,8 +310,9 @@ class RingBuffer(Queue):
             self.real_head = expired_offset
             self.head = self.real_head % self.max_slot_size
             self.log_ring_buffer_detail(
-                "clear", "Setting head to {}, old head is:"
-                " {}".format(self.head, old_head))
+                "clear",
+                "Setting head to {}, old head is:" " {}".format(self.head, old_head),
+            )
             if old_head == self.head:
                 if self.is_full and self.real_cursor == self.real_tail:
                     # queue is full and all data are consumed
@@ -319,8 +340,10 @@ class RingBuffer(Queue):
                     self.is_full = False
 
             self.log_ring_buffer_detail(
-                "clear", "Finished clearing expired data,"
-                " expired offset: {}".format(expired_offset))
+                "clear",
+                "Finished clearing expired data,"
+                " expired offset: {}".format(expired_offset),
+            )
 
             if not self.is_full:
                 self.not_full.notify()
@@ -335,14 +358,25 @@ class RingBuffer(Queue):
         return self.tail
 
     def log_ring_buffer_detail(self, operation, extra=None):
-        pattern = "[{}] ringbuffer max size:{}, used size:{}, real head:{}, " \
-                  "real tail:{}, real cursor:{}, max bytes:{} used bytes:{}, " \
-                  "is full:{}, is empty:{}, can_be_notified_to_clear:{}, extra msg:{}"
-        detail = pattern.format(operation, self.max_slot_size, self._qsize(),
-                                self.real_head, self.real_tail,
-                                self.real_cursor, self.max_bytes,
-                                self.used_bytes, self.is_full, self.is_empty,
-                                self.can_be_notified_to_clear, extra)
+        pattern = (
+            "[{}] ringbuffer max size:{}, used size:{}, real head:{}, "
+            "real tail:{}, real cursor:{}, max bytes:{} used bytes:{}, "
+            "is full:{}, is empty:{}, can_be_notified_to_clear:{}, extra msg:{}"
+        )
+        detail = pattern.format(
+            operation,
+            self.max_slot_size,
+            self._qsize(),
+            self.real_head,
+            self.real_tail,
+            self.real_cursor,
+            self.max_bytes,
+            self.used_bytes,
+            self.is_full,
+            self.is_empty,
+            self.can_be_notified_to_clear,
+            extra,
+        )
         logger.debug(detail)
         self.last_log_detail_time = time.time()
         # Report ringbuffer metrics
@@ -353,15 +387,19 @@ class RingBuffer(Queue):
 
     def need_log(self):
         if self.log_detail_interval_in_secs > 0:
-            return time.time(
-            ) - self.last_log_detail_time > self.log_detail_interval_in_secs
+            return (
+                time.time() - self.last_log_detail_time
+                > self.log_detail_interval_in_secs
+            )
         else:
             return True
 
     def need_report_metrics(self):
         if self.report_metrics_interval_in_secs > 0:
-            return time.time(
-            ) - self.last_report_time > self.report_metrics_interval_in_secs
+            return (
+                time.time() - self.last_report_time
+                > self.report_metrics_interval_in_secs
+            )
         return True
 
     def set_can_be_notified_to_clear(self):
@@ -372,7 +410,8 @@ class RingBuffer(Queue):
         with self.mutex:
             self.can_be_notified_to_clear = True
             self.log_ring_buffer_detail(
-                "checkpoint", "set can_be_notified_to_clear to True")
+                "checkpoint", "set can_be_notified_to_clear to True"
+            )
 
     def get_state(self, reader_consumed_offset):
         """
@@ -385,11 +424,10 @@ class RingBuffer(Queue):
                 "real_tail": self.real_tail,
                 "real_cursor": self.real_cursor,
                 "reader_consumed_offset": reader_consumed_offset,
-                "unconsumed_data": []
+                "unconsumed_data": [],
             }
             # save unconsumed data to checkpoint state
-            for i in range(state["reader_consumed_offset"],
-                           state["real_tail"]):
+            for i in range(state["reader_consumed_offset"], state["real_tail"]):
                 state["unconsumed_data"].append(self.queue[i % self.maxsize])
             return state
 
@@ -411,23 +449,25 @@ class RingBuffer(Queue):
 
     def load_checkpoint(self, state):
         with self.mutex:
-            self.log_ring_buffer_detail("load_checkpoint",
-                                        "load checkpoint start")
+            self.log_ring_buffer_detail("load_checkpoint", "load checkpoint start")
 
             # reset pointer
-            logger.info("Reset start offset to: {}".format(
-                state["reader_consumed_offset"]))
+            logger.info(
+                "Reset start offset to: {}".format(state["reader_consumed_offset"])
+            )
             self.__reset_start_offset(state["reader_consumed_offset"])
 
-            logger.info("Reset cursor to: {}".format(
-                state["operator_consumed_offset"]))
+            logger.info("Reset cursor to: {}".format(state["operator_consumed_offset"]))
             self.__reset_cursor(state["operator_consumed_offset"])
 
             # load data from state
             recover_start = state["reader_consumed_offset"]
             recover_end = state["real_tail"]
-            logger.info("Load checkpoint and reput data from {} to {}.".format(
-                recover_start, recover_end))
+            logger.info(
+                "Load checkpoint and reput data from {} to {}.".format(
+                    recover_start, recover_end
+                )
+            )
             logger.info(
                 f"Before load checkpoint, state info : real_head {state['real_head']},\
                   real_tail {state['real_tail']}, real_cursor {state['real_cursor']}, \
@@ -449,8 +489,7 @@ class RingBuffer(Queue):
             if recover_end > recover_start:
                 self.is_empty = False
                 self.not_empty.notify()
-            self.log_ring_buffer_detail("load_checkpoint",
-                                        "load checkpoint finish")
+            self.log_ring_buffer_detail("load_checkpoint", "load checkpoint finish")
             logger.info(
                 f"After load checkpoint, none value num : {none_value_num_in_state} {self}"
             )

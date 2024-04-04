@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from ray.streaming.constants import StreamingConstants
+
 logger = logging.getLogger(StreamingConstants.LOGGER_NAME_DEFAULT)
 
 
@@ -15,14 +16,18 @@ class OperatorModuleManager:
     def __init__(self, modules_dir_path, reload_all=False):
         abs_modules_dir_path = os.path.abspath(modules_dir_path)
         if not os.path.exists(modules_dir_path) or not os.path.exists(
-                abs_modules_dir_path):
-            logger.warning("Cannot find module path '{}', ignore it.".format(
-                abs_modules_dir_path))
+            abs_modules_dir_path
+        ):
+            logger.warning(
+                "Cannot find module path '{}', ignore it.".format(abs_modules_dir_path)
+            )
             return None
         if not os.path.isdir(abs_modules_dir_path):
             logger.warning(
                 "Provided path '{}' is not a directory, ignore it.".format(
-                    abs_modules_dir_path))
+                    abs_modules_dir_path
+                )
+            )
             return None
         logger.info("Adding {} to sys.path".format(abs_modules_dir_path))
         if abs_modules_dir_path not in sys.path:
@@ -30,8 +35,11 @@ class OperatorModuleManager:
         self.module_dir_path = abs_modules_dir_path
         self.module_dict = {}
         if reload_all:
-            logger.info("Initializing, Loading modules from path {}".format(
-                self.module_dir_path))
+            logger.info(
+                "Initializing, Loading modules from path {}".format(
+                    self.module_dir_path
+                )
+            )
             self.__load_modules_from_path(self.module_dir_path)
             # Invalidate Python's caches so the new modules can be found
             logger.info("Initializing, Invalidating cache")
@@ -48,13 +56,15 @@ class OperatorModuleManager:
                     # Create a python module import path relative to the absModulePath
                     import_path = os.path.join(
                         dir_path.replace(module_dir_path, "")[1:],
-                        os.path.splitext(file)[0]).replace("/", ".")
+                        os.path.splitext(file)[0],
+                    ).replace("/", ".")
                     cur_module = self.module_dict.get(import_path)
                     if not cur_module:
                         self.add_module(import_path)
                     # If found module but the modified time changed then reload it
                     elif cur_module and cur_module["mtime"] != os.path.getmtime(
-                            self.get_os_path(import_path)):
+                        self.get_os_path(import_path)
+                    ):
                         self.reload_module(import_path)
 
     def load_single_module(self, module_name, class_name):
@@ -105,14 +115,11 @@ class OperatorModuleManager:
         module_instance = module_class()
         if keep_cache:
             self.module_dict[module_path] = {
-                "ref":
-                module,
-                "instance":
-                module_instance,
-                "mtime":
-                os.path.getmtime(
-                    os.path.join(
-                        self.get_os_path(self.module_dir_path, module_path)))
+                "ref": module,
+                "instance": module_instance,
+                "mtime": os.path.getmtime(
+                    os.path.join(self.get_os_path(self.module_dir_path, module_path))
+                ),
             }
         return module_instance
 
@@ -148,7 +155,8 @@ class OperatorModuleManager:
         importlib.reload(module_path)
         # Update new module time
         self.module_dict[module_path]["mtime"] = os.path.getmtime(
-            self.get_os_path(self.module_dir_path, module_path))
+            self.get_os_path(self.module_dir_path, module_path)
+        )
         # Invalidate Cache
         importlib.invalidate_caches()
 

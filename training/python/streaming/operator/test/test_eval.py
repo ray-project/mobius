@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 @test_utils.skip_if_no_streaming_jar()
 def test_eval_word_count():
     class MockSourceFunction(SourceFunction):
-
         def init(self, parallel, index):
             self.tot = 10
 
@@ -29,7 +28,6 @@ def test_eval_word_count():
                 ctx.collect(bytes("b", encoding="utf8"))
 
     class MockEvalSinkFunction(EvalSinkFunction):
-
         def _evaluate(self):
             sleep(5)
             data_list = self._reader.fetch_data(10)
@@ -42,15 +40,13 @@ def test_eval_word_count():
     if os.path.exists(sink_file):
         os.remove(sink_file)
 
-    ctx = StreamingContext.Builder() \
-        .build()
+    ctx = StreamingContext.Builder().build()
 
     a = MockSourceFunction()
     b = MockEvalSinkFunction()
-    ctx.source(a) \
-       .disable_chain() \
-       .sink(b) \
-       .with_config(conf={"reader_max_slot_size": "10"})
+    ctx.source(a).disable_chain().sink(b).with_config(
+        conf={"reader_max_slot_size": "10"}
+    )
 
     ctx.submit("test_eval_word_count")
 

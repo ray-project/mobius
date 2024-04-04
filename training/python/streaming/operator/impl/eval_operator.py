@@ -7,7 +7,9 @@ import logging
 import ray
 import json
 
-from streaming.operator.impl.training_independent_actor import TrainingIndependentActorInterface
+from streaming.operator.impl.training_independent_actor import (
+    TrainingIndependentActorInterface,
+)
 
 logger = logging.getLogger(__name__)
 

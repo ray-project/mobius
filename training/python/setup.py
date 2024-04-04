@@ -12,15 +12,13 @@ os.chdir(current_dir)
 setup(
     name=pkg_dir,
     version="0.0.1",
-    description='streaming',
+    description="streaming",
     keywords=("ray", "streaming", "runtime", "operator"),
-    author='The Authors of Antgroup',
-    packages=find_packages(
-        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    author="The Authors of Antgroup",
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     platforms="any",
     scripts=[],
     include_package_data=True,
-    install_requires=[
-        'protobuf', 'schedule', 'psutil'
-    ],
-    zip_safe=False)
+    install_requires=["protobuf", "schedule", "psutil"],
+    zip_safe=False,
+)

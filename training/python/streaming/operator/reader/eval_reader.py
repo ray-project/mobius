@@ -15,18 +15,21 @@ class EvalReader(StreamReader):
 
     def __init__(self, config):
 
-        max_size = int(config[OperatorConstants.READER_MAX_SLOT_SIZE]) \
-            if OperatorConstants.READER_MAX_SLOT_SIZE in config \
+        max_size = (
+            int(config[OperatorConstants.READER_MAX_SLOT_SIZE])
+            if OperatorConstants.READER_MAX_SLOT_SIZE in config
             else OperatorConstants.DEFAULT_QUEUE_MAX_SLOT_SIZE
+        )
 
-        max_bytes = int(config[OperatorConstants.READER_MAX_BYTES]) \
-            if OperatorConstants.READER_MAX_BYTES in config \
+        max_bytes = (
+            int(config[OperatorConstants.READER_MAX_BYTES])
+            if OperatorConstants.READER_MAX_BYTES in config
             else OperatorConstants.DEFAULT_QUEUE_MAX_BYTES
+        )
 
         super().__init__()
 
-        self.__data_buffer = CircularBuffer(
-            max_size=max_size, max_bytes=max_bytes)
+        self.__data_buffer = CircularBuffer(max_size=max_size, max_bytes=max_bytes)
 
     def put_data(self, msg):
         self.__data_buffer.put(msg)
@@ -38,8 +41,12 @@ class EvalReader(StreamReader):
         :param options: Other options
         :return:  List of training input data
         """
-        batch_data = list(map(lambda x: str(x, encoding="utf-8"), \
-                              self.__data_buffer.get_list(batch_size)))
+        batch_data = list(
+            map(
+                lambda x: str(x, encoding="utf-8"),
+                self.__data_buffer.get_list(batch_size),
+            )
+        )
         return batch_data
 
     def get_offset(self):
