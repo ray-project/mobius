@@ -23,7 +23,6 @@ jobs:
 
     - name: Apt get update and Install bazel
       run:  |
-            cp .github/aliyun-source.list /etc/apt/sources.list
             apt-get update
             apt-get install -yq wget openjdk-8-jdk zlib1g-dev zip git
             apt-get install -yq gcc g++
