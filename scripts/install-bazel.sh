@@ -23,7 +23,7 @@ case "${OSTYPE}" in
 esac
 echo "platform is ${platform}"
 arm=`uname -m | grep arm`
-echo $arm
+echo "current arch is $arm"
 
 if [ "${platform}" = "darwin" ] && [ "${arm}" != "arm64" ]; then
     wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-installer-darwin-x86_64.sh" -O bazel-5.4.1-installer-darwin-x86_64.sh
