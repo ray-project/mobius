@@ -29,20 +29,30 @@ if [ "${arm}" = "aarch64" ]; then
     arm="arm64"
 fi
 
+bazel_exe_file=""
+
 if [ "${platform}" = "darwin" ] && [ "${arm}" != "arm64" ]; then
-    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-installer-darwin-x86_64.sh" -O bazel-5.4.1-installer-darwin-x86_64.sh
-    sh bazel-5.4.1-installer-darwin-x86_64.sh
+    bazel_exe_file="bazel-5.4.1-installer-darwin-x86_64.sh"
+    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-installer-darwin-x86_64.sh" -O $bazel_exe_file
+    sh $bazel_exe_file
 elif [ "${platform}" = "darwin" ] && [ "${arm}" = "arm64" ]; then
     wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-darwin-arm64" -O bazel-5.4.1-darwin-arm64
     chmod a+x bazel-5.4.1-darwin-arm64
-    sh bazel-5.4.1-darwin-arm64
+    cp bazel-5.4.1-darwin-arm64 /usr/bin/bazel
 elif [ "${platform}" = "linux" ] && [ "${arm}" = "arm64" ]; then
-    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-linux-arm64" -O bazel_5.4.1-linux-arm64
-    chmod a+x bazel_5.4.1-linux-arm64
-    sh bazel_5.4.1-linux-arm64
+    bazel_exe_file="bazel_5.4.1-linux-arm64"
+    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel-5.4.1-linux-arm64" -O $bazel_exe_file
+    chmod a+x $bazel_exe_file
+    cp $bazel_exe_file /usr/bin/bazel
 else
-    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel_5.4.1-linux-x86_64.deb" -O bazel_5.4.1-linux-x86_64.deb
-    dpkg -i bazel_5.4.1-linux-x86_64.deb
+    bazel_exe_file="bazel_5.4.1-linux-x86_64.deb"
+    wget "https://github.com/bazelbuild/bazel/releases/download/5.4.1/bazel_5.4.1-linux-x86_64.deb" -O $bazel_exe_file
+    dpkg -i $bazel_exe_file
+fi
+
+if [ -e $bazel_exe_file ]; then
+  echo "Remove download file $bazel_exe_file"
+  rm $bazel_exe_file
 fi
 
 bazel --version
