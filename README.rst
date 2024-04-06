@@ -2,6 +2,10 @@
    :target: docs/assets/infinite.svg
    :alt: mobius
 
+
+------------
+
+
 Mobius : Online Machine Learning.
 ============
 
@@ -160,6 +164,7 @@ Key Features
 Build
 ----------------
 
+Build from source code :
 - Build a docker using docker/Dockerfile-env
 - Execute `scripts/install.sh`
 
