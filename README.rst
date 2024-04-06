@@ -2,8 +2,13 @@
    :target: docs/assets/infinite.svg
    :alt: mobius
 
+
+------------
+
+
 Mobius : Online Machine Learning.
 ============
+
 `Mobius <https://tech.antfin.com/products/ARCMOBIUS>`_ is an AI infra platform including realtime computing and training.  
 
 .. image:: https://github.com/ray-project/mobius/workflows/ubuntu-building/badge.svg
@@ -12,7 +17,7 @@ Mobius : Online Machine Learning.
 .. image:: https://github.com/ray-project/mobius/workflows/macos-building/badge.svg
    :target: https://github.com/ray-project/mobius/actions/workflows/macos-building.yml
 
-|
+
 
 Ray Streaming
 =============
@@ -155,6 +160,13 @@ Key Features
 #.
    **Validation for continuous model delivery**. A validation mechanism to help our system keep delivering high-quality models and intercept all the abnormal models.
 
+
+Build
+----------------
+
+Build from source code :
+- Build a docker using docker/Dockerfile-env
+- Execute `scripts/install.sh`
 
 
 Getting Involved
