@@ -4,6 +4,7 @@
 
 Mobius : Online Machine Learning.
 ============
+
 `Mobius <https://tech.antfin.com/products/ARCMOBIUS>`_ is an AI infra platform including realtime computing and training.  
 
 .. image:: https://github.com/ray-project/mobius/workflows/ubuntu-building/badge.svg
@@ -155,6 +156,12 @@ Key Features
 #.
    **Validation for continuous model delivery**. A validation mechanism to help our system keep delivering high-quality models and intercept all the abnormal models.
 
+
+Build
+----------------
+
+- Build a docker using docker/Dockerfile-env
+- Execute `scripts/install.sh`
 
 
 Getting Involved
