@@ -2,7 +2,6 @@ package io.ray.streaming.common.utils;
 
 import com.google.common.collect.Sets;
 import com.sun.jna.NativeLibrary;
-import io.ray.runtime.util.BinaryFileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

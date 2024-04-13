@@ -1,4 +1,4 @@
-package io.ray.streaming.runtime.util;
+package io.ray.streaming.common.utils;
 
 import com.google.common.base.Preconditions;
 import java.io.File;

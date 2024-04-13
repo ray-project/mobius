@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 import ray
-from ray.streaming import StreamingContext
+from raystreaming import StreamingContext
 from ray._private.test_utils import wait_for_condition
 import pytest
 
@@ -32,7 +32,7 @@ def test_hybrid_stream():
     )
     current_dir = os.path.abspath(os.path.dirname(__file__))
     jar_path = os.path.join(
-        current_dir, "../../../bazel-bin/streaming/java/all_streaming_tests_deploy.jar"
+        current_dir, "../../../bazel-bin/java/all_streaming_tests_deploy.jar"
     )
     jar_path = os.path.abspath(jar_path)
     print("jar_path", jar_path)
