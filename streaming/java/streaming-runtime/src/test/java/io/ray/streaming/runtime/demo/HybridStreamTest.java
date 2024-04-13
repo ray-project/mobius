@@ -54,8 +54,8 @@ public class HybridStreamTest extends RayEnvBaseTest {
     streamSource
         .map(x -> x + x)
         .asPythonStream()
-        .map("ray.streaming.tests.test_hybrid_stream", "map_func1")
-        .filter("ray.streaming.tests.test_hybrid_stream", "filter_func1")
+        .map("raystreaming.tests.test_hybrid_stream", "map_func1")
+        .filter("raystreaming.tests.test_hybrid_stream", "filter_func1")
         .asJavaStream()
         .sink(
             (SinkFunction<Object>)

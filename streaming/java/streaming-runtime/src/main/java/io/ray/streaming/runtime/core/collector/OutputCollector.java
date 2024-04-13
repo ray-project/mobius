@@ -20,6 +20,12 @@ public class OutputCollector implements Collector<Record> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OutputCollector.class);
 
+  /** Collector id belongs to source id of edge. */
+  private final Integer collectorId;
+
+  /** DownStream id belongs to target id of edge. */
+  private final Integer downStreamId;
+
   private final DataWriter writer;
   private final ChannelId[] outputQueues;
   private final Collection<BaseActorHandle> targetActors;
@@ -29,10 +35,14 @@ public class OutputCollector implements Collector<Record> {
   private final Serializer crossLangSerializer = new CrossLangSerializer();
 
   public OutputCollector(
+      Integer collectorId,
+      Integer downStreamId,
       DataWriter writer,
       Collection<String> outputChannelIds,
       Collection<BaseActorHandle> targetActors,
       Partition partition) {
+    this.collectorId = collectorId;
+    this.downStreamId = downStreamId;
     this.writer = writer;
     this.outputQueues = outputChannelIds.stream().map(ChannelId::from).toArray(ChannelId[]::new);
     this.targetActors = targetActors;
@@ -41,7 +51,7 @@ public class OutputCollector implements Collector<Record> {
             .map(actor -> actor instanceof PyActorHandle ? Language.PYTHON : Language.JAVA)
             .toArray(Language[]::new);
     this.partition = partition;
-    LOGGER.debug(
+    LOGGER.info(
         "OutputCollector constructed, outputChannelIds:{}, partition:{}.",
         outputChannelIds,
         this.partition);
@@ -49,6 +59,7 @@ public class OutputCollector implements Collector<Record> {
 
   @Override
   public void collect(Record record) {
+    LOGGER.info("Collect in output {}.", record);
     int[] partitions = this.partition.partition(record, outputQueues.length);
     ByteBuffer javaBuffer = null;
     ByteBuffer crossLangBuffer = null;
@@ -77,5 +88,15 @@ public class OutputCollector implements Collector<Record> {
         writer.write(outputQueues[partition], crossLangBuffer.duplicate());
       }
     }
+  }
+
+  @Override
+  public int getId() {
+    return collectorId;
+  }
+
+  @Override
+  public int getDownStreamOpId() {
+    return downStreamId;
   }
 }
