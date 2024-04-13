@@ -59,7 +59,7 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
   @Override
   public void open(List<Collector> collectorList, RuntimeContext runtimeContext) {
     // Dont' call super.open() as we `open` every operator separately.
-    LOG.info("chainedOperator open.");
+    LOG.info("ChainedOperator open.");
     for (int i = 0; i < operators.size(); i++) {
       StreamOperator operator = operators.get(i);
       List<Collector> succeedingCollectors = new ArrayList<>();
@@ -77,6 +77,14 @@ public abstract class ChainedOperator extends AbstractStreamOperator<Function> {
                                   (collector.getId() == operator.getId()
                                       && collector.getDownStreamOpId() == subOperator.getId()))
                           .collect(Collectors.toList()));
+                  // FIXME(lingxuan.zlx): Workaround for edge mismatch, see more detail from
+                  // https://github.com/ray-project/mobius/issues/67.
+                  if (succeedingCollectors.isEmpty()) {
+                    succeedingCollectors.addAll(
+                        collectorList.stream()
+                            .filter(x -> (x.getDownStreamOpId() == subOperator.getId()))
+                            .collect(Collectors.toList()));
+                  }
                 }
               });
       operator.open(succeedingCollectors, createRuntimeContext(runtimeContext, i));

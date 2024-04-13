@@ -59,7 +59,6 @@ public class OutputCollector implements Collector<Record> {
 
   @Override
   public void collect(Record record) {
-    LOGGER.info("Collect in output {}.", record);
     int[] partitions = this.partition.partition(record, outputQueues.length);
     ByteBuffer javaBuffer = null;
     ByteBuffer crossLangBuffer = null;

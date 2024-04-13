@@ -54,6 +54,7 @@ public abstract class AbstractStreamOperator<F extends Function> implements Stre
 
   @Override
   public void open(List<Collector> collectorList, RuntimeContext runtimeContext) {
+    LOG.info("Abstract {}, {} open : {}.", this.getId(), this.getName(), collectorList.size());
     this.collectorList = collectorList;
     this.runtimeContext = runtimeContext;
     if (runtimeContext != null && runtimeContext.getOpConfig() != null) {
