@@ -12,7 +12,6 @@ import pytest
 
 @ray.remote
 class Worker:
-
     def __init__(self):
         self.writer_client = _streaming.WriterClient()
         self.reader_client = _streaming.ReaderClient()
@@ -23,32 +22,36 @@ class Worker:
     def init_writer(self, output_channel, reader_actor):
         conf = {Config.CHANNEL_TYPE: Config.NATIVE_CHANNEL}
         reader_async_func = PythonFunctionDescriptor(
-            __name__, self.on_reader_message.__name__, self.__class__.__name__)
+            __name__, self.on_reader_message.__name__, self.__class__.__name__
+        )
         reader_sync_func = PythonFunctionDescriptor(
-            __name__, self.on_reader_message_sync.__name__,
-            self.__class__.__name__)
+            __name__, self.on_reader_message_sync.__name__, self.__class__.__name__
+        )
         transfer.ChannelCreationParametersBuilder.set_python_reader_function_descriptor(
-            reader_async_func, reader_sync_func)
-        self.writer = transfer.DataWriter([output_channel],
-                                          [pickle.loads(reader_actor)], conf)
+            reader_async_func, reader_sync_func
+        )
+        self.writer = transfer.DataWriter(
+            [output_channel], [pickle.loads(reader_actor)], conf
+        )
         self.output_channel_id = transfer.ChannelID(output_channel)
 
     def init_reader(self, input_channel, writer_actor):
         conf = {Config.CHANNEL_TYPE: Config.NATIVE_CHANNEL}
         writer_async_func = PythonFunctionDescriptor(
-            __name__, self.on_writer_message.__name__, self.__class__.__name__)
+            __name__, self.on_writer_message.__name__, self.__class__.__name__
+        )
         writer_sync_func = PythonFunctionDescriptor(
-            __name__, self.on_writer_message_sync.__name__,
-            self.__class__.__name__)
+            __name__, self.on_writer_message_sync.__name__, self.__class__.__name__
+        )
         transfer.ChannelCreationParametersBuilder.set_python_writer_function_descriptor(
-            writer_async_func, writer_sync_func)
-        self.reader = transfer.DataReader([input_channel],
-                                          [pickle.loads(writer_actor)], conf)
+            writer_async_func, writer_sync_func
+        )
+        self.reader = transfer.DataReader(
+            [input_channel], [pickle.loads(writer_actor)], conf
+        )
 
     def start_write(self, msg_nums):
-        self.t = threading.Thread(target=self.run_writer,
-                                  args=[msg_nums],
-                                  daemon=True)
+        self.t = threading.Thread(target=self.run_writer, args=[msg_nums], daemon=True)
         self.t.start()
 
     def run_writer(self, msg_nums):
@@ -57,9 +60,7 @@ class Worker:
         print("WriterWorker done.")
 
     def start_read(self, msg_nums):
-        self.t = threading.Thread(target=self.run_reader,
-                                  args=[msg_nums],
-                                  daemon=True)
+        self.t = threading.Thread(target=self.run_reader, args=[msg_nums], daemon=True)
         self.t.start()
 
     def run_reader(self, msg_nums):
