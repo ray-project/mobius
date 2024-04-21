@@ -113,8 +113,9 @@ function test_streaming_python()
     bazel build java:streaming_java_pkg
     python3 -m pytest "$script_dir"/python/raystreaming/tests/ > "$TMP_LOG_OUTPUT"/python-test/python-test.log 2>&1
     exit_code=$?
-    echo "Uploding output to remote file."
-    zip_and_upload_log "$TMP_LOG_OUTPUT"/python-test/ "${script_dir}/${ZIP_FILE}" "/${GITHUB_SHA}/${TIME}/${ZIP_FILE}"
+    echo "Running python test exit code : ${exit_code}"
+    echo "[Disabled] Uploding output to remote file."
+    #zip_and_upload_log "$TMP_LOG_OUTPUT"/python-test/ "${script_dir}/${ZIP_FILE}" "/${GITHUB_SHA}/${TIME}/${ZIP_FILE}"
     exit $exit_code
 
     popd || exit

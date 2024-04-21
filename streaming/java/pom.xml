@@ -56,6 +56,7 @@
 
   <properties>
     <java.version>1.8</java.version>
+    <java.new.version>11</java.new.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <ray.version>2.9.3</ray.version>
     <streaming.version>0.0.1</streaming.version>
@@ -127,6 +128,22 @@
             <testCompilerArgument>-parameters</testCompilerArgument>
           </configuration>
         </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.6.1</version>
+          <configuration>
+            <source>${java.new.version}</source>
+            <target>${java.new.version}</target>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <compilerArgs>
+              <arg>--add-modules=jdk.unsupported</arg>
+              <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
