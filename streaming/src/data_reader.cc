@@ -76,6 +76,11 @@ StreamingStatus DataReader::InitChannel(
 
   for (const auto &input_channel : unready_queue_ids_) {
     auto &channel_info = channel_info_map_[input_channel];
+    auto it = channel_map_.find(input_channel);
+    if (it != channel_map_.end()) {
+      STREAMING_LOG(INFO) << "Channel id " << input_channel << " has been initialized.";
+      continue;
+    }
     std::shared_ptr<ConsumerChannel> channel;
     if (runtime_context_->IsMockTest()) {
       channel = std::make_shared<MockConsumer>(transfer_config_, channel_info);
@@ -86,7 +91,8 @@ StreamingStatus DataReader::InitChannel(
     channel_map_.emplace(input_channel, channel);
     TransferCreationStatus status = channel->CreateTransferChannel();
     creation_status.push_back(status);
-    if (TransferCreationStatus::PullOk != status) {
+    if (TransferCreationStatus::DataLost == status ||
+        TransferCreationStatus::Timeout == status) {
       STREAMING_LOG(ERROR) << "Initialize queue failed, id=" << input_channel
                            << ", status=" << static_cast<uint32_t>(status);
     }

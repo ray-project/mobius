@@ -23,7 +23,7 @@ public class PythonPartitionFunction implements Partition<Object> {
   public static final PythonPartitionFunction KeyPartition =
       new PythonPartitionFunction("raystreaming.partition", "KeyPartition");
   public static final PythonPartitionFunction RoundRobinPartition =
-      new PythonPartitionFunction("raystreaming.partition", "RoundRobinPartitionFunction");
+      new PythonPartitionFunction("raystreaming.partition", "RoundRobinPartition");
   public static final String FORWARD_PARTITION_CLASS = "ForwardPartition";
   public static final PythonPartitionFunction ForwardPartition =
       new PythonPartitionFunction("raystreaming.partition", FORWARD_PARTITION_CLASS);

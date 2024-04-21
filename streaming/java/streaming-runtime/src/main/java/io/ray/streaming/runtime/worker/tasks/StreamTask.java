@@ -5,6 +5,7 @@ import io.ray.api.Ray;
 import io.ray.streaming.api.collector.Collector;
 import io.ray.streaming.api.context.RuntimeContext;
 import io.ray.streaming.api.partition.Partition;
+import io.ray.streaming.common.tuple.Tuple2;
 import io.ray.streaming.runtime.config.worker.WorkerInternalConfig;
 import io.ray.streaming.runtime.context.ContextBackend;
 import io.ray.streaming.runtime.core.checkpoint.OperatorCheckpointInfo;
@@ -190,8 +191,15 @@ public abstract class StreamTask implements Runnable {
     Map<String, List<String>> opGroupedChannelId = new HashMap<>();
     Map<String, List<BaseActorHandle>> opGroupedActor = new HashMap<>();
     Map<String, Partition> opPartitionMap = new HashMap<>();
+    Map<String, Tuple2<Integer, Integer>> opIdAndDownStreamIdMap = new HashMap<>();
     for (int i = 0; i < outputEdges.size(); ++i) {
       ExecutionEdge edge = outputEdges.get(i);
+      LOG.info(
+          "Upstream {} {}, downstream {} {}.",
+          edge.getSource().getExecutionVertexName(),
+          edge.getSource().getOperator().getId(),
+          edge.getTargetExecutionJobVertexName(),
+          edge.getTarget().getOperator().getId());
       String opName = edge.getTargetExecutionJobVertexName();
       if (!opPartitionMap.containsKey(opName)) {
         opGroupedChannelId.put(opName, new ArrayList<>());
@@ -202,6 +210,10 @@ public abstract class StreamTask implements Runnable {
           .get(opName)
           .add(new ArrayList<>(executionVertex.getChannelIdOutputActorMap().values()).get(i));
       opPartitionMap.put(opName, edge.getPartition());
+      opIdAndDownStreamIdMap.put(
+          opName,
+          Tuple2.of(
+              edge.getSource().getOperator().getId(), edge.getTarget().getOperator().getId()));
     }
     opPartitionMap
         .keySet()
@@ -209,6 +221,8 @@ public abstract class StreamTask implements Runnable {
             opName -> {
               collectors.add(
                   new OutputCollector(
+                      opIdAndDownStreamIdMap.get(opName).f0,
+                      opIdAndDownStreamIdMap.get(opName).f1,
                       writer,
                       opGroupedChannelId.get(opName),
                       opGroupedActor.get(opName),
@@ -217,7 +231,10 @@ public abstract class StreamTask implements Runnable {
 
     RuntimeContext runtimeContext =
         new StreamingTaskRuntimeContext(executionVertex, lastCheckpointId);
-
+    for (Collector collector : collectors) {
+      LOG.info(
+          "Collector id {}, downstream id {}.", collector.getId(), collector.getDownStreamOpId());
+    }
     processor.open(collectors, runtimeContext);
   }
 

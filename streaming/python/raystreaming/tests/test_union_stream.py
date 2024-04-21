@@ -2,7 +2,7 @@ import os
 import sys
 
 import ray
-from ray.streaming import StreamingContext
+from raystreaming import StreamingContext
 
 
 def test_union_stream():

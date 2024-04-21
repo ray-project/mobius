@@ -56,6 +56,7 @@ public class StreamingContext implements Serializable {
   public void execute(String jobName) {
     JobGraphBuilder jobGraphBuilder = new JobGraphBuilder(this.streamSinks, jobName);
     JobGraph originalJobGraph = jobGraphBuilder.build();
+    originalJobGraph.printJobGraph();
     this.jobGraph = new JobGraphOptimizer(originalJobGraph).optimize();
     jobGraph.printJobGraph();
     LOG.info("JobGraph digraph\n{}", jobGraph.generateDigraph());

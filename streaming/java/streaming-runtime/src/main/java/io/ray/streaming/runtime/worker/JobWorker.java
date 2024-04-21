@@ -58,7 +58,7 @@ public class JobWorker implements Serializable {
   private static final byte[] NOT_READY_FLAG = new byte[4];
 
   static {
-    EnvUtil.loadNativeLibraries();
+    // EnvUtil.loadNativeLibraries();
   }
 
   /** JobWorker runtime context state. Used for creating stateful operator like reduce operator. */

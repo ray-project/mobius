@@ -25,8 +25,9 @@ public class RoundRobinPartitionFunction<T> implements Partition<T> {
 
   @Override
   public int[] partition(T record, int numPartition) {
-    // TODO
-    return new int[0];
+    seq = (seq + 1) % numPartition;
+    partitions[0] = seq;
+    return partitions;
   }
 
   @Override

@@ -1,7 +1,6 @@
 package io.ray.streaming.runtime.transfer;
 
-import io.ray.runtime.util.BinaryFileUtil;
-import io.ray.runtime.util.JniUtils;
+import io.ray.streaming.common.utils.JniUtils;
 
 /**
  * TransferHandler is used for handle direct call based data transfer between workers.
@@ -10,8 +9,8 @@ import io.ray.runtime.util.JniUtils;
 public class TransferHandler {
 
   static {
-    JniUtils.loadLibrary(BinaryFileUtil.CORE_WORKER_JAVA_LIBRARY, true);
-    io.ray.streaming.common.utils.JniUtils.loadLibrary("streaming_java");
+    JniUtils.loadLibrary(io.ray.runtime.util.BinaryFileUtil.CORE_WORKER_JAVA_LIBRARY, true);
+    JniUtils.loadLibrary("streaming_java");
   }
 
   private long writerClientNative;

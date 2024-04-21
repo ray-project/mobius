@@ -1,7 +1,7 @@
-from ray.streaming import function
-from ray.streaming import operator
-from ray.streaming.operator import OperatorType
-from ray.streaming.runtime import gateway_client
+from raystreaming import function
+from raystreaming import operator
+from raystreaming.operator import OperatorType
+from raystreaming.runtime import gateway_client
 
 
 def test_create_operator_with_func():

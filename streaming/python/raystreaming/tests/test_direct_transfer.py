@@ -3,10 +3,10 @@ import threading
 import time
 
 import ray
-import ray.streaming._streaming as _streaming
-import ray.streaming.runtime.transfer as transfer
+from raystreaming import _streaming
+import raystreaming.runtime.transfer as transfer
 from ray._raylet import PythonFunctionDescriptor
-from ray.streaming.config import Config
+from raystreaming.config import Config
 import pytest
 
 
@@ -102,7 +102,7 @@ class Worker:
         return result.to_pybytes()
 
 
-@pytest.mark.skip(reason="Waitting to fix")
+# @pytest.mark.skip(reason="Waitting to fix")
 def test_queue():
     ray.init()
     writer = Worker._remote()

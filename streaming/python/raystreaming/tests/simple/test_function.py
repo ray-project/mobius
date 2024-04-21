@@ -1,5 +1,5 @@
-from ray.streaming import function
-from ray.streaming.runtime import gateway_client
+from raystreaming import function
+from raystreaming.runtime import gateway_client
 
 
 def test_get_simple_function_class():

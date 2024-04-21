@@ -5,7 +5,7 @@ from typing import List
 
 import ray
 import pytest
-from ray.streaming import StreamingContext
+from raystreaming import StreamingContext
 
 
 @pytest.mark.skip(reason="Current log output in console, we can not capture from logs")

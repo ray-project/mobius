@@ -165,6 +165,7 @@ Build
 ----------------
 
 Build from source code :
+
 - Build a docker using docker/Dockerfile-env
 - Execute `scripts/install.sh`
 
