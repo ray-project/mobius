@@ -5,8 +5,10 @@ import time
 
 import ray
 import wikipedia
-from ray.streaming import StreamingContext
-from ray.streaming.config import Config
+
+# from ray.streaming import StreamingContext
+from raystreaming import StreamingContext
+from raystreaming.config import Config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -75,7 +77,7 @@ if __name__ == "__main__":
         .build()
     )
     # A Ray streaming environment with the default configuration
-    ctx.set_parallelism(1)  # Each operator will be executed by two actors
+    # ctx.set_parallelism(1)  # Each operator will be executed by two actors
 
     # Reads articles from wikipedia, splits them in words,
     # shuffles words, and counts the occurrences of each word.

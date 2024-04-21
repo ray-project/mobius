@@ -23,23 +23,19 @@ def sink_func1(x):
 
 
 def test_hybrid_stream():
-    subprocess.check_call(
-        [
-            "bazel",
-            "build",
-            "@com_github_ray_streaming//java:all_streaming_tests_deploy.jar",
-        ]
-    )
+    subprocess.check_call([
+        "bazel",
+        "build",
+        "@com_github_ray_streaming//java:all_streaming_tests_deploy.jar",
+    ])
     current_dir = os.path.abspath(os.path.dirname(__file__))
     jar_path = os.path.join(
-        current_dir, "../../../bazel-bin/java/all_streaming_tests_deploy.jar"
-    )
+        current_dir, "../../../bazel-bin/java/all_streaming_tests_deploy.jar")
     jar_path = os.path.abspath(jar_path)
     print("jar_path", jar_path)
     assert not ray.is_initialized()
-    ray.init(
-        job_config=ray.job_config.JobConfig(code_search_path=sys.path + [jar_path])
-    )
+    ray.init(job_config=ray.job_config.JobConfig(code_search_path=sys.path +
+                                                 [jar_path]))
 
     sink_file = "/tmp/ray_streaming_test_hybrid_stream.txt"
     if os.path.exists(sink_file):
@@ -53,12 +49,9 @@ def test_hybrid_stream():
 
     ctx = StreamingContext.Builder().build()
     ctx.from_values("a", "b", "c").as_java_stream().map(
-        "io.ray.streaming.runtime.demo.HybridStreamTest$Mapper1"
-    ).filter(
-        "io.ray.streaming.runtime.demo.HybridStreamTest$Filter1"
-    ).as_python_stream().sink(
-        sink_func
-    )
+        "io.ray.streaming.runtime.demo.HybridStreamTest$Mapper1").filter(
+            "io.ray.streaming.runtime.demo.HybridStreamTest$Filter1"
+        ).as_python_stream().sink(sink_func)
     ctx.submit("HybridStreamTest")
 
     def check_succeed():

@@ -2,12 +2,13 @@ import os
 import sys
 
 import ray
-from ray.streaming import StreamingContext
+from raystreaming import StreamingContext
 
 
 def test_union_stream():
     ray.init(job_config=ray.job_config.JobConfig(code_search_path=sys.path))
-    ctx = StreamingContext.Builder().option("streaming.metrics.reporters", "").build()
+    ctx = StreamingContext.Builder().option("streaming.metrics.reporters",
+                                            "").build()
     sink_file = "/tmp/test_union_stream.txt"
     if os.path.exists(sink_file):
         os.remove(sink_file)
