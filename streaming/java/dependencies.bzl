@@ -28,13 +28,13 @@ def gen_streaming_java_deps():
             maven.artifact(
                 group = "io.ray",
                 artifact = "ray-api",
-                version = "2.9.3",
+                version = "2.11.0",
                 neverlink = True
             ),
             maven.artifact(
                 group = "io.ray",
                 artifact = "ray-runtime",
-                version = "2.9.3",
+                version = "2.11.0",
                 neverlink = True
             ),
             maven.artifact(
