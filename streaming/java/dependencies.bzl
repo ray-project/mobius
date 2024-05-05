@@ -29,13 +29,13 @@ def gen_streaming_java_deps():
                 group = "io.ray",
                 artifact = "ray-api",
                 version = "2.11.0",
-                neverlink = True
+                neverlink = True,
             ),
             maven.artifact(
                 group = "io.ray",
                 artifact = "ray-runtime",
                 version = "2.11.0",
-                neverlink = True
+                neverlink = True,
             ),
             maven.artifact(
                 group = "org.apache.arrow",
@@ -44,15 +44,19 @@ def gen_streaming_java_deps():
                 exclusions = [
                     "io.netty:netty-buffer",
                     "io.netty:netty-common",
-                ]
+                ],
             ),
             maven.artifact(
                 group = "de.ruedigermoeller",
                 artifact = "fst",
                 version = "2.56",
                 exclusions = [
+                    maven.exclusion(
+                        group = "com.fasterxml.jackson.core",
+                        artifact = "jackson-core",
+                    ),
                     "com.fasterxml.jackson.core:jackson-core",
-                ]
+                ],
             ),
         ],
         repositories = [
