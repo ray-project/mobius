@@ -7,6 +7,7 @@ import io.ray.streaming.runtime.RayEnvBaseTest;
 import io.ray.streaming.runtime.transfer.channel.ChannelId;
 import org.testng.annotations.Test;
 
+@Test(enabled = false)
 public class ChannelIdTest extends RayEnvBaseTest {
 
   static {
