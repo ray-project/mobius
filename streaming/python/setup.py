@@ -26,7 +26,7 @@ for cmd in update_bazel_build_cmd:
 # Package raystreaming
 setup(
     name="raystreaming",
-    version="0.0.1",
+    version="0.1.0",
     author="Ray Streaming Team",
     description="streaming module",
     packages=find_packages(),
